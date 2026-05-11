@@ -118,10 +118,29 @@ nav { position: fixed; top:0; left:0; right:0; z-index:100; display:flex; justif
 .fade-up { opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
 .fade-up.visible { opacity:1; transform:translateY(0); }
 
+/* MOBILE NAV */
+.nav-menu-btn { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:6px 4px; z-index:201; }
+.nav-menu-btn span { display:block; width:22px; height:1px; background:var(--white); transition:transform .3s, opacity .3s; }
+.nav-menu-btn.open span:nth-child(1) { transform:translateY(6px) rotate(45deg); }
+.nav-menu-btn.open span:nth-child(2) { opacity:0; }
+.nav-menu-btn.open span:nth-child(3) { transform:translateY(-6px) rotate(-45deg); }
+.mobile-nav { display:none; position:fixed; inset:0; background:rgba(8,8,8,.97); z-index:200; flex-direction:column; justify-content:center; align-items:center; backdrop-filter:blur(20px); }
+.mobile-nav.open { display:flex; }
+.mobile-nav-links { list-style:none; text-align:center; width:100%; }
+.mobile-nav-links li { border-bottom:1px solid var(--border); }
+.mobile-nav-links li:first-child { border-top:1px solid var(--border); }
+.mobile-nav-links a { display:block; font-family:var(--font-display); font-size:clamp(36px,10vw,56px); letter-spacing:.06em; color:var(--white); text-decoration:none; padding:18px 48px; transition:color .2s; }
+.mobile-nav-links a:hover { color:var(--gold); }
+.mobile-nav-cta { margin-top:40px; font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--gold); text-decoration:none; border:1px solid var(--border); padding:12px 28px; border-radius:2px; transition:all .25s; }
+
+@media (hover: none) { .cursor, .cursor-ring { display:none; } body { cursor:auto; } }
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   nav { padding: 16px 24px; }
   .nav-links { display: none; }
+  .nav-back { display: none; }
+  .nav-menu-btn { display: flex; }
   .page-header { padding: 120px 24px 48px; }
   .filter-bar { padding: 0 24px; }
   .articles-wrap { padding: 0 24px 80px; }
@@ -129,6 +148,13 @@ nav { position: fixed; top:0; left:0; right:0; z-index:100; display:flex; justif
   .afc-left { border-right: none; border-bottom: 1px solid var(--border); }
   .article-row { grid-template-columns: 48px 1fr 24px; gap: 16px; }
   .ar-meta { display: none; }
+}
+@media (max-width: 480px) {
+  .page-title { font-size: clamp(44px, 16vw, 80px); }
+  .afc-left { padding: 24px 20px; }
+  .afc-right { padding: 24px 20px; }
+  .article-row { padding: 20px 0; }
+  .ar-excerpt { display: none; }
 }
 </style>
 </head>
@@ -145,7 +171,20 @@ nav { position: fixed; top:0; left:0; right:0; z-index:100; display:flex; justif
     <li><a href="index.html#contact">contact</a></li>
   </ul>
   <a href="index.html" class="nav-back">← HOME</a>
+  <button class="nav-menu-btn" id="menuBtn" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <ul class="mobile-nav-links">
+    <li><a href="index.html#about" class="mobile-link">ABOUT</a></li>
+    <li><a href="index.html#projects" class="mobile-link">VENTURES</a></li>
+    <li><a href="writing.html" class="mobile-link">WRITING</a></li>
+    <li><a href="index.html#contact" class="mobile-link">CONNECT</a></li>
+  </ul>
+  <a href="index.html" class="mobile-nav-cta mobile-link">← HOME</a>
+</div>
 
 <div class="page-header">
   <div class="page-header-bg">W</div>
@@ -310,6 +349,22 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
         row.style.display = 'none';
       }
     });
+  });
+});
+
+// Mobile nav
+const menuBtn = document.getElementById('menuBtn');
+const mobileNav = document.getElementById('mobileNav');
+menuBtn.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  menuBtn.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+document.querySelectorAll('.mobile-link').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileNav.classList.remove('open');
+    menuBtn.classList.remove('open');
+    document.body.style.overflow = '';
   });
 });
 </script>

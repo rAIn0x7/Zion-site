@@ -202,10 +202,29 @@ footer { border-top:1px solid var(--border); padding:28px 48px; display:flex; ju
 .footer-logo span { color:var(--gold); }
 .footer-copy { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; color:var(--dim); }
 
+/* MOBILE NAV */
+.nav-menu-btn { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:pointer; padding:6px 4px; z-index:201; }
+.nav-menu-btn span { display:block; width:22px; height:1px; background:var(--white); transition:transform .3s, opacity .3s; }
+.nav-menu-btn.open span:nth-child(1) { transform:translateY(6px) rotate(45deg); }
+.nav-menu-btn.open span:nth-child(2) { opacity:0; }
+.nav-menu-btn.open span:nth-child(3) { transform:translateY(-6px) rotate(-45deg); }
+.mobile-nav { display:none; position:fixed; inset:0; background:rgba(8,8,8,.97); z-index:200; flex-direction:column; justify-content:center; align-items:center; backdrop-filter:blur(20px); }
+.mobile-nav.open { display:flex; }
+.mobile-nav-links { list-style:none; text-align:center; width:100%; }
+.mobile-nav-links li { border-bottom:1px solid var(--border); }
+.mobile-nav-links li:first-child { border-top:1px solid var(--border); }
+.mobile-nav-links a { display:block; font-family:var(--font-display); font-size:clamp(36px,10vw,56px); letter-spacing:.06em; color:var(--white); text-decoration:none; padding:18px 48px; transition:color .2s; }
+.mobile-nav-links a:hover { color:var(--gold); }
+.mobile-nav-cta { margin-top:40px; font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--gold); text-decoration:none; border:1px solid var(--border); padding:12px 28px; border-radius:2px; transition:all .25s; }
+
+@media (hover: none) { .cursor, .cursor-ring { display:none; } body { cursor:auto; } }
+
 /* RESPONSIVE */
 @media (max-width: 900px) {
   nav { padding: 16px 24px; }
   .nav-center { display: none; }
+  .nav-back { display: none; }
+  .nav-menu-btn { display: flex; }
   .post-hero { padding: 110px 24px 48px; }
   .post-layout { grid-template-columns: 1fr; }
   .post-content { padding: 40px 24px 60px; border-right: none; }
@@ -213,6 +232,16 @@ footer { border-top:1px solid var(--border); padding:28px 48px; display:flex; ju
   .post-sidebar { display: none; }
   .post-end { grid-template-columns: 1fr; padding: 48px 24px; }
   footer { padding: 20px 24px; }
+}
+@media (max-width: 480px) {
+  .post-title { font-size: clamp(28px, 8vw, 44px); }
+  .post-subtitle { font-size: 16px; }
+  .post-content { padding: 28px 16px 48px; }
+  .post-body h2 { font-size: 26px; }
+  .post-body blockquote p { font-size: 18px; }
+  .highlight-box { padding: 20px; }
+  .post-end { padding: 36px 16px; }
+  footer { padding: 20px 16px; flex-wrap: wrap; gap: 12px; justify-content: center; }
 }
 </style>
 </head>
@@ -226,7 +255,20 @@ footer { border-top:1px solid var(--border); padding:28px 48px; display:flex; ju
   <a href="index.html" class="nav-logo">ZI<span>O</span>N</a>
   <span class="nav-center">WRITING</span>
   <a href="writing.html" class="nav-back">← ALL ESSAYS</a>
+  <button class="nav-menu-btn" id="menuBtn" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <ul class="mobile-nav-links">
+    <li><a href="index.html#about" class="mobile-link">ABOUT</a></li>
+    <li><a href="index.html#projects" class="mobile-link">VENTURES</a></li>
+    <li><a href="writing.html" class="mobile-link">WRITING</a></li>
+    <li><a href="index.html#contact" class="mobile-link">CONNECT</a></li>
+  </ul>
+  <a href="writing.html" class="mobile-nav-cta mobile-link">← ALL ESSAYS</a>
+</div>
 
 <div class="post-hero">
   <div class="post-breadcrumb">
@@ -392,6 +434,22 @@ const observer = new IntersectionObserver(entries => {
   });
 }, { rootMargin: '-20% 0px -70% 0px' });
 sections.forEach(s => observer.observe(s));
+
+// Mobile nav
+const menuBtn = document.getElementById('menuBtn');
+const mobileNav = document.getElementById('mobileNav');
+menuBtn.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  menuBtn.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+document.querySelectorAll('.mobile-link').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileNav.classList.remove('open');
+    menuBtn.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
 </script>
 </body>
 </html>

@@ -880,22 +880,129 @@ footer {
 .fade-up-d3 { transition-delay: .3s; }
 .fade-up-d4 { transition-delay: .4s; }
 
-/* ── RESPONSIVE ── */
+/* ── MOBILE NAV ── */
+.nav-menu-btn {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px 4px;
+  z-index: 201;
+}
+.nav-menu-btn span {
+  display: block;
+  width: 22px;
+  height: 1px;
+  background: var(--white);
+  transition: transform .3s, opacity .3s;
+}
+.nav-menu-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+.nav-menu-btn.open span:nth-child(2) { opacity: 0; }
+.nav-menu-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+.mobile-nav {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(8,8,8,.97);
+  z-index: 200;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  backdrop-filter: blur(20px);
+}
+.mobile-nav.open { display: flex; }
+.mobile-nav-links {
+  list-style: none;
+  text-align: center;
+  width: 100%;
+}
+.mobile-nav-links li { border-bottom: 1px solid var(--border); }
+.mobile-nav-links li:first-child { border-top: 1px solid var(--border); }
+.mobile-nav-links a {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(36px, 10vw, 56px);
+  letter-spacing: .06em;
+  color: var(--white);
+  text-decoration: none;
+  padding: 18px 48px;
+  transition: color .2s;
+}
+.mobile-nav-links a:hover { color: var(--gold); }
+.mobile-nav-cta {
+  margin-top: 40px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--gold);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 12px 28px;
+  border-radius: 2px;
+  transition: all .25s;
+}
+.mobile-nav-cta:hover { background: var(--gold); color: var(--black); }
+
+/* ── TOUCH: hide custom cursor ── */
+@media (hover: none) {
+  .cursor, .cursor-ring { display: none; }
+  body { cursor: auto; }
+}
+
+/* ── RESPONSIVE 900px ── */
 @media (max-width: 900px) {
   nav { padding: 16px 24px; }
   .nav-links { display: none; }
+  .nav-cta { display: none; }
+  .nav-menu-btn { display: flex; }
+
   #hero { padding: 0 24px 60px; }
   .hero-title { font-size: clamp(56px, 15vw, 100px); }
   .hero-bottom { flex-direction: column; align-items: flex-start; gap: 32px; }
   .hero-stats { gap: 32px; }
+  .scroll-indicator { right: 24px; }
+
   #about { grid-template-columns: 1fr; gap: 48px; padding: 80px 24px; }
+
   #projects { padding: 80px 24px; }
   .projects-grid { grid-template-columns: 1fr; }
   .project-card.featured { grid-column: span 1; grid-template-columns: 1fr; gap: 32px; }
+  .project-visual { display: none; }
+
   #writing { padding: 80px 24px; }
   .writing-grid { grid-template-columns: 1fr; }
+
   #contact { grid-template-columns: 1fr; padding: 80px 24px; gap: 48px; }
-  footer { padding: 20px 24px; flex-wrap: wrap; gap: 16px; }
+
+  footer { padding: 20px 24px; flex-wrap: wrap; gap: 12px; }
+  .footer-copy { width: 100%; text-align: center; order: 3; }
+  .footer-right { justify-content: center; flex: 1; }
+}
+
+/* ── RESPONSIVE 480px ── */
+@media (max-width: 480px) {
+  .hero-title { font-size: clamp(44px, 18vw, 72px); }
+  .hero-eyebrow span { font-size: 9px; letter-spacing: .14em; }
+  .stat-num { font-size: 32px; }
+
+  .section-title { font-size: 36px; }
+  .manifesto { font-size: clamp(22px, 6vw, 32px); }
+
+  .project-card { padding: 28px 20px; }
+  .project-name { font-size: 32px; }
+  .project-small-card .project-name { font-size: 28px; }
+
+  .writing-featured { padding: 28px 20px; }
+  .writing-list-item { padding: 18px 40px 18px 16px; }
+
+  .contact-title { font-size: clamp(44px, 14vw, 72px); }
+  .contact-right { padding: 28px 20px; }
+
+  footer { flex-direction: column; align-items: center; text-align: center; }
+  .footer-right { gap: 16px; }
 }
 </style>
 </head>
@@ -915,7 +1022,21 @@ footer {
     <li><a href="#contact">contact</a></li>
   </ul>
   <a href="#contact" class="nav-cta">CONNECT →</a>
+  <button class="nav-menu-btn" id="menuBtn" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<!-- MOBILE NAV OVERLAY -->
+<div class="mobile-nav" id="mobileNav">
+  <ul class="mobile-nav-links">
+    <li><a href="#about" class="mobile-link">ABOUT</a></li>
+    <li><a href="#projects" class="mobile-link">VENTURES</a></li>
+    <li><a href="#writing" class="mobile-link">WRITING</a></li>
+    <li><a href="#contact" class="mobile-link">CONNECT</a></li>
+  </ul>
+  <a href="#contact" class="mobile-nav-cta mobile-link">CONNECT →</a>
+</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -1201,12 +1322,12 @@ footer {
         </div>
         <span class="cl-arrow">→</span>
       </a>
-      <a href="#" class="contact-link">
+      <a href="#" class="contact-link wechat-link" id="wechatBtn">
         <div>
           <div class="cl-label">WECHAT</div>
-          <div class="cl-value">Add me on WeChat</div>
+          <div class="cl-value">qzh102347856</div>
         </div>
-        <span class="cl-arrow">→</span>
+        <span class="cl-arrow" id="wechatArrow">⊕</span>
       </a>
     </div>
   </div>
@@ -1251,7 +1372,7 @@ footer {
 </footer>
 
 <script>
-// Custom cursor
+// Custom cursor (desktop only)
 const cursor = document.getElementById('cursor');
 const ring = document.getElementById('cursorRing');
 let mx = 0, my = 0, rx = 0, ry = 0;
@@ -1273,10 +1394,43 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-// Nav active state
+// Nav scroll state
 window.addEventListener('scroll', () => {
   const nav = document.querySelector('nav');
   nav.style.background = window.scrollY > 60 ? 'rgba(8,8,8,.95)' : 'rgba(8,8,8,.7)';
+});
+
+// Mobile nav toggle
+const menuBtn = document.getElementById('menuBtn');
+const mobileNav = document.getElementById('mobileNav');
+menuBtn.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  menuBtn.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+document.querySelectorAll('.mobile-link').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileNav.classList.remove('open');
+    menuBtn.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+
+// WeChat ID copy
+const wechatBtn = document.getElementById('wechatBtn');
+const wechatArrow = document.getElementById('wechatArrow');
+wechatBtn.addEventListener('click', e => {
+  e.preventDefault();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText('qzh102347856').then(() => {
+      wechatArrow.textContent = '✓';
+      wechatBtn.querySelector('.cl-value').textContent = 'Copied!';
+      setTimeout(() => {
+        wechatArrow.textContent = '⊕';
+        wechatBtn.querySelector('.cl-value').textContent = 'qzh102347856';
+      }, 2000);
+    });
+  }
 });
 </script>
 </body>
