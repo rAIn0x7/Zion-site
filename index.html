@@ -232,7 +232,7 @@ nav {
   max-width: 380px;
 }
 .hero-bio p {
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 8px;
@@ -382,7 +382,7 @@ section {
   color: var(--gold);
 }
 .manifesto-sub {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.9;
   color: var(--muted);
   max-width: 420px;
@@ -423,7 +423,7 @@ section {
   letter-spacing: .02em;
 }
 .value-desc {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--muted);
   line-height: 1.7;
 }
@@ -463,10 +463,6 @@ section {
 
 .project-card.featured {
   grid-column: span 2;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 60px;
-  align-items: center;
 }
 .project-card.featured::before {
   background: radial-gradient(ellipse at center left, rgba(201,168,76,.08) 0%, transparent 60%);
@@ -522,7 +518,7 @@ section {
   line-height: 1.4;
 }
 .project-desc {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 32px;
@@ -632,7 +628,7 @@ section {
 }
 .writing-featured-title em { font-style: italic; color: var(--gold); }
 .writing-featured-excerpt {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 32px;
@@ -731,7 +727,7 @@ section {
 }
 .contact-title .gold { color: var(--gold); }
 .contact-sub {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 40px;
@@ -959,23 +955,24 @@ footer {
   .nav-cta { display: none; }
   .nav-menu-btn { display: flex; }
 
-  #hero { padding: 0 24px 60px; }
-  .hero-title { font-size: clamp(56px, 15vw, 100px); }
-  .hero-bottom { flex-direction: column; align-items: flex-start; gap: 32px; }
+  /* Hero: 去掉 100vh 留白，内容从顶部开始排 */
+  #hero { min-height: auto; padding: 100px 24px 56px; justify-content: flex-start; }
+  .hero-bg-number { display: none; }
+  .scroll-indicator { display: none; }
+  .hero-title { font-size: clamp(52px, 14vw, 96px); }
+  .hero-bottom { flex-direction: column; align-items: flex-start; gap: 28px; margin-top: 36px; }
   .hero-stats { gap: 32px; }
-  .scroll-indicator { right: 24px; }
 
-  #about { grid-template-columns: 1fr; gap: 48px; padding: 80px 24px; }
+  #about { grid-template-columns: 1fr; gap: 40px; padding: 72px 24px; }
 
-  #projects { padding: 80px 24px; }
+  #projects { padding: 72px 24px; }
   .projects-grid { grid-template-columns: 1fr; }
-  .project-card.featured { grid-column: span 1; grid-template-columns: 1fr; gap: 32px; }
-  .project-visual { display: none; }
+  .project-card.featured { grid-column: span 1; }
 
-  #writing { padding: 80px 24px; }
+  #writing { padding: 72px 24px; }
   .writing-grid { grid-template-columns: 1fr; }
 
-  #contact { grid-template-columns: 1fr; padding: 80px 24px; gap: 48px; }
+  #contact { grid-template-columns: 1fr; padding: 72px 24px; gap: 40px; }
 
   footer { padding: 20px 24px; flex-wrap: wrap; gap: 12px; }
   .footer-copy { width: 100%; text-align: center; order: 3; }
@@ -984,24 +981,30 @@ footer {
 
 /* ── RESPONSIVE 480px ── */
 @media (max-width: 480px) {
-  .hero-title { font-size: clamp(44px, 18vw, 72px); }
-  .hero-eyebrow span { font-size: 9px; letter-spacing: .14em; }
+  #hero { padding: 88px 20px 48px; }
+  .hero-title { font-size: clamp(44px, 17vw, 72px); }
+  .hero-eyebrow span { font-size: 9px; letter-spacing: .12em; }
+  .hero-bio p { font-size: 15px; }
   .stat-num { font-size: 32px; }
 
-  .section-title { font-size: 36px; }
+  #about { padding: 56px 20px; }
+  .section-title { font-size: 34px; }
   .manifesto { font-size: clamp(22px, 6vw, 32px); }
 
+  #projects { padding: 56px 20px; }
   .project-card { padding: 28px 20px; }
-  .project-name { font-size: 32px; }
+  .project-name { font-size: 34px; }
   .project-small-card .project-name { font-size: 28px; }
 
+  #writing { padding: 56px 20px; }
   .writing-featured { padding: 28px 20px; }
-  .writing-list-item { padding: 18px 40px 18px 16px; }
+  .writing-list-item { padding: 18px 36px 18px 16px; }
 
-  .contact-title { font-size: clamp(44px, 14vw, 72px); }
+  #contact { padding: 56px 20px; }
+  .contact-title { font-size: clamp(40px, 13vw, 68px); }
   .contact-right { padding: 28px 20px; }
 
-  footer { flex-direction: column; align-items: center; text-align: center; }
+  footer { flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 20px; }
   .footer-right { gap: 16px; }
 }
 </style>
@@ -1086,14 +1089,14 @@ footer {
     <div class="marquee-item"><div class="marquee-dot"></div><span>Wealth Through Technology</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>用技术创造财富</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>Building in Public</span></div>
-    <div class="marquee-item"><div class="marquee-dot"></div><span>2025</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>2026</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>AI Native Builder</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>VibeCoding</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>qizh.space</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>Wealth Through Technology</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>用技术创造财富</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>Building in Public</span></div>
-    <div class="marquee-item"><div class="marquee-dot"></div><span>2025</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>2026</span></div>
   </div>
 </div>
 
@@ -1138,13 +1141,6 @@ footer {
           <div class="value-desc">Good ideas need good execution. Good execution needs capital. I connect all three.</div>
         </div>
       </div>
-      <div class="value-item">
-        <span class="value-icon">[ 04 ]</span>
-        <div class="value-content">
-          <div class="value-name">Long-term Thinking</div>
-          <div class="value-desc">每个产品都是一个赌注，赌的是未来5年人们的行为方式。我只押长期赌注。</div>
-        </div>
-      </div>
     </div>
   </div>
 </section>
@@ -1165,7 +1161,7 @@ footer {
           <div class="status-dot"></div>
           <span class="status-text">ACTIVE · BUILDING</span>
         </div>
-        <div class="project-tag">AI · DEVELOPER TOOLS · 2025</div>
+        <div class="project-tag">AI · DEVELOPER TOOLS · 2026</div>
         <div class="project-name">Vibe<span class="gold">Coding</span></div>
         <p class="project-tagline">Code the way you think. Ship the way you dream.</p>
         <p class="project-desc">
@@ -1182,30 +1178,8 @@ footer {
             <div class="metric-label">STAGE</div>
           </div>
           <div class="metric">
-            <div class="metric-val">2025</div>
+            <div class="metric-val">2026</div>
             <div class="metric-label">FOUNDED</div>
-          </div>
-        </div>
-      </div>
-      <div class="project-visual">
-        <div class="code-window">
-          <div class="code-titlebar">
-            <div class="code-dot cd-r"></div>
-            <div class="code-dot cd-y"></div>
-            <div class="code-dot cd-g"></div>
-          </div>
-          <div class="code-body">
-            <span class="code-line"><span class="c-cm">// VibeCoding — build with intention</span></span>
-            <span class="code-line"></span>
-            <span class="code-line"><span class="c-kw">const</span> <span class="c-fn">idea</span> = <span class="c-str">"change the world"</span>;</span>
-            <span class="code-line"><span class="c-kw">const</span> <span class="c-fn">tools</span> = [<span class="c-str">"AI"</span>, <span class="c-str">"code"</span>, <span class="c-str">"vibe"</span>];</span>
-            <span class="code-line"></span>
-            <span class="code-line"><span class="c-kw">async function</span> <span class="c-fn">build</span>(idea) {</span>
-            <span class="code-line">  <span class="c-kw">const</span> product = <span class="c-kw">await</span> <span class="c-fn">ship</span>(idea);</span>
-            <span class="code-line">  <span class="c-kw">return</span> product.<span class="c-fn">createWealth</span>();</span>
-            <span class="code-line">}</span>
-            <span class="code-line"></span>
-            <span class="code-line"><span class="c-fn">build</span>(idea); <span class="c-cm">// 🚀</span></span>
           </div>
         </div>
       </div>
@@ -1245,7 +1219,7 @@ footer {
 
   <div class="writing-grid fade-up">
     <div class="writing-featured">
-      <div class="writing-featured-tag">FEATURED ESSAY · 2025</div>
+      <div class="writing-featured-tag">FEATURED ESSAY · 2026</div>
       <h3 class="writing-featured-title">
         为什么 Vibe Coding 是<br>
         <em>这个时代最重要的技能</em>
@@ -1254,7 +1228,7 @@ footer {
         当 AI 把编程的门槛降到接近零，真正稀缺的不再是技术能力，而是想象力、品味和执行力。Vibe Coding 不是偷懒，它是一种新的创造方式——用直觉和意图引导 AI，把脑海中的愿景变成现实产品…
       </p>
       <div class="writing-meta">
-        <span class="writing-date">MAY 2025 · 8 MIN READ</span>
+        <span class="writing-date">MAY 2026 · 8 MIN READ</span>
         <a href="#" class="read-link">READ MORE →</a>
       </div>
     </div>
@@ -1262,29 +1236,23 @@ footer {
     <div class="writing-list">
       <a href="#" class="writing-list-item">
         <div class="wli-cat">WEALTH · TECH</div>
-        <div class="wli-title">The AI Wealth Stack: How to Build Leverage in 2025</div>
-        <div class="wli-meta">APR 2025 · 6 MIN</div>
+        <div class="wli-title">The AI Wealth Stack: How to Build Leverage in 2026</div>
+        <div class="wli-meta">APR 2026 · 6 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="#" class="writing-list-item">
         <div class="wli-cat">STARTUP · BUILDING</div>
         <div class="wli-title">从0到1：我如何在30天内验证一个创业想法</div>
-        <div class="wli-meta">MAR 2025 · 5 MIN</div>
+        <div class="wli-meta">MAR 2026 · 5 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="#" class="writing-list-item">
         <div class="wli-cat">AI · PRODUCT</div>
         <div class="wli-title">Why I Only Build AI-Native Products Now</div>
-        <div class="wli-meta">FEB 2025 · 4 MIN</div>
+        <div class="wli-meta">FEB 2026 · 4 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
-      <a href="#" class="writing-list-item">
-        <div class="wli-cat">MINDSET · GROWTH</div>
-        <div class="wli-title">技术人如何构建个人IP：一个builder的实践指南</div>
-        <div class="wli-meta">JAN 2025 · 7 MIN</div>
-        <span class="wli-arrow">→</span>
-      </a>
-      <a href="#" class="writing-list-item" style="border-bottom:none;">
+      <a href="writing.html" class="writing-list-item" style="border-bottom:none;">
         <div class="wli-cat">ALL ESSAYS →</div>
         <div class="wli-title" style="color:var(--gold)">View all writing</div>
         <div class="wli-meta">ARCHIVE</div>
@@ -1362,7 +1330,7 @@ footer {
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">ZI<span>O</span>N</div>
-  <span class="footer-copy">© 2025 · qizh.space · All rights reserved</span>
+  <span class="footer-copy">© 2026 · qizh.space · All rights reserved</span>
   <div class="footer-right">
     <a href="#about">About</a>
     <a href="#projects">Ventures</a>
