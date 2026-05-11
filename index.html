@@ -161,15 +161,6 @@ nav {
   padding: 0 48px 80px;
   overflow: hidden;
 }
-#hero::after {
-  content: '';
-  position: absolute;
-  bottom: 0; left: 0;
-  width: 70%; height: 55%;
-  background: radial-gradient(ellipse at bottom left, rgba(201,168,76,.08) 0%, transparent 65%);
-  pointer-events: none;
-  z-index: 1;
-}
 
 .hero-bg-number {
   position: absolute;
@@ -224,9 +215,8 @@ nav {
   color: var(--gold);
   letter-spacing: 0;
 }
-.hero-title .stroke {
-  -webkit-text-stroke: 1px rgba(244,241,236,.25);
-  color: transparent;
+.hero-title .dim-line {
+  color: var(--dim);
 }
 
 .hero-bottom {
@@ -241,7 +231,7 @@ nav {
   max-width: 380px;
 }
 .hero-bio p {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 8px;
@@ -353,12 +343,10 @@ section {
   margin-bottom: 64px;
 }
 .section-num {
-  font-family: var(--font-serif);
-  font-style: italic;
-  font-size: 17px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .18em;
   color: var(--gold);
-  letter-spacing: 0;
-  opacity: .8;
 }
 .section-title {
   font-family: var(--font-display);
@@ -393,7 +381,7 @@ section {
   color: var(--gold);
 }
 .manifesto-sub {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.9;
   color: var(--muted);
   max-width: 420px;
@@ -406,25 +394,37 @@ section {
   gap: 0;
 }
 .value-item {
-  padding: 22px 0 22px 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px 0;
   border-bottom: 1px solid var(--border);
-  border-left: 2px solid transparent;
-  transition: border-left-color .35s, padding-left .35s;
+  transition: all .3s;
 }
 .value-item:first-child { border-top: 1px solid var(--border); }
-.value-item:hover { border-left-color: var(--gold); padding-left: 28px; }
+.value-item:hover .value-icon { color: var(--gold); }
+.value-icon {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--dim);
+  letter-spacing: .1em;
+  padding-top: 2px;
+  transition: color .3s;
+  flex-shrink: 0;
+}
+.value-content {}
 .value-name {
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--white);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   letter-spacing: .02em;
 }
 .value-desc {
-  font-size: 14px;
+  font-size: 13px;
   color: var(--muted);
-  line-height: 1.75;
+  line-height: 1.7;
 }
 
 /* ── PROJECTS ── */
@@ -459,19 +459,13 @@ section {
 }
 .project-card:hover::before { opacity: 1; }
 .project-card:hover { border-color: rgba(201,168,76,.3); }
-.project-card::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, var(--gold), transparent);
-  opacity: 0;
-  transition: opacity .4s;
-}
-.project-card:hover::after { opacity: .7; }
 
 .project-card.featured {
   grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
 }
 .project-card.featured::before {
   background: radial-gradient(ellipse at center left, rgba(201,168,76,.08) 0%, transparent 60%);
@@ -527,7 +521,7 @@ section {
   line-height: 1.4;
 }
 .project-desc {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 32px;
@@ -587,7 +581,7 @@ section {
 .c-cm { color: #4b5563; }
 .c-val { color: var(--gold-lt); }
 
-.project-small-card .project-name { font-size: 32px; }
+.project-small-card .project-name { font-size: 36px; }
 
 .project-arrow {
   position: absolute;
@@ -621,17 +615,6 @@ section {
   cursor: pointer;
 }
 .writing-featured:hover { border-color: rgba(201,168,76,.3); }
-.writing-featured::after {
-  content: '\201C';
-  position: absolute;
-  bottom: 24px; right: 32px;
-  font-family: var(--font-serif);
-  font-size: 140px;
-  line-height: 1;
-  color: var(--gold);
-  opacity: .04;
-  pointer-events: none;
-}
 .writing-featured-tag {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -648,7 +631,7 @@ section {
 }
 .writing-featured-title em { font-style: italic; color: var(--gold); }
 .writing-featured-excerpt {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 32px;
@@ -747,7 +730,7 @@ section {
 }
 .contact-title .gold { color: var(--gold); }
 .contact-sub {
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.8;
   color: var(--muted);
   margin-bottom: 40px;
@@ -896,136 +879,22 @@ footer {
 .fade-up-d3 { transition-delay: .3s; }
 .fade-up-d4 { transition-delay: .4s; }
 
-/* ── MOBILE NAV ── */
-.nav-menu-btn {
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 6px 4px;
-  z-index: 201;
-}
-.nav-menu-btn span {
-  display: block;
-  width: 22px;
-  height: 1px;
-  background: var(--white);
-  transition: transform .3s, opacity .3s;
-}
-.nav-menu-btn.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-.nav-menu-btn.open span:nth-child(2) { opacity: 0; }
-.nav-menu-btn.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
-
-.mobile-nav {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(8,8,8,.97);
-  z-index: 200;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  backdrop-filter: blur(20px);
-}
-.mobile-nav.open { display: flex; }
-.mobile-nav-links {
-  list-style: none;
-  text-align: center;
-  width: 100%;
-}
-.mobile-nav-links li { border-bottom: 1px solid var(--border); }
-.mobile-nav-links li:first-child { border-top: 1px solid var(--border); }
-.mobile-nav-links a {
-  display: block;
-  font-family: var(--font-display);
-  font-size: clamp(36px, 10vw, 56px);
-  letter-spacing: .06em;
-  color: var(--white);
-  text-decoration: none;
-  padding: 18px 48px;
-  transition: color .2s;
-}
-.mobile-nav-links a:hover { color: var(--gold); }
-.mobile-nav-cta {
-  margin-top: 40px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: .14em;
-  color: var(--gold);
-  text-decoration: none;
-  border: 1px solid var(--border);
-  padding: 12px 28px;
-  border-radius: 2px;
-  transition: all .25s;
-}
-.mobile-nav-cta:hover { background: var(--gold); color: var(--black); }
-
-/* ── TOUCH: hide custom cursor ── */
-@media (hover: none) {
-  .cursor, .cursor-ring { display: none; }
-  body { cursor: auto; }
-}
-
-/* ── RESPONSIVE 900px ── */
+/* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   nav { padding: 16px 24px; }
   .nav-links { display: none; }
-  .nav-cta { display: none; }
-  .nav-menu-btn { display: flex; }
-
-  /* Hero: 去掉 100vh 留白，内容从顶部开始排 */
-  #hero { min-height: auto; padding: 100px 24px 56px; justify-content: flex-start; }
-  .hero-bg-number { display: none; }
-  .scroll-indicator { display: none; }
-  .hero-title { font-size: clamp(52px, 14vw, 96px); }
-  .hero-bottom { flex-direction: column; align-items: flex-start; gap: 28px; margin-top: 36px; }
+  #hero { padding: 0 24px 60px; }
+  .hero-title { font-size: clamp(56px, 15vw, 100px); }
+  .hero-bottom { flex-direction: column; align-items: flex-start; gap: 32px; }
   .hero-stats { gap: 32px; }
-
-  #about { grid-template-columns: 1fr; gap: 40px; padding: 72px 24px; }
-
-  #projects { padding: 72px 24px; }
+  #about { grid-template-columns: 1fr; gap: 48px; padding: 80px 24px; }
+  #projects { padding: 80px 24px; }
   .projects-grid { grid-template-columns: 1fr; }
-  .project-card.featured { grid-column: span 1; }
-
-  #writing { padding: 72px 24px; }
+  .project-card.featured { grid-column: span 1; grid-template-columns: 1fr; gap: 32px; }
+  #writing { padding: 80px 24px; }
   .writing-grid { grid-template-columns: 1fr; }
-
-  #contact { grid-template-columns: 1fr; padding: 72px 24px; gap: 40px; }
-
-  footer { padding: 20px 24px; flex-wrap: wrap; gap: 12px; }
-  .footer-copy { width: 100%; text-align: center; order: 3; }
-  .footer-right { justify-content: center; flex: 1; }
-}
-
-/* ── RESPONSIVE 480px ── */
-@media (max-width: 480px) {
-  #hero { padding: 88px 20px 48px; }
-  .hero-title { font-size: clamp(44px, 17vw, 72px); }
-  .hero-eyebrow span { font-size: 9px; letter-spacing: .12em; }
-  .hero-bio p { font-size: 15px; }
-  .stat-num { font-size: 32px; }
-
-  #about { padding: 56px 20px; }
-  .section-title { font-size: 34px; }
-  .manifesto { font-size: clamp(22px, 6vw, 32px); }
-
-  #projects { padding: 56px 20px; }
-  .project-card { padding: 28px 20px; }
-  .project-name { font-size: 34px; }
-  .project-small-card .project-name { font-size: 28px; }
-
-  #writing { padding: 56px 20px; }
-  .writing-featured { padding: 28px 20px; }
-  .writing-list-item { padding: 18px 36px 18px 16px; }
-
-  #contact { padding: 56px 20px; }
-  .contact-title { font-size: clamp(40px, 13vw, 68px); }
-  .contact-right { padding: 28px 20px; }
-
-  footer { flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 20px; }
-  .footer-right { gap: 16px; }
+  #contact { grid-template-columns: 1fr; padding: 80px 24px; gap: 48px; }
+  footer { padding: 20px 24px; flex-wrap: wrap; gap: 16px; }
 }
 </style>
 </head>
@@ -1037,29 +906,15 @@ footer {
 
 <!-- NAV -->
 <nav>
-  <a href="#" class="nav-logo">ZI<span>O</span>N</a>
+  <a href="index.html" class="nav-logo">ZI<span>O</span>N</a>
   <ul class="nav-links">
     <li><a href="#about">about</a></li>
     <li><a href="#projects">ventures</a></li>
-    <li><a href="#writing">writing</a></li>
+    <li><a href="writing.html">writing</a></li>
     <li><a href="#contact">contact</a></li>
   </ul>
-  <a href="mailto:1733680684@qq.com" class="nav-cta">CONNECT →</a>
-  <button class="nav-menu-btn" id="menuBtn" aria-label="Toggle menu">
-    <span></span><span></span><span></span>
-  </button>
+  <a href="#contact" class="nav-cta">CONNECT →</a>
 </nav>
-
-<!-- MOBILE NAV OVERLAY -->
-<div class="mobile-nav" id="mobileNav">
-  <ul class="mobile-nav-links">
-    <li><a href="#about" class="mobile-link">ABOUT</a></li>
-    <li><a href="#projects" class="mobile-link">VENTURES</a></li>
-    <li><a href="#writing" class="mobile-link">WRITING</a></li>
-    <li><a href="#contact" class="mobile-link">CONNECT</a></li>
-  </ul>
-  <a href="#contact" class="mobile-nav-cta mobile-link">CONNECT →</a>
-</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -1073,7 +928,7 @@ footer {
   <h1 class="hero-title">
     BUILD<br>
     <span class="italic">wealth</span><br>
-    <span class="stroke">THROUGH</span><br>
+    <span class="dim-line">THROUGH</span><br>
     TECH
   </h1>
 
@@ -1081,6 +936,16 @@ footer {
     <div class="hero-bio">
       <p><strong>用技术创造财富，</strong>用产品改变规则。</p>
       <p>Zion — 连续创业者，AI Native Builder，相信每一行代码都可以是财富的起点。</p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">1</div>
+        <div class="stat-label">ACTIVE VENTURE</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">POSSIBILITIES</div>
+      </div>
     </div>
   </div>
 
@@ -1099,14 +964,14 @@ footer {
     <div class="marquee-item"><div class="marquee-dot"></div><span>Wealth Through Technology</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>用技术创造财富</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>Building in Public</span></div>
-    <div class="marquee-item"><div class="marquee-dot"></div><span>2026</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>2025</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>AI Native Builder</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>VibeCoding</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>qizh.space</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>Wealth Through Technology</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>用技术创造财富</span></div>
     <div class="marquee-item"><div class="marquee-dot"></div><span>Building in Public</span></div>
-    <div class="marquee-item"><div class="marquee-dot"></div><span>2026</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>2025</span></div>
   </div>
 </div>
 
@@ -1131,16 +996,32 @@ footer {
   <div class="about-right fade-up fade-up-d2">
     <div class="value-list">
       <div class="value-item">
-        <div class="value-name">Ship Fast, Learn Faster</div>
-        <div class="value-desc">速度是初创公司最大的武器。Vibe coding 让我们比任何时候都更快地验证想法、迭代产品。</div>
+        <span class="value-icon">[ 01 ]</span>
+        <div class="value-content">
+          <div class="value-name">Ship Fast, Learn Faster</div>
+          <div class="value-desc">速度是初创公司最大的武器。Vibe coding 让我们比任何时候都更快地验证想法、迭代产品。</div>
+        </div>
       </div>
       <div class="value-item">
-        <div class="value-name">Build in Public</div>
-        <div class="value-desc">透明度是建立信任的最短路径。分享建设过程，分享失败与成功，这就是个人 IP 的核心。</div>
+        <span class="value-icon">[ 02 ]</span>
+        <div class="value-content">
+          <div class="value-name">Build in Public</div>
+          <div class="value-desc">透明度是建立信任的最短路径。分享建设过程，分享失败与成功，这就是个人 IP 的核心。</div>
+        </div>
       </div>
       <div class="value-item">
-        <div class="value-name">Technology × Capital</div>
-        <div class="value-desc">Good ideas need good execution. Good execution needs capital. I connect all three.</div>
+        <span class="value-icon">[ 03 ]</span>
+        <div class="value-content">
+          <div class="value-name">Technology × Capital</div>
+          <div class="value-desc">Good ideas need good execution. Good execution needs capital. I connect all three.</div>
+        </div>
+      </div>
+      <div class="value-item">
+        <span class="value-icon">[ 04 ]</span>
+        <div class="value-content">
+          <div class="value-name">Long-term Thinking</div>
+          <div class="value-desc">每个产品都是一个赌注，赌的是未来5年人们的行为方式。我只押长期赌注。</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1162,12 +1043,49 @@ footer {
           <div class="status-dot"></div>
           <span class="status-text">ACTIVE · BUILDING</span>
         </div>
-        <div class="project-tag">AI · DEVELOPER TOOLS · 2026</div>
+        <div class="project-tag">AI · DEVELOPER TOOLS · 2025</div>
         <div class="project-name">Vibe<span class="gold">Coding</span></div>
         <p class="project-tagline">Code the way you think. Ship the way you dream.</p>
         <p class="project-desc">
-          在 AI 的加持下，任何人都可以把脑子里的想法变成真实的产品。VibeCoding 正在构建工具、社区和方法论，帮助下一代 builders 用更少的摩擦、更多的创造力去构建世界。
+          VibeCoding 是一个面向 AI Native 开发者的创业项目。我们相信「氛围编程」——在 AI 的加持下，任何人都可以把脑子里的想法变成真实的产品。我们正在构建工具、社区和方法论，帮助下一代 builders 用更少的摩擦、更多的创造力去构建世界。<br><br>
+          A venture building the infrastructure for the AI-native developer movement.
         </p>
+        <div class="project-metrics">
+          <div class="metric">
+            <div class="metric-val">AI</div>
+            <div class="metric-label">NATIVE FIRST</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">0→1</div>
+            <div class="metric-label">STAGE</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">2025</div>
+            <div class="metric-label">FOUNDED</div>
+          </div>
+        </div>
+      </div>
+      <div class="project-visual">
+        <div class="code-window">
+          <div class="code-titlebar">
+            <div class="code-dot cd-r"></div>
+            <div class="code-dot cd-y"></div>
+            <div class="code-dot cd-g"></div>
+          </div>
+          <div class="code-body">
+            <span class="code-line"><span class="c-cm">// VibeCoding — build with intention</span></span>
+            <span class="code-line"></span>
+            <span class="code-line"><span class="c-kw">const</span> <span class="c-fn">idea</span> = <span class="c-str">"change the world"</span>;</span>
+            <span class="code-line"><span class="c-kw">const</span> <span class="c-fn">tools</span> = [<span class="c-str">"AI"</span>, <span class="c-str">"code"</span>, <span class="c-str">"vibe"</span>];</span>
+            <span class="code-line"></span>
+            <span class="code-line"><span class="c-kw">async function</span> <span class="c-fn">build</span>(idea) {</span>
+            <span class="code-line">  <span class="c-kw">const</span> product = <span class="c-kw">await</span> <span class="c-fn">ship</span>(idea);</span>
+            <span class="code-line">  <span class="c-kw">return</span> product.<span class="c-fn">createWealth</span>();</span>
+            <span class="code-line">}</span>
+            <span class="code-line"></span>
+            <span class="code-line"><span class="c-fn">build</span>(idea); <span class="c-cm">// 🚀</span></span>
+          </div>
+        </div>
       </div>
       <div class="project-arrow">↗</div>
     </div>
@@ -1175,15 +1093,21 @@ footer {
     <!-- Small cards -->
     <div class="project-card project-small-card fade-up fade-up-d1">
       <div class="project-tag">PERSONAL IP · ONGOING</div>
-      <div class="project-name">Personal<br><span class="gold">Brand</span></div>
-      <p class="project-desc">记录创业过程、技术洞察、财富思维。在中文与英文双语社区建立影响力，打造可信赖的个人 IP。</p>
+      <div class="project-name">Personal <span class="gold">Brand</span></div>
+      <p class="project-tagline">Building in public. Sharing the journey.</p>
+      <p class="project-desc">
+        记录创业过程、技术洞察、财富思维。在中文与英文双语社区建立影响力，打造可信赖的个人 IP。
+      </p>
       <div class="project-arrow">↗</div>
     </div>
 
     <div class="project-card project-small-card fade-up fade-up-d2">
       <div class="project-tag">NEXT · COMING SOON</div>
-      <div class="project-name">Next<br><span class="gold">Venture</span></div>
-      <p class="project-desc">下一个项目正在孵化中。如果你对 AI、金融科技、或开发者工具有想法，欢迎聊聊。</p>
+      <div class="project-name">Next <span class="gold">Venture</span></div>
+      <p class="project-tagline">The next bet is always the biggest one.</p>
+      <p class="project-desc">
+        下一个项目正在孵化中。如果你对 AI、金融科技、或开发者工具有想法，欢迎聊聊。
+      </p>
       <div class="project-arrow">→</div>
     </div>
   </div>
@@ -1199,7 +1123,7 @@ footer {
 
   <div class="writing-grid fade-up">
     <div class="writing-featured">
-      <div class="writing-featured-tag">FEATURED ESSAY · 2026</div>
+      <div class="writing-featured-tag">FEATURED ESSAY · 2025</div>
       <h3 class="writing-featured-title">
         为什么 Vibe Coding 是<br>
         <em>这个时代最重要的技能</em>
@@ -1208,29 +1132,40 @@ footer {
         当 AI 把编程的门槛降到接近零，真正稀缺的不再是技术能力，而是想象力、品味和执行力。Vibe Coding 不是偷懒，它是一种新的创造方式——用直觉和意图引导 AI，把脑海中的愿景变成现实产品…
       </p>
       <div class="writing-meta">
-        <span class="writing-date">MAY 2026 · 8 MIN READ</span>
-        <a href="#" class="read-link">READ MORE →</a>
+        <span class="writing-date">MAY 2025 · 8 MIN READ</span>
+        <a href="post.html" class="read-link">READ MORE →</a>
       </div>
     </div>
 
     <div class="writing-list">
-      <a href="#" class="writing-list-item">
+      <a href="post.html" class="writing-list-item">
         <div class="wli-cat">WEALTH · TECH</div>
-        <div class="wli-title">The AI Wealth Stack: How to Build Leverage in 2026</div>
+        <div class="wli-title">The AI Wealth Stack: How to Build Leverage in 2025</div>
+        <div class="wli-meta">APR 2025 · 6 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
-      <a href="#" class="writing-list-item">
+      <a href="post.html" class="writing-list-item">
         <div class="wli-cat">STARTUP · BUILDING</div>
         <div class="wli-title">从0到1：我如何在30天内验证一个创业想法</div>
+        <div class="wli-meta">MAR 2025 · 5 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
-      <a href="#" class="writing-list-item">
+      <a href="post.html" class="writing-list-item">
         <div class="wli-cat">AI · PRODUCT</div>
         <div class="wli-title">Why I Only Build AI-Native Products Now</div>
+        <div class="wli-meta">FEB 2025 · 4 MIN</div>
+        <span class="wli-arrow">→</span>
+      </a>
+      <a href="post.html" class="writing-list-item">
+        <div class="wli-cat">MINDSET · GROWTH</div>
+        <div class="wli-title">技术人如何构建个人IP：一个builder的实践指南</div>
+        <div class="wli-meta">JAN 2025 · 7 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="writing.html" class="writing-list-item" style="border-bottom:none;">
-        <div class="wli-title" style="color:var(--gold); font-size:13px; letter-spacing:.06em;">ALL ESSAYS →</div>
+        <div class="wli-cat">ALL ESSAYS →</div>
+        <div class="wli-title" style="color:var(--gold)">View all writing</div>
+        <div class="wli-meta">ARCHIVE</div>
         <span class="wli-arrow" style="color:var(--gold)">→</span>
       </a>
     </div>
@@ -1247,7 +1182,8 @@ footer {
     </div>
     <div class="contact-title">LET'S<br>BUILD<br><span class="gold">TOGETHER</span></div>
     <p class="contact-sub">
-      如果你在做 AI、SaaS 或有趣的创业项目，如果你想探讨技术与财富的交汇点，欢迎联系。
+      如果你在做 AI、SaaS、或有趣的创业项目，如果你想探讨技术与财富的交汇点，欢迎联系我。<br><br>
+      Open to collaborations, investments, and interesting conversations.
     </p>
     <div class="contact-links">
       <a href="mailto:1733680684@qq.com" class="contact-link">
@@ -1257,26 +1193,27 @@ footer {
         </div>
         <span class="cl-arrow">→</span>
       </a>
-      <a href="#" class="contact-link">
+      <a href="writing.html" class="contact-link">
         <div>
-          <div class="cl-label">TWITTER / X</div>
-          <div class="cl-value">@zion</div>
+          <div class="cl-label">WRITING</div>
+          <div class="cl-value">qizh.space/writing</div>
         </div>
         <span class="cl-arrow">→</span>
       </a>
-      <a href="#" class="contact-link wechat-link" id="wechatBtn">
+      <a href="https://github.com/rAIn0x7" target="_blank" class="contact-link">
         <div>
-          <div class="cl-label">WECHAT</div>
-          <div class="cl-value">qzh102347856</div>
+          <div class="cl-label">GITHUB</div>
+          <div class="cl-value">github.com/rAIn0x7</div>
         </div>
-        <span class="cl-arrow" id="wechatArrow">⊕</span>
+        <span class="cl-arrow">→</span>
       </a>
     </div>
   </div>
 
   <div class="contact-right fade-up fade-up-d2">
+    <div class="contact-form-label">SEND A MESSAGE // 发消息</div>
     <div class="form-group">
-      <label>Name</label>
+      <label>Your Name / 姓名</label>
       <input type="text" placeholder="How should I call you?">
     </div>
     <div class="form-group">
@@ -1284,26 +1221,26 @@ footer {
       <input type="email" placeholder="your@email.com">
     </div>
     <div class="form-group">
-      <label>Topic</label>
+      <label>I'm reaching out about / 关于</label>
       <select>
-        <option>Collaboration</option>
-        <option>Investment</option>
+        <option>Collaboration / 合作</option>
+        <option>Investment / 投资</option>
         <option>VibeCoding</option>
-        <option>Just to say hi</option>
+        <option>Just to say hi / 打个招呼</option>
       </select>
     </div>
     <div class="form-group">
-      <label>Message</label>
+      <label>Message / 消息</label>
       <textarea placeholder="Tell me what's on your mind..."></textarea>
     </div>
-    <button class="btn-submit" id="sendBtn">SEND MESSAGE →</button>
+    <button class="btn-submit">SEND MESSAGE →</button>
   </div>
 </section>
 
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo">ZI<span>O</span>N</div>
-  <span class="footer-copy">© 2026 · qizh.space · All rights reserved</span>
+  <span class="footer-copy">© 2025 · qizh.space · All rights reserved</span>
   <div class="footer-right">
     <a href="#about">About</a>
     <a href="#projects">Ventures</a>
@@ -1313,7 +1250,7 @@ footer {
 </footer>
 
 <script>
-// Custom cursor (desktop only)
+// Custom cursor
 const cursor = document.getElementById('cursor');
 const ring = document.getElementById('cursorRing');
 let mx = 0, my = 0, rx = 0, ry = 0;
@@ -1335,65 +1272,10 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-// Nav scroll state
+// Nav active state
 window.addEventListener('scroll', () => {
   const nav = document.querySelector('nav');
   nav.style.background = window.scrollY > 60 ? 'rgba(8,8,8,.95)' : 'rgba(8,8,8,.7)';
-});
-
-// Mobile nav toggle
-const menuBtn = document.getElementById('menuBtn');
-const mobileNav = document.getElementById('mobileNav');
-menuBtn.addEventListener('click', () => {
-  const open = mobileNav.classList.toggle('open');
-  menuBtn.classList.toggle('open', open);
-  document.body.style.overflow = open ? 'hidden' : '';
-});
-document.querySelectorAll('.mobile-link').forEach(link => {
-  link.addEventListener('click', () => {
-    mobileNav.classList.remove('open');
-    menuBtn.classList.remove('open');
-    document.body.style.overflow = '';
-  });
-});
-
-// Contact form → mailto
-document.getElementById('sendBtn').addEventListener('click', function() {
-  const name    = document.querySelector('.contact-right input[type="text"]').value.trim();
-  const email   = document.querySelector('.contact-right input[type="email"]').value.trim();
-  const topic   = document.querySelector('.contact-right select').value;
-  const message = document.querySelector('.contact-right textarea').value.trim();
-
-  if (!name || !message) {
-    this.textContent = 'Please fill name & message / 请填写姓名和留言';
-    this.style.background = 'var(--dim)';
-    setTimeout(() => { this.textContent = 'SEND MESSAGE →'; this.style.background = ''; }, 2500);
-    return;
-  }
-
-  const subject = encodeURIComponent(`[${topic}] from ${name}`);
-  const body    = encodeURIComponent(`From: ${name}\nEmail: ${email}\nTopic: ${topic}\n\n${message}`);
-  window.location.href = `mailto:1733680684@qq.com?subject=${subject}&body=${body}`;
-
-  this.textContent = 'Opening email client ✓';
-  setTimeout(() => { this.textContent = 'SEND MESSAGE →'; }, 3000);
-});
-
-// WeChat ID copy
-const wechatBtn = document.getElementById('wechatBtn');
-const wechatArrow = document.getElementById('wechatArrow');
-wechatBtn.addEventListener('click', e => {
-  e.preventDefault();
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText('qzh102347856').then(() => {
-      wechatArrow.textContent = '✓';
-      wechatBtn.querySelector('.cl-value').textContent = 'Copied!';
-      setTimeout(() => {
-        wechatArrow.textContent = '⊕';
-        wechatBtn.querySelector('.cl-value').textContent = 'qzh102347856';
-      }, 2000);
-    });
-  }
 });
 </script>
 </body>
