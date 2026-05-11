@@ -1024,7 +1024,7 @@ footer {
     <li><a href="#writing">writing</a></li>
     <li><a href="#contact">contact</a></li>
   </ul>
-  <a href="#contact" class="nav-cta">CONNECT →</a>
+  <a href="mailto:1733680684@qq.com" class="nav-cta">CONNECT →</a>
   <button class="nav-menu-btn" id="menuBtn" aria-label="Toggle menu">
     <span></span><span></span><span></span>
   </button>
@@ -1323,7 +1323,7 @@ footer {
       <label>Message / 消息</label>
       <textarea placeholder="Tell me what's on your mind..."></textarea>
     </div>
-    <button class="btn-submit">SEND MESSAGE →</button>
+    <button class="btn-submit" id="sendBtn">SEND MESSAGE →</button>
   </div>
 </section>
 
@@ -1382,6 +1382,28 @@ document.querySelectorAll('.mobile-link').forEach(link => {
     menuBtn.classList.remove('open');
     document.body.style.overflow = '';
   });
+});
+
+// Contact form → mailto
+document.getElementById('sendBtn').addEventListener('click', function() {
+  const name    = document.querySelector('.contact-right input[type="text"]').value.trim();
+  const email   = document.querySelector('.contact-right input[type="email"]').value.trim();
+  const topic   = document.querySelector('.contact-right select').value;
+  const message = document.querySelector('.contact-right textarea').value.trim();
+
+  if (!name || !message) {
+    this.textContent = 'Please fill name & message / 请填写姓名和留言';
+    this.style.background = 'var(--dim)';
+    setTimeout(() => { this.textContent = 'SEND MESSAGE →'; this.style.background = ''; }, 2500);
+    return;
+  }
+
+  const subject = encodeURIComponent(`[${topic}] from ${name}`);
+  const body    = encodeURIComponent(`From: ${name}\nEmail: ${email}\nTopic: ${topic}\n\n${message}`);
+  window.location.href = `mailto:1733680684@qq.com?subject=${subject}&body=${body}`;
+
+  this.textContent = 'Opening email client ✓';
+  setTimeout(() => { this.textContent = 'SEND MESSAGE →'; }, 3000);
 });
 
 // WeChat ID copy
