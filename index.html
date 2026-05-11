@@ -161,6 +161,15 @@ nav {
   padding: 0 48px 80px;
   overflow: hidden;
 }
+#hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 70%; height: 55%;
+  background: radial-gradient(ellipse at bottom left, rgba(201,168,76,.08) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 1;
+}
 
 .hero-bg-number {
   position: absolute;
@@ -344,10 +353,12 @@ section {
   margin-bottom: 64px;
 }
 .section-num {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: .18em;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 17px;
   color: var(--gold);
+  letter-spacing: 0;
+  opacity: .8;
 }
 .section-title {
   font-family: var(--font-display);
@@ -395,37 +406,25 @@ section {
   gap: 0;
 }
 .value-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 24px;
-  padding: 24px 0;
+  padding: 22px 0 22px 20px;
   border-bottom: 1px solid var(--border);
-  transition: all .3s;
+  border-left: 2px solid transparent;
+  transition: border-left-color .35s, padding-left .35s;
 }
 .value-item:first-child { border-top: 1px solid var(--border); }
-.value-item:hover .value-icon { color: var(--gold); }
-.value-icon {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  color: var(--dim);
-  letter-spacing: .1em;
-  padding-top: 2px;
-  transition: color .3s;
-  flex-shrink: 0;
-}
-.value-content {}
+.value-item:hover { border-left-color: var(--gold); padding-left: 28px; }
 .value-name {
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
   color: var(--white);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   letter-spacing: .02em;
 }
 .value-desc {
   font-size: 14px;
   color: var(--muted);
-  line-height: 1.7;
+  line-height: 1.75;
 }
 
 /* ── PROJECTS ── */
@@ -460,6 +459,16 @@ section {
 }
 .project-card:hover::before { opacity: 1; }
 .project-card:hover { border-color: rgba(201,168,76,.3); }
+.project-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity .4s;
+}
+.project-card:hover::after { opacity: .7; }
 
 .project-card.featured {
   grid-column: span 2;
@@ -612,6 +621,17 @@ section {
   cursor: pointer;
 }
 .writing-featured:hover { border-color: rgba(201,168,76,.3); }
+.writing-featured::after {
+  content: '\201C';
+  position: absolute;
+  bottom: 24px; right: 32px;
+  font-family: var(--font-serif);
+  font-size: 140px;
+  line-height: 1;
+  color: var(--gold);
+  opacity: .04;
+  pointer-events: none;
+}
 .writing-featured-tag {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -1062,16 +1082,6 @@ footer {
       <p><strong>用技术创造财富，</strong>用产品改变规则。</p>
       <p>Zion — 连续创业者，AI Native Builder，相信每一行代码都可以是财富的起点。</p>
     </div>
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-num">1</div>
-        <div class="stat-label">ACTIVE VENTURE</div>
-      </div>
-      <div class="stat">
-        <div class="stat-num">∞</div>
-        <div class="stat-label">POSSIBILITIES</div>
-      </div>
-    </div>
   </div>
 
   <div class="scroll-indicator">
@@ -1121,25 +1131,16 @@ footer {
   <div class="about-right fade-up fade-up-d2">
     <div class="value-list">
       <div class="value-item">
-        <span class="value-icon">[ 01 ]</span>
-        <div class="value-content">
-          <div class="value-name">Ship Fast, Learn Faster</div>
-          <div class="value-desc">速度是初创公司最大的武器。Vibe coding 让我们比任何时候都更快地验证想法、迭代产品。</div>
-        </div>
+        <div class="value-name">Ship Fast, Learn Faster</div>
+        <div class="value-desc">速度是初创公司最大的武器。Vibe coding 让我们比任何时候都更快地验证想法、迭代产品。</div>
       </div>
       <div class="value-item">
-        <span class="value-icon">[ 02 ]</span>
-        <div class="value-content">
-          <div class="value-name">Build in Public</div>
-          <div class="value-desc">透明度是建立信任的最短路径。分享建设过程，分享失败与成功，这就是个人 IP 的核心。</div>
-        </div>
+        <div class="value-name">Build in Public</div>
+        <div class="value-desc">透明度是建立信任的最短路径。分享建设过程，分享失败与成功，这就是个人 IP 的核心。</div>
       </div>
       <div class="value-item">
-        <span class="value-icon">[ 03 ]</span>
-        <div class="value-content">
-          <div class="value-name">Technology × Capital</div>
-          <div class="value-desc">Good ideas need good execution. Good execution needs capital. I connect all three.</div>
-        </div>
+        <div class="value-name">Technology × Capital</div>
+        <div class="value-desc">Good ideas need good execution. Good execution needs capital. I connect all three.</div>
       </div>
     </div>
   </div>
@@ -1165,23 +1166,8 @@ footer {
         <div class="project-name">Vibe<span class="gold">Coding</span></div>
         <p class="project-tagline">Code the way you think. Ship the way you dream.</p>
         <p class="project-desc">
-          VibeCoding 是一个面向 AI Native 开发者的创业项目。我们相信「氛围编程」——在 AI 的加持下，任何人都可以把脑子里的想法变成真实的产品。我们正在构建工具、社区和方法论，帮助下一代 builders 用更少的摩擦、更多的创造力去构建世界。<br><br>
-          A venture building the infrastructure for the AI-native developer movement.
+          在 AI 的加持下，任何人都可以把脑子里的想法变成真实的产品。VibeCoding 正在构建工具、社区和方法论，帮助下一代 builders 用更少的摩擦、更多的创造力去构建世界。
         </p>
-        <div class="project-metrics">
-          <div class="metric">
-            <div class="metric-val">AI</div>
-            <div class="metric-label">NATIVE FIRST</div>
-          </div>
-          <div class="metric">
-            <div class="metric-val">0→1</div>
-            <div class="metric-label">STAGE</div>
-          </div>
-          <div class="metric">
-            <div class="metric-val">2026</div>
-            <div class="metric-label">FOUNDED</div>
-          </div>
-        </div>
       </div>
       <div class="project-arrow">↗</div>
     </div>
@@ -1190,20 +1176,14 @@ footer {
     <div class="project-card project-small-card fade-up fade-up-d1">
       <div class="project-tag">PERSONAL IP · ONGOING</div>
       <div class="project-name">Personal<br><span class="gold">Brand</span></div>
-      <p class="project-tagline">Building in public. Sharing the journey.</p>
-      <p class="project-desc">
-        记录创业过程、技术洞察、财富思维。在中文与英文双语社区建立影响力，打造可信赖的个人 IP。
-      </p>
+      <p class="project-desc">记录创业过程、技术洞察、财富思维。在中文与英文双语社区建立影响力，打造可信赖的个人 IP。</p>
       <div class="project-arrow">↗</div>
     </div>
 
     <div class="project-card project-small-card fade-up fade-up-d2">
       <div class="project-tag">NEXT · COMING SOON</div>
       <div class="project-name">Next<br><span class="gold">Venture</span></div>
-      <p class="project-tagline">The next bet is always the biggest one.</p>
-      <p class="project-desc">
-        下一个项目正在孵化中。如果你对 AI、金融科技、或开发者工具有想法，欢迎聊聊。
-      </p>
+      <p class="project-desc">下一个项目正在孵化中。如果你对 AI、金融科技、或开发者工具有想法，欢迎聊聊。</p>
       <div class="project-arrow">→</div>
     </div>
   </div>
@@ -1237,25 +1217,20 @@ footer {
       <a href="#" class="writing-list-item">
         <div class="wli-cat">WEALTH · TECH</div>
         <div class="wli-title">The AI Wealth Stack: How to Build Leverage in 2026</div>
-        <div class="wli-meta">APR 2026 · 6 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="#" class="writing-list-item">
         <div class="wli-cat">STARTUP · BUILDING</div>
         <div class="wli-title">从0到1：我如何在30天内验证一个创业想法</div>
-        <div class="wli-meta">MAR 2026 · 5 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="#" class="writing-list-item">
         <div class="wli-cat">AI · PRODUCT</div>
         <div class="wli-title">Why I Only Build AI-Native Products Now</div>
-        <div class="wli-meta">FEB 2026 · 4 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="writing.html" class="writing-list-item" style="border-bottom:none;">
-        <div class="wli-cat">ALL ESSAYS →</div>
-        <div class="wli-title" style="color:var(--gold)">View all writing</div>
-        <div class="wli-meta">ARCHIVE</div>
+        <div class="wli-title" style="color:var(--gold); font-size:13px; letter-spacing:.06em;">ALL ESSAYS →</div>
         <span class="wli-arrow" style="color:var(--gold)">→</span>
       </a>
     </div>
@@ -1272,8 +1247,7 @@ footer {
     </div>
     <div class="contact-title">LET'S<br>BUILD<br><span class="gold">TOGETHER</span></div>
     <p class="contact-sub">
-      如果你在做 AI、SaaS、或有趣的创业项目，如果你想探讨技术与财富的交汇点，欢迎联系我。<br><br>
-      Open to collaborations, investments, and interesting conversations.
+      如果你在做 AI、SaaS 或有趣的创业项目，如果你想探讨技术与财富的交汇点，欢迎联系。
     </p>
     <div class="contact-links">
       <a href="mailto:1733680684@qq.com" class="contact-link">
@@ -1301,9 +1275,8 @@ footer {
   </div>
 
   <div class="contact-right fade-up fade-up-d2">
-    <div class="contact-form-label">SEND A MESSAGE // 发消息</div>
     <div class="form-group">
-      <label>Your Name / 姓名</label>
+      <label>Name</label>
       <input type="text" placeholder="How should I call you?">
     </div>
     <div class="form-group">
@@ -1311,16 +1284,16 @@ footer {
       <input type="email" placeholder="your@email.com">
     </div>
     <div class="form-group">
-      <label>I'm reaching out about / 关于</label>
+      <label>Topic</label>
       <select>
-        <option>Collaboration / 合作</option>
-        <option>Investment / 投资</option>
+        <option>Collaboration</option>
+        <option>Investment</option>
         <option>VibeCoding</option>
-        <option>Just to say hi / 打个招呼</option>
+        <option>Just to say hi</option>
       </select>
     </div>
     <div class="form-group">
-      <label>Message / 消息</label>
+      <label>Message</label>
       <textarea placeholder="Tell me what's on your mind..."></textarea>
     </div>
     <button class="btn-submit" id="sendBtn">SEND MESSAGE →</button>
