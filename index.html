@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Zion — Builder, Founder, Wealth Architect. Creating the future through technology.">
+<title>Zion — Builder & Founder</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&family=Neue+Haas+Grotesk+Display+Pro:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* ── RESET & TOKENS ── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black:   #080808;
+  --white:   #f4f1ec;
+  --gold:    #c9a84c;
+  --gold-lt: #e8c97a;
+  --dim:     #3a3a3a;
+  --muted:   #6b6b6b;
+  --border:  rgba(201,168,76,.18);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-serif:   'Instrument Serif', serif;
+  --font-body:    'Outfit', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  font-weight: 300;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+/* ── CUSTOM CURSOR ── */
+.cursor {
+  position: fixed;
+  width: 8px; height: 8px;
+  background: var(--gold);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: width .25s, height .25s, background .25s;
+  mix-blend-mode: normal;
+}
+.cursor-ring {
+  position: fixed;
+  width: 32px; height: 32px;
+  border: 1px solid rgba(201,168,76,.5);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  transition: all .15s ease;
+}
+body:has(a:hover) .cursor { width: 14px; height: 14px; background: var(--gold-lt); }
+body:has(a:hover) .cursor-ring { width: 44px; height: 44px; border-color: var(--gold-lt); }
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1000;
+  opacity: .4;
+}
+
+/* ── GRID LINES ── */
+.grid-lines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+.grid-lines span {
+  border-right: 1px solid rgba(201,168,76,.04);
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 48px;
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  background: rgba(8,8,8,.7);
+}
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: .12em;
+  color: var(--white);
+  text-decoration: none;
+}
+.nav-logo span { color: var(--gold); }
+.nav-links {
+  display: flex;
+  gap: 36px;
+  list-style: none;
+}
+.nav-links a {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  text-decoration: none;
+  text-transform: lowercase;
+  transition: color .2s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px; left: 0;
+  width: 0; height: 1px;
+  background: var(--gold);
+  transition: width .3s;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { width: 100%; }
+.nav-cta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: var(--gold);
+  text-decoration: none;
+  border: 1px solid var(--border);
+  padding: 8px 18px;
+  border-radius: 2px;
+  transition: all .25s;
+}
+.nav-cta:hover {
+  background: var(--gold);
+  color: var(--black);
+  border-color: var(--gold);
+}
+
+/* ── HERO ── */
+#hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 0 48px 80px;
+  overflow: hidden;
+}
+
+.hero-bg-number {
+  position: absolute;
+  top: 50%;
+  right: -40px;
+  transform: translateY(-50%);
+  font-family: var(--font-display);
+  font-size: clamp(280px, 40vw, 520px);
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(201,168,76,.06);
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  animation: drift 20s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  from { transform: translateY(-50%) translateX(0); }
+  to   { transform: translateY(-52%) translateX(-20px); }
+}
+
+.hero-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+.hero-eyebrow-line {
+  width: 40px; height: 1px;
+  background: var(--gold);
+}
+.hero-eyebrow span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .2em;
+  color: var(--gold);
+  text-transform: uppercase;
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(72px, 11vw, 160px);
+  line-height: .92;
+  letter-spacing: .02em;
+  color: var(--white);
+  position: relative;
+  z-index: 2;
+}
+.hero-title .italic {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(68px, 10.5vw, 152px);
+  color: var(--gold);
+  letter-spacing: 0;
+}
+.hero-title .stroke {
+  -webkit-text-stroke: 1px rgba(244,241,236,.25);
+  color: transparent;
+}
+
+.hero-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 48px;
+  position: relative;
+  z-index: 2;
+}
+.hero-bio {
+  max-width: 380px;
+}
+.hero-bio p {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.hero-bio p strong {
+  color: var(--white);
+  font-weight: 400;
+}
+.hero-stats {
+  display: flex;
+  gap: 48px;
+}
+.stat {
+  text-align: right;
+}
+.stat-num {
+  font-family: var(--font-display);
+  font-size: 42px;
+  letter-spacing: .04em;
+  color: var(--gold);
+  line-height: 1;
+}
+.stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.scroll-indicator {
+  position: absolute;
+  bottom: 80px;
+  right: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+}
+.scroll-indicator span {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .15em;
+  color: var(--muted);
+  writing-mode: vertical-rl;
+}
+.scroll-line {
+  width: 1px;
+  height: 60px;
+  background: linear-gradient(to bottom, var(--gold), transparent);
+  animation: pulse-line 2s ease-in-out infinite;
+}
+@keyframes pulse-line {
+  0%, 100% { opacity: .3; }
+  50% { opacity: 1; }
+}
+
+/* ── MARQUEE ── */
+.marquee-wrap {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+  overflow: hidden;
+  background: rgba(201,168,76,.03);
+  position: relative;
+  z-index: 2;
+}
+.marquee-track {
+  display: flex;
+  gap: 0;
+  animation: marquee 30s linear infinite;
+  width: max-content;
+}
+.marquee-item {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 0 28px;
+  white-space: nowrap;
+}
+.marquee-item span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .16em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.marquee-dot {
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ── SECTION COMMON ── */
+section {
+  position: relative;
+  z-index: 2;
+}
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 64px;
+}
+.section-num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  color: var(--gold);
+}
+.section-title {
+  font-family: var(--font-display);
+  font-size: 48px;
+  letter-spacing: .06em;
+  color: var(--white);
+}
+.section-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── ABOUT / MANIFESTO ── */
+#about {
+  padding: 120px 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.about-left {}
+.manifesto {
+  font-family: var(--font-serif);
+  font-size: clamp(28px, 3.5vw, 44px);
+  line-height: 1.25;
+  color: var(--white);
+  margin-bottom: 40px;
+}
+.manifesto em {
+  font-style: italic;
+  color: var(--gold);
+}
+.manifesto-sub {
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 420px;
+  margin-bottom: 36px;
+}
+.about-right {}
+.value-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.value-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--border);
+  transition: all .3s;
+}
+.value-item:first-child { border-top: 1px solid var(--border); }
+.value-item:hover .value-icon { color: var(--gold); }
+.value-icon {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--dim);
+  letter-spacing: .1em;
+  padding-top: 2px;
+  transition: color .3s;
+  flex-shrink: 0;
+}
+.value-content {}
+.value-name {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--white);
+  margin-bottom: 4px;
+  letter-spacing: .02em;
+}
+.value-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+/* ── PROJECTS ── */
+#projects {
+  padding: 120px 48px;
+  border-top: 1px solid var(--border);
+}
+.projects-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+.project-card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--border);
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+  transition: all .4s;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.project-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at top left, rgba(201,168,76,.06) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity .4s;
+}
+.project-card:hover::before { opacity: 1; }
+.project-card:hover { border-color: rgba(201,168,76,.3); }
+
+.project-card.featured {
+  grid-column: span 2;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+}
+.project-card.featured::before {
+  background: radial-gradient(ellipse at center left, rgba(201,168,76,.08) 0%, transparent 60%);
+}
+.project-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  animation: blink 2s ease-in-out infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .3; }
+}
+.status-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: #4ade80;
+}
+.project-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--gold);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 2px;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+.project-name {
+  font-family: var(--font-display);
+  font-size: 48px;
+  letter-spacing: .06em;
+  color: var(--white);
+  margin-bottom: 16px;
+  line-height: 1;
+}
+.project-name .gold { color: var(--gold); }
+.project-tagline {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 20px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  line-height: 1.4;
+}
+.project-desc {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+.project-metrics {
+  display: flex;
+  gap: 32px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+}
+.metric {}
+.metric-val {
+  font-family: var(--font-display);
+  font-size: 28px;
+  color: var(--gold);
+  letter-spacing: .04em;
+}
+.metric-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: .1em;
+  margin-top: 2px;
+}
+.project-visual {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.code-window {
+  background: #0f0f0f;
+  border: 1px solid #1e1e1e;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.code-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #1a1a1a;
+}
+.code-dot { width: 10px; height: 10px; border-radius: 50%; }
+.cd-r { background: #ff5f57; }
+.cd-y { background: #febc2e; }
+.cd-g { background: #28c840; }
+.code-body {
+  padding: 16px 18px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.code-line { display: block; }
+.c-kw { color: #c084fc; }
+.c-fn { color: #60a5fa; }
+.c-str { color: #86efac; }
+.c-cm { color: #4b5563; }
+.c-val { color: var(--gold-lt); }
+
+.project-small-card .project-name { font-size: 32px; }
+
+.project-arrow {
+  position: absolute;
+  top: 48px; right: 48px;
+  font-size: 20px;
+  color: var(--dim);
+  transition: all .3s;
+}
+.project-card:hover .project-arrow {
+  color: var(--gold);
+  transform: translate(4px, -4px);
+}
+
+/* ── PHILOSOPHY / WRITING ── */
+#writing {
+  padding: 120px 48px;
+  border-top: 1px solid var(--border);
+}
+.writing-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2px;
+}
+.writing-featured {
+  border: 1px solid var(--border);
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+  background: rgba(201,168,76,.02);
+  transition: border-color .3s;
+  cursor: pointer;
+}
+.writing-featured:hover { border-color: rgba(201,168,76,.3); }
+.writing-featured-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .15em;
+  color: var(--gold);
+  margin-bottom: 24px;
+}
+.writing-featured-title {
+  font-family: var(--font-serif);
+  font-size: clamp(24px, 3vw, 36px);
+  line-height: 1.25;
+  color: var(--white);
+  margin-bottom: 16px;
+}
+.writing-featured-title em { font-style: italic; color: var(--gold); }
+.writing-featured-excerpt {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: 32px;
+}
+.writing-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.writing-date {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: .1em;
+}
+.read-link {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: .12em;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: gap .2s;
+}
+.read-link:hover { gap: 10px; }
+.writing-list {
+  display: flex;
+  flex-direction: column;
+}
+.writing-list-item {
+  padding: 24px 28px;
+  border: 1px solid var(--border);
+  border-top: none;
+  position: relative;
+  cursor: pointer;
+  transition: background .2s;
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+.writing-list-item:first-child { border-top: 1px solid var(--border); }
+.writing-list-item:hover { background: rgba(201,168,76,.03); }
+.wli-cat {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.wli-title {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--white);
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.wli-meta {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: .08em;
+}
+.wli-arrow {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--dim);
+  font-size: 14px;
+  transition: all .2s;
+}
+.writing-list-item:hover .wli-arrow {
+  color: var(--gold);
+  right: 18px;
+}
+
+/* ── CONTACT ── */
+#contact {
+  padding: 120px 48px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+.contact-left {}
+.contact-title {
+  font-family: var(--font-display);
+  font-size: clamp(56px, 8vw, 100px);
+  letter-spacing: .04em;
+  line-height: .95;
+  color: var(--white);
+  margin-bottom: 24px;
+}
+.contact-title .gold { color: var(--gold); }
+.contact-sub {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--muted);
+  margin-bottom: 40px;
+  max-width: 360px;
+}
+.contact-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.contact-link {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--white);
+  transition: all .2s;
+}
+.contact-link:first-child { border-top: 1px solid var(--border); }
+.contact-link:hover { padding-left: 8px; }
+.contact-link:hover .cl-arrow { color: var(--gold); }
+.cl-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .14em;
+  color: var(--muted);
+  margin-bottom: 2px;
+  text-transform: uppercase;
+}
+.cl-value {
+  font-size: 15px;
+  color: var(--white);
+}
+.cl-arrow { color: var(--dim); transition: color .2s; }
+.contact-right {
+  border: 1px solid var(--border);
+  padding: 48px;
+  background: rgba(201,168,76,.02);
+}
+.contact-form-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .18em;
+  color: var(--gold);
+  margin-bottom: 28px;
+}
+.form-group {
+  margin-bottom: 20px;
+}
+.form-group label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--border);
+  padding: 12px 16px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 14px;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color .25s;
+  -webkit-appearance: none;
+}
+.form-group select option { background: #111; }
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus { border-color: rgba(201,168,76,.5); }
+.form-group textarea { height: 100px; resize: none; }
+.btn-submit {
+  width: 100%;
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  padding: 14px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: .12em;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all .25s;
+  margin-top: 8px;
+}
+.btn-submit:hover { background: var(--gold-lt); }
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+.footer-logo {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: .1em;
+  color: var(--white);
+}
+.footer-logo span { color: var(--gold); }
+.footer-copy {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--dim);
+}
+.footer-right {
+  display: flex;
+  gap: 24px;
+}
+.footer-right a {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--dim);
+  text-decoration: none;
+  transition: color .2s;
+}
+.footer-right a:hover { color: var(--gold); }
+
+/* ── ANIMATIONS ── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity .8s ease, transform .8s ease;
+}
+.fade-up.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.fade-up-d1 { transition-delay: .1s; }
+.fade-up-d2 { transition-delay: .2s; }
+.fade-up-d3 { transition-delay: .3s; }
+.fade-up-d4 { transition-delay: .4s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  #hero { padding: 0 24px 60px; }
+  .hero-title { font-size: clamp(56px, 15vw, 100px); }
+  .hero-bottom { flex-direction: column; align-items: flex-start; gap: 32px; }
+  .hero-stats { gap: 32px; }
+  #about { grid-template-columns: 1fr; gap: 48px; padding: 80px 24px; }
+  #projects { padding: 80px 24px; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .project-card.featured { grid-column: span 1; grid-template-columns: 1fr; gap: 32px; }
+  #writing { padding: 80px 24px; }
+  .writing-grid { grid-template-columns: 1fr; }
+  #contact { grid-template-columns: 1fr; padding: 80px 24px; gap: 48px; }
+  footer { padding: 20px 24px; flex-wrap: wrap; gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+<div class="grid-lines"><span></span><span></span><span></span><span></span></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">ZI<span>O</span>N</a>
+  <ul class="nav-links">
+    <li><a href="#about">about</a></li>
+    <li><a href="#projects">ventures</a></li>
+    <li><a href="#writing">writing</a></li>
+    <li><a href="#contact">contact</a></li>
+  </ul>
+  <a href="#contact" class="nav-cta">CONNECT →</a>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg-number">Z</div>
+
+  <div class="hero-eyebrow">
+    <div class="hero-eyebrow-line"></div>
+    <span>Builder · Founder · Wealth Architect</span>
+  </div>
+
+  <h1 class="hero-title">
+    BUILD<br>
+    <span class="italic">wealth</span><br>
+    <span class="stroke">THROUGH</span><br>
+    TECH
+  </h1>
+
+  <div class="hero-bottom">
+    <div class="hero-bio">
+      <p><strong>用技术创造财富，</strong>用产品改变规则。</p>
+      <p>Zion — 连续创业者，AI Native Builder，相信每一行代码都可以是财富的起点。</p>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <div class="stat-num">1</div>
+        <div class="stat-label">ACTIVE VENTURE</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">∞</div>
+        <div class="stat-label">POSSIBILITIES</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span>SCROLL</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <div class="marquee-item"><div class="marquee-dot"></div><span>AI Native Builder</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>VibeCoding</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>qizh.space</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>Wealth Through Technology</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>用技术创造财富</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>Building in Public</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>2025</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>AI Native Builder</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>VibeCoding</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>qizh.space</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>Wealth Through Technology</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>用技术创造财富</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>Building in Public</span></div>
+    <div class="marquee-item"><div class="marquee-dot"></div><span>2025</span></div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-left fade-up">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">MANIFESTO</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="manifesto">
+      Technology is the greatest<br>
+      <em>wealth lever</em> of our time.
+    </p>
+    <p class="manifesto-sub">
+      我相信，这个时代最大的机会在于 AI 与技术的交汇点。我不只是观察者，我是建造者——用代码、用产品、用系统，将想法转化为可持续的商业价值。<br><br>
+      I build at the intersection of AI, product, and capital. Every venture is a bet on the future.
+    </p>
+  </div>
+
+  <div class="about-right fade-up fade-up-d2">
+    <div class="value-list">
+      <div class="value-item">
+        <span class="value-icon">[ 01 ]</span>
+        <div class="value-content">
+          <div class="value-name">Ship Fast, Learn Faster</div>
+          <div class="value-desc">速度是初创公司最大的武器。Vibe coding 让我们比任何时候都更快地验证想法、迭代产品。</div>
+        </div>
+      </div>
+      <div class="value-item">
+        <span class="value-icon">[ 02 ]</span>
+        <div class="value-content">
+          <div class="value-name">Build in Public</div>
+          <div class="value-desc">透明度是建立信任的最短路径。分享建设过程，分享失败与成功，这就是个人 IP 的核心。</div>
+        </div>
+      </div>
+      <div class="value-item">
+        <span class="value-icon">[ 03 ]</span>
+        <div class="value-content">
+          <div class="value-name">Technology × Capital</div>
+          <div class="value-desc">Good ideas need good execution. Good execution needs capital. I connect all three.</div>
+        </div>
+      </div>
+      <div class="value-item">
+        <span class="value-icon">[ 04 ]</span>
+        <div class="value-content">
+          <div class="value-name">Long-term Thinking</div>
+          <div class="value-desc">每个产品都是一个赌注，赌的是未来5年人们的行为方式。我只押长期赌注。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-header fade-up">
+    <span class="section-num">02</span>
+    <h2 class="section-title">VENTURES</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="projects-grid">
+    <!-- Featured: VibeCoding -->
+    <div class="project-card featured fade-up">
+      <div>
+        <div class="project-status">
+          <div class="status-dot"></div>
+          <span class="status-text">ACTIVE · BUILDING</span>
+        </div>
+        <div class="project-tag">AI · DEVELOPER TOOLS · 2025</div>
+        <div class="project-name">Vibe<span class="gold">Coding</span></div>
+        <p class="project-tagline">Code the way you think. Ship the way you dream.</p>
+        <p class="project-desc">
+          VibeCoding 是一个面向 AI Native 开发者的创业项目。我们相信「氛围编程」——在 AI 的加持下，任何人都可以把脑子里的想法变成真实的产品。我们正在构建工具、社区和方法论，帮助下一代 builders 用更少的摩擦、更多的创造力去构建世界。<br><br>
+          A venture building the infrastructure for the AI-native developer movement.
+        </p>
+        <div class="project-metrics">
+          <div class="metric">
+            <div class="metric-val">AI</div>
+            <div class="metric-label">NATIVE FIRST</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">0→1</div>
+            <div class="metric-label">STAGE</div>
+          </div>
+          <div class="metric">
+            <div class="metric-val">2025</div>
+            <div class="metric-label">FOUNDED</div>
+          </div>
+        </div>
+      </div>
+      <div class="project-visual">
+        <div class="code-window">
+          <div class="code-titlebar">
+            <div class="code-dot cd-r"></div>
+            <div class="code-dot cd-y"></div>
+            <div class="code-dot cd-g"></div>
+          </div>
+          <div class="code-body">
+            <span class="code-line"><span class="c-cm">// VibeCoding — build with intention</span></span>
+            <span class="code-line"></span>
+            <span class="code-line"><span class="c-kw">const</span> <span class="c-fn">idea</span> = <span class="c-str">"change the world"</span>;</span>
+            <span class="code-line"><span class="c-kw">const</span> <span class="c-fn">tools</span> = [<span class="c-str">"AI"</span>, <span class="c-str">"code"</span>, <span class="c-str">"vibe"</span>];</span>
+            <span class="code-line"></span>
+            <span class="code-line"><span class="c-kw">async function</span> <span class="c-fn">build</span>(idea) {</span>
+            <span class="code-line">  <span class="c-kw">const</span> product = <span class="c-kw">await</span> <span class="c-fn">ship</span>(idea);</span>
+            <span class="code-line">  <span class="c-kw">return</span> product.<span class="c-fn">createWealth</span>();</span>
+            <span class="code-line">}</span>
+            <span class="code-line"></span>
+            <span class="code-line"><span class="c-fn">build</span>(idea); <span class="c-cm">// 🚀</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="project-arrow">↗</div>
+    </div>
+
+    <!-- Small cards -->
+    <div class="project-card project-small-card fade-up fade-up-d1">
+      <div class="project-tag">PERSONAL IP · ONGOING</div>
+      <div class="project-name">Personal<br><span class="gold">Brand</span></div>
+      <p class="project-tagline">Building in public. Sharing the journey.</p>
+      <p class="project-desc">
+        记录创业过程、技术洞察、财富思维。在中文与英文双语社区建立影响力，打造可信赖的个人 IP。
+      </p>
+      <div class="project-arrow">↗</div>
+    </div>
+
+    <div class="project-card project-small-card fade-up fade-up-d2">
+      <div class="project-tag">NEXT · COMING SOON</div>
+      <div class="project-name">Next<br><span class="gold">Venture</span></div>
+      <p class="project-tagline">The next bet is always the biggest one.</p>
+      <p class="project-desc">
+        下一个项目正在孵化中。如果你对 AI、金融科技、或开发者工具有想法，欢迎聊聊。
+      </p>
+      <div class="project-arrow">→</div>
+    </div>
+  </div>
+</section>
+
+<!-- WRITING -->
+<section id="writing">
+  <div class="section-header fade-up">
+    <span class="section-num">03</span>
+    <h2 class="section-title">WRITING</h2>
+    <div class="section-line"></div>
+  </div>
+
+  <div class="writing-grid fade-up">
+    <div class="writing-featured">
+      <div class="writing-featured-tag">FEATURED ESSAY · 2025</div>
+      <h3 class="writing-featured-title">
+        为什么 Vibe Coding 是<br>
+        <em>这个时代最重要的技能</em>
+      </h3>
+      <p class="writing-featured-excerpt">
+        当 AI 把编程的门槛降到接近零，真正稀缺的不再是技术能力，而是想象力、品味和执行力。Vibe Coding 不是偷懒，它是一种新的创造方式——用直觉和意图引导 AI，把脑海中的愿景变成现实产品…
+      </p>
+      <div class="writing-meta">
+        <span class="writing-date">MAY 2025 · 8 MIN READ</span>
+        <a href="#" class="read-link">READ MORE →</a>
+      </div>
+    </div>
+
+    <div class="writing-list">
+      <a href="#" class="writing-list-item">
+        <div class="wli-cat">WEALTH · TECH</div>
+        <div class="wli-title">The AI Wealth Stack: How to Build Leverage in 2025</div>
+        <div class="wli-meta">APR 2025 · 6 MIN</div>
+        <span class="wli-arrow">→</span>
+      </a>
+      <a href="#" class="writing-list-item">
+        <div class="wli-cat">STARTUP · BUILDING</div>
+        <div class="wli-title">从0到1：我如何在30天内验证一个创业想法</div>
+        <div class="wli-meta">MAR 2025 · 5 MIN</div>
+        <span class="wli-arrow">→</span>
+      </a>
+      <a href="#" class="writing-list-item">
+        <div class="wli-cat">AI · PRODUCT</div>
+        <div class="wli-title">Why I Only Build AI-Native Products Now</div>
+        <div class="wli-meta">FEB 2025 · 4 MIN</div>
+        <span class="wli-arrow">→</span>
+      </a>
+      <a href="#" class="writing-list-item">
+        <div class="wli-cat">MINDSET · GROWTH</div>
+        <div class="wli-title">技术人如何构建个人IP：一个builder的实践指南</div>
+        <div class="wli-meta">JAN 2025 · 7 MIN</div>
+        <span class="wli-arrow">→</span>
+      </a>
+      <a href="#" class="writing-list-item" style="border-bottom:none;">
+        <div class="wli-cat">ALL ESSAYS →</div>
+        <div class="wli-title" style="color:var(--gold)">View all writing</div>
+        <div class="wli-meta">ARCHIVE</div>
+        <span class="wli-arrow" style="color:var(--gold)">→</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="contact-left fade-up">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">CONNECT</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="contact-title">LET'S<br>BUILD<br><span class="gold">TOGETHER</span></div>
+    <p class="contact-sub">
+      如果你在做 AI、SaaS、或有趣的创业项目，如果你想探讨技术与财富的交汇点，欢迎联系我。<br><br>
+      Open to collaborations, investments, and interesting conversations.
+    </p>
+    <div class="contact-links">
+      <a href="mailto:1733680684@qq.com" class="contact-link">
+        <div>
+          <div class="cl-label">EMAIL</div>
+          <div class="cl-value">1733680684@qq.com</div>
+        </div>
+        <span class="cl-arrow">→</span>
+      </a>
+      <a href="#" class="contact-link">
+        <div>
+          <div class="cl-label">TWITTER / X</div>
+          <div class="cl-value">@zion</div>
+        </div>
+        <span class="cl-arrow">→</span>
+      </a>
+      <a href="#" class="contact-link">
+        <div>
+          <div class="cl-label">WECHAT</div>
+          <div class="cl-value">Add me on WeChat</div>
+        </div>
+        <span class="cl-arrow">→</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="contact-right fade-up fade-up-d2">
+    <div class="contact-form-label">SEND A MESSAGE // 发消息</div>
+    <div class="form-group">
+      <label>Your Name / 姓名</label>
+      <input type="text" placeholder="How should I call you?">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" placeholder="your@email.com">
+    </div>
+    <div class="form-group">
+      <label>I'm reaching out about / 关于</label>
+      <select>
+        <option>Collaboration / 合作</option>
+        <option>Investment / 投资</option>
+        <option>VibeCoding</option>
+        <option>Just to say hi / 打个招呼</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Message / 消息</label>
+      <textarea placeholder="Tell me what's on your mind..."></textarea>
+    </div>
+    <button class="btn-submit">SEND MESSAGE →</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">ZI<span>O</span>N</div>
+  <span class="footer-copy">© 2025 · qizh.space · All rights reserved</span>
+  <div class="footer-right">
+    <a href="#about">About</a>
+    <a href="#projects">Ventures</a>
+    <a href="#writing">Writing</a>
+    <a href="mailto:1733680684@qq.com">Email</a>
+  </div>
+</footer>
+
+<script>
+// Custom cursor
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+function animateCursor() {
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+  rx += (mx - rx) * .12;
+  ry += (my - ry) * .12;
+  ring.style.left = rx + 'px';
+  ring.style.top = ry + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// Scroll fade
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Nav active state
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  nav.style.background = window.scrollY > 60 ? 'rgba(8,8,8,.95)' : 'rgba(8,8,8,.7)';
+});
+</script>
+</body>
+</html>

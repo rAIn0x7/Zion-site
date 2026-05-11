@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing — Zion</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --black:   #080808;
+  --white:   #f4f1ec;
+  --gold:    #c9a84c;
+  --gold-lt: #e8c97a;
+  --dim:     #3a3a3a;
+  --muted:   #6b6b6b;
+  --border:  rgba(201,168,76,.18);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-serif:   'Instrument Serif', serif;
+  --font-body:    'Outfit', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--black); color: var(--white); font-family: var(--font-body); font-weight: 300; overflow-x: hidden; cursor: none; }
+.cursor { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .25s, height .25s; }
+.cursor-ring { position: fixed; width: 32px; height: 32px; border: 1px solid rgba(201,168,76,.5); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all .15s ease; }
+body::before { content:''; position: fixed; inset:0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:1000; opacity:.4; }
+
+/* NAV */
+nav { position: fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:20px 48px; border-bottom:1px solid var(--border); backdrop-filter:blur(12px); background:rgba(8,8,8,.85); }
+.nav-logo { font-family:var(--font-display); font-size:22px; letter-spacing:.12em; color:var(--white); text-decoration:none; }
+.nav-logo span { color:var(--gold); }
+.nav-links { display:flex; gap:36px; list-style:none; }
+.nav-links a { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--muted); text-decoration:none; transition:color .2s; }
+.nav-links a:hover, .nav-links a.active { color:var(--white); }
+.nav-back { font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; color:var(--gold); text-decoration:none; border:1px solid var(--border); padding:8px 18px; border-radius:2px; transition:all .25s; }
+.nav-back:hover { background:var(--gold); color:var(--black); }
+
+/* HEADER */
+.page-header { padding: 140px 48px 60px; border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+.page-header-bg { position:absolute; top:-20px; right:-20px; font-family:var(--font-display); font-size:clamp(160px,25vw,320px); color:transparent; -webkit-text-stroke:1px rgba(201,168,76,.05); pointer-events:none; line-height:1; }
+.page-eyebrow { font-family:var(--font-mono); font-size:11px; letter-spacing:.2em; color:var(--gold); margin-bottom:20px; }
+.page-title { font-family:var(--font-display); font-size:clamp(56px,9vw,120px); letter-spacing:.04em; line-height:.9; color:var(--white); margin-bottom:20px; }
+.page-sub { font-size:14px; color:var(--muted); line-height:1.8; max-width:440px; }
+
+/* FILTER BAR */
+.filter-bar { padding: 0 48px; border-bottom: 1px solid var(--border); display: flex; gap: 0; overflow-x: auto; }
+.filter-btn { font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--muted); padding:16px 24px; border:none; background:none; cursor:pointer; border-bottom:2px solid transparent; transition:all .2s; white-space:nowrap; }
+.filter-btn:hover { color:var(--white); }
+.filter-btn.active { color:var(--gold); border-bottom-color:var(--gold); }
+
+/* ARTICLES */
+.articles-wrap { padding: 0 48px 120px; }
+.articles-featured { padding: 64px 0 0; margin-bottom: 0; }
+.featured-label { font-family:var(--font-mono); font-size:10px; letter-spacing:.18em; color:var(--gold); margin-bottom:32px; display:flex; align-items:center; gap:12px; }
+.featured-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.article-featured-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--border);
+  margin-bottom: 2px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .3s;
+  position: relative;
+  overflow: hidden;
+}
+.article-featured-card::before { content:''; position:absolute; inset:0; background:radial-gradient(ellipse at top left, rgba(201,168,76,.05), transparent 60%); opacity:0; transition:opacity .4s; }
+.article-featured-card:hover::before { opacity:1; }
+.article-featured-card:hover { border-color: rgba(201,168,76,.35); }
+.afc-left { padding: 48px; border-right: 1px solid var(--border); }
+.afc-right { padding: 48px; display: flex; flex-direction: column; justify-content: space-between; }
+.article-tag { font-family:var(--font-mono); font-size:10px; letter-spacing:.14em; color:var(--gold); margin-bottom:16px; }
+.article-featured-title { font-family:var(--font-serif); font-size:clamp(22px,2.8vw,34px); line-height:1.2; color:var(--white); margin-bottom:16px; }
+.article-featured-title em { font-style:italic; color:var(--gold); }
+.article-excerpt { font-size:14px; line-height:1.8; color:var(--muted); }
+.article-meta-row { display:flex; justify-content:space-between; align-items:center; margin-top:32px; padding-top:24px; border-top:1px solid var(--border); }
+.article-date { font-family:var(--font-mono); font-size:11px; color:var(--dim); letter-spacing:.1em; }
+.article-read-time { font-family:var(--font-mono); font-size:11px; color:var(--dim); letter-spacing:.1em; }
+.afc-tags { display:flex; flex-direction:column; gap:10px; }
+.afc-tag-item { font-family:var(--font-mono); font-size:10px; color:var(--muted); border:1px solid var(--border); padding:6px 12px; border-radius:2px; }
+.afc-read { font-family:var(--font-display); font-size:18px; letter-spacing:.1em; color:var(--gold); display:flex; align-items:center; gap:8px; transition:gap .2s; }
+.article-featured-card:hover .afc-read { gap:14px; }
+
+/* ARTICLE LIST */
+.articles-list-section { padding-top: 48px; }
+.list-label { font-family:var(--font-mono); font-size:10px; letter-spacing:.18em; color:var(--muted); margin-bottom:24px; display:flex; align-items:center; gap:12px; }
+.list-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+.article-row {
+  display: grid;
+  grid-template-columns: 80px 1fr auto 60px;
+  align-items: center;
+  gap: 32px;
+  padding: 28px 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: inherit;
+  transition: all .2s;
+  position: relative;
+}
+.article-row:first-child { border-top: 1px solid var(--border); }
+.article-row:hover { padding-left: 12px; }
+.article-row:hover .ar-num { color: var(--gold); }
+.article-row:hover .ar-arrow { color: var(--gold); transform: translate(4px,-4px); }
+.ar-num { font-family:var(--font-serif); font-style:italic; font-size:18px; color:var(--dim); }
+.ar-content {}
+.ar-cat { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; color:var(--gold); margin-bottom:6px; }
+.ar-title { font-size:16px; font-weight:400; color:var(--white); line-height:1.4; margin-bottom:4px; }
+.ar-excerpt { font-size:13px; color:var(--muted); line-height:1.6; }
+.ar-meta { text-align:right; }
+.ar-date { font-family:var(--font-mono); font-size:11px; color:var(--dim); letter-spacing:.08em; display:block; margin-bottom:4px; }
+.ar-time { font-family:var(--font-mono); font-size:10px; color:var(--dim); letter-spacing:.06em; }
+.ar-arrow { color:var(--dim); font-size:16px; transition:all .25s; }
+
+/* FADE */
+.fade-up { opacity:0; transform:translateY(24px); transition:opacity .7s ease, transform .7s ease; }
+.fade-up.visible { opacity:1; transform:translateY(0); }
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-links { display: none; }
+  .page-header { padding: 120px 24px 48px; }
+  .filter-bar { padding: 0 24px; }
+  .articles-wrap { padding: 0 24px 80px; }
+  .article-featured-card { grid-template-columns: 1fr; }
+  .afc-left { border-right: none; border-bottom: 1px solid var(--border); }
+  .article-row { grid-template-columns: 48px 1fr 24px; gap: 16px; }
+  .ar-meta { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">ZI<span>O</span>N</a>
+  <ul class="nav-links">
+    <li><a href="index.html#about">about</a></li>
+    <li><a href="index.html#projects">ventures</a></li>
+    <li><a href="writing.html" class="active">writing</a></li>
+    <li><a href="index.html#contact">contact</a></li>
+  </ul>
+  <a href="index.html" class="nav-back">← HOME</a>
+</nav>
+
+<div class="page-header">
+  <div class="page-header-bg">W</div>
+  <div class="page-eyebrow">— WRITING · 文章与随笔</div>
+  <h1 class="page-title">THOUGHTS<br>& IDEAS</h1>
+  <p class="page-sub">关于 AI、创业、财富创造和技术的深度思考。Build in public，write in public。</p>
+</div>
+
+<div class="filter-bar">
+  <button class="filter-btn active" data-filter="all">ALL</button>
+  <button class="filter-btn" data-filter="ai">AI · TECH</button>
+  <button class="filter-btn" data-filter="startup">STARTUP · 创业</button>
+  <button class="filter-btn" data-filter="wealth">WEALTH · 财富</button>
+  <button class="filter-btn" data-filter="mindset">MINDSET · 思维</button>
+</div>
+
+<div class="articles-wrap">
+  <div class="articles-featured">
+    <div class="featured-label">FEATURED ESSAY</div>
+
+    <a href="post.html" class="article-featured-card fade-up" data-category="ai startup">
+      <div class="afc-left">
+        <div class="article-tag">AI · DEVELOPER TOOLS · 2025</div>
+        <h2 class="article-featured-title">为什么 Vibe Coding 是<br><em>这个时代最重要的技能</em></h2>
+        <p class="article-excerpt">当 AI 把编程的门槛降到接近零，真正稀缺的不再是技术能力，而是想象力、品味和执行力。Vibe Coding 不是偷懒，它是一种新的创造方式——用直觉和意图引导 AI，把脑海中的愿景变成真实产品。这篇文章探讨为什么每一个想创造价值的人都应该学会 Vibe Coding。</p>
+        <div class="article-meta-row">
+          <span class="article-date">MAY 2025</span>
+          <span class="article-read-time">8 MIN READ</span>
+        </div>
+      </div>
+      <div class="afc-right">
+        <div class="afc-tags">
+          <span class="afc-tag-item">AI Native</span>
+          <span class="afc-tag-item">VibeCoding</span>
+          <span class="afc-tag-item">Productivity</span>
+          <span class="afc-tag-item">Future of Work</span>
+        </div>
+        <div class="afc-read">READ ESSAY →</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="articles-list-section">
+    <div class="list-label">ALL ARTICLES</div>
+
+    <a href="post.html" class="article-row fade-up" data-category="wealth">
+      <span class="ar-num">01</span>
+      <div class="ar-content">
+        <div class="ar-cat">WEALTH · TECH</div>
+        <div class="ar-title">The AI Wealth Stack: How to Build Leverage in 2025</div>
+        <div class="ar-excerpt">AI 时代的财富创造逻辑与传统有何不同？三种核心杠杆：代码、内容、资本。</div>
+      </div>
+      <div class="ar-meta">
+        <span class="ar-date">APR 2025</span>
+        <span class="ar-time">6 MIN</span>
+      </div>
+      <span class="ar-arrow">↗</span>
+    </a>
+
+    <a href="post.html" class="article-row fade-up" data-category="startup">
+      <span class="ar-num">02</span>
+      <div class="ar-content">
+        <div class="ar-cat">STARTUP · BUILDING</div>
+        <div class="ar-title">从0到1：我如何在30天内验证一个创业想法</div>
+        <div class="ar-excerpt">不需要完美的产品，只需要一个能验证假设的最小化实验。分享我的方法论。</div>
+      </div>
+      <div class="ar-meta">
+        <span class="ar-date">MAR 2025</span>
+        <span class="ar-time">5 MIN</span>
+      </div>
+      <span class="ar-arrow">↗</span>
+    </a>
+
+    <a href="post.html" class="article-row fade-up" data-category="ai">
+      <span class="ar-num">03</span>
+      <div class="ar-content">
+        <div class="ar-cat">AI · PRODUCT</div>
+        <div class="ar-title">Why I Only Build AI-Native Products Now</div>
+        <div class="ar-excerpt">The shift from "AI-powered" to "AI-native" is not semantic — it changes everything about how you build, price, and scale.</div>
+      </div>
+      <div class="ar-meta">
+        <span class="ar-date">FEB 2025</span>
+        <span class="ar-time">4 MIN</span>
+      </div>
+      <span class="ar-arrow">↗</span>
+    </a>
+
+    <a href="post.html" class="article-row fade-up" data-category="mindset">
+      <span class="ar-num">04</span>
+      <div class="ar-content">
+        <div class="ar-cat">MINDSET · 个人IP</div>
+        <div class="ar-title">技术人如何构建个人IP：一个 Builder 的实践指南</div>
+        <div class="ar-excerpt">技术能力是地基，个人IP是杠杆。分享我在打造个人品牌过程中最实用的框架和工具。</div>
+      </div>
+      <div class="ar-meta">
+        <span class="ar-date">JAN 2025</span>
+        <span class="ar-time">7 MIN</span>
+      </div>
+      <span class="ar-arrow">↗</span>
+    </a>
+
+    <a href="post.html" class="article-row fade-up" data-category="wealth startup">
+      <span class="ar-num">05</span>
+      <div class="ar-content">
+        <div class="ar-cat">WEALTH · STARTUP</div>
+        <div class="ar-title">Founder Mode vs Manager Mode: When to Switch</div>
+        <div class="ar-excerpt">Paul Graham's essay changed how I think about operating a startup. Here's my take after applying it for 6 months.</div>
+      </div>
+      <div class="ar-meta">
+        <span class="ar-date">DEC 2024</span>
+        <span class="ar-time">5 MIN</span>
+      </div>
+      <span class="ar-arrow">↗</span>
+    </a>
+
+    <a href="post.html" class="article-row fade-up" data-category="ai mindset">
+      <span class="ar-num">06</span>
+      <div class="ar-content">
+        <div class="ar-cat">AI · MINDSET</div>
+        <div class="ar-title">AI 时代的认知革命：如何保持人类独特价值</div>
+        <div class="ar-excerpt">当机器能做大多数事情的时候，人类应该做什么？关于判断力、品味和方向感的思考。</div>
+      </div>
+      <div class="ar-meta">
+        <span class="ar-date">NOV 2024</span>
+        <span class="ar-time">6 MIN</span>
+      </div>
+      <span class="ar-arrow">↗</span>
+    </a>
+  </div>
+</div>
+
+<script>
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+function animateCursor() {
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+// Filter
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    const filter = this.dataset.filter;
+    document.querySelectorAll('.article-row, .article-featured-card').forEach(row => {
+      const cat = row.dataset.category || '';
+      if(filter === 'all' || cat.includes(filter)) {
+        row.style.display = '';
+        setTimeout(() => row.classList.add('visible'), 50);
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>
