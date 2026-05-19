@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Zion</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --black:   #080808;
+  --white:   #f4f1ec;
+  --gold:    #c9a84c;
+  --gold-lt: #e8c97a;
+  --dim:     #3a3a3a;
+  --muted:   #6b6b6b;
+  --border:  rgba(201,168,76,.18);
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-serif:   'Instrument Serif', serif;
+  --font-body:    'Outfit', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+}
+html { scroll-behavior: smooth; }
+body { background: var(--black); color: var(--white); font-family: var(--font-body); font-weight: 300; overflow-x: hidden; cursor: none; }
+.cursor { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .25s, height .25s; }
+.cursor-ring { position: fixed; width: 32px; height: 32px; border: 1px solid rgba(201,168,76,.5); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all .15s ease; }
+body::before { content:''; position: fixed; inset:0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:1000; opacity:.4; }
+
+nav { position: fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:20px 48px; border-bottom:1px solid var(--border); backdrop-filter:blur(12px); background:rgba(8,8,8,.85); }
+.nav-logo { font-family:var(--font-display); font-size:22px; letter-spacing:.12em; color:var(--white); text-decoration:none; }
+.nav-logo span { color:var(--gold); }
+.nav-back { font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; color:var(--gold); text-decoration:none; border:1px solid var(--border); padding:8px 18px; border-radius:2px; transition:all .25s; }
+.nav-back:hover { background:var(--gold); color:var(--black); }
+
+.page-wrap { max-width: 760px; margin: 0 auto; padding: 140px 48px 100px; }
+.page-eyebrow { font-family:var(--font-mono); font-size:11px; letter-spacing:.2em; color:var(--gold); margin-bottom:16px; }
+h1 { font-family:var(--font-display); font-size:clamp(48px,8vw,96px); letter-spacing:.04em; line-height:.9; color:var(--white); margin-bottom:32px; }
+.updated { font-family:var(--font-mono); font-size:11px; color:var(--muted); letter-spacing:.1em; margin-bottom:56px; padding-bottom:32px; border-bottom:1px solid var(--border); }
+
+h2 { font-family:var(--font-display); font-size:22px; letter-spacing:.08em; color:var(--white); margin:48px 0 16px; }
+p { font-size:16px; line-height:1.85; color:rgba(244,241,236,.72); margin-bottom:20px; }
+p strong { color:var(--white); font-weight:500; }
+ul { list-style:none; margin-bottom:20px; }
+ul li { font-size:16px; line-height:1.8; color:rgba(244,241,236,.72); padding:8px 0 8px 24px; border-bottom:1px solid rgba(201,168,76,.07); position:relative; }
+ul li::before { content:'—'; position:absolute; left:0; color:var(--gold); font-family:var(--font-mono); font-size:12px; }
+a { color:var(--gold); text-decoration:none; }
+a:hover { color:var(--gold-lt); }
+
+footer { border-top:1px solid var(--border); padding:28px 48px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.footer-logo { font-family:var(--font-display); font-size:18px; letter-spacing:.1em; color:var(--white); text-decoration:none; }
+.footer-logo span { color:var(--gold); }
+.footer-copy { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; color:var(--dim); }
+.footer-right { display:flex; gap:24px; }
+.footer-right a { font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; color:var(--muted); text-decoration:none; transition:color .2s; }
+.footer-right a:hover { color:var(--gold); }
+
+@media (hover: none) { .cursor, .cursor-ring { display:none; } body { cursor:auto; } }
+@media (max-width: 900px) {
+  nav { padding: 16px 24px; }
+  .nav-back { display: block; }
+  .page-wrap { padding: 110px 24px 80px; }
+  footer { padding: 20px 24px; }
+}
+@media (max-width: 480px) {
+  h1 { font-size: clamp(40px, 14vw, 64px); }
+  .footer-right { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a href="index.html" class="nav-logo">ZI<span>O</span>N</a>
+  <a href="index.html" class="nav-back">← HOME</a>
+</nav>
+
+<div class="page-wrap">
+  <div class="page-eyebrow">— LEGAL</div>
+  <h1>PRIVACY<br>POLICY</h1>
+  <p class="updated">LAST UPDATED: MAY 2026</p>
+
+  <p>This Privacy Policy explains how <strong>qizh.space</strong> ("this site", "I", "we") collects, uses, and protects information when you visit. By using this site, you agree to the practices described below.</p>
+
+  <h2>Information We Collect</h2>
+  <ul>
+    <li><strong>Usage data</strong> — pages visited, time on site, browser type, device type, and referring URL. Collected automatically via Google Analytics.</li>
+    <li><strong>Cookies</strong> — used by Google Analytics to distinguish users and by Google AdSense to serve relevant ads.</li>
+    <li><strong>Contact data</strong> — if you reach out via email, your email address and message content are retained only as long as necessary to respond.</li>
+  </ul>
+
+  <h2>How We Use Your Information</h2>
+  <ul>
+    <li>To understand how visitors interact with the site and improve the content.</li>
+    <li>To display relevant advertisements via Google AdSense.</li>
+    <li>To respond to inquiries you send directly.</li>
+  </ul>
+
+  <h2>Google AdSense &amp; Advertising</h2>
+  <p>This site uses Google AdSense to display advertisements. Google and its partners may use cookies to serve ads based on your prior visits to this site or other sites on the internet. You can opt out of personalised advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google Ads Settings</a> or <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener">aboutads.info</a>.</p>
+
+  <h2>Google Analytics</h2>
+  <p>This site uses Google Analytics to collect anonymised usage statistics. Google Analytics uses cookies to report on site interactions without identifying individual users. You can opt out by installing the <a href="https://tools.google.com/dlpage/gaoptout" target="_blank" rel="noopener">Google Analytics Opt-out Browser Add-on</a>.</p>
+
+  <h2>Third-Party Links</h2>
+  <p>This site contains links to external websites. I am not responsible for the privacy practices or content of those sites. Please review their privacy policies independently.</p>
+
+  <h2>Cookies</h2>
+  <p>This site uses cookies for analytics and advertising purposes as described above. Most browsers allow you to control cookies through their settings. Disabling cookies may affect your experience on this site.</p>
+
+  <h2>Data Retention</h2>
+  <p>Usage data collected via Google Analytics is retained according to Google's standard data retention settings (26 months by default). Direct communications are retained only as long as necessary.</p>
+
+  <h2>Your Rights</h2>
+  <p>Depending on your location, you may have the right to access, correct, or delete personal data associated with you. To make such a request, contact me at the email below.</p>
+
+  <h2>Changes to This Policy</h2>
+  <p>This policy may be updated from time to time. The "Last Updated" date at the top of this page reflects the most recent revision. Continued use of this site after changes constitutes acceptance of the updated policy.</p>
+
+  <h2>Contact</h2>
+  <p>Questions about this policy? Email <a href="mailto:zihao.qi@worldengine.ai">zihao.qi@worldengine.ai</a></p>
+</div>
+
+<footer>
+  <a href="index.html" class="footer-logo">ZI<span>O</span>N</a>
+  <span class="footer-copy">© 2026 · qizh.space</span>
+  <div class="footer-right">
+    <a href="index.html">Home</a>
+    <a href="writing.html">Writing</a>
+    <a href="privacy.html">Privacy Policy</a>
+  </div>
+</footer>
+
+<script>
+const cursor = document.getElementById('cursor');
+const ring = document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; });
+function animateCursor() {
+  cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+</script>
+</body>
+</html>
