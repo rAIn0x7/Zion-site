@@ -879,10 +879,27 @@ footer {
 .fade-up-d3 { transition-delay: .3s; }
 .fade-up-d4 { transition-delay: .4s; }
 
+/* ── MOBILE NAV ── */
+.nav-menu-btn { display:none; flex-direction:column; gap:5px; background:none; border:none; cursor:none; padding:6px 4px; z-index:201; }
+.nav-menu-btn span { display:block; width:22px; height:1px; background:var(--white); transition:transform .3s, opacity .3s; }
+.nav-menu-btn.open span:nth-child(1) { transform:translateY(6px) rotate(45deg); }
+.nav-menu-btn.open span:nth-child(2) { opacity:0; }
+.nav-menu-btn.open span:nth-child(3) { transform:translateY(-6px) rotate(-45deg); }
+.mobile-nav { display:none; position:fixed; inset:0; background:rgba(8,8,8,.97); z-index:200; flex-direction:column; justify-content:center; align-items:center; backdrop-filter:blur(20px); }
+.mobile-nav.open { display:flex; }
+.mobile-nav-links { list-style:none; text-align:center; width:100%; }
+.mobile-nav-links li { border-bottom:1px solid var(--border); }
+.mobile-nav-links li:first-child { border-top:1px solid var(--border); }
+.mobile-nav-links a { display:block; font-family:var(--font-display); font-size:clamp(36px,10vw,56px); letter-spacing:.06em; color:var(--white); text-decoration:none; padding:18px 48px; transition:color .2s; }
+.mobile-nav-links a:hover { color:var(--gold); }
+.mobile-nav-cta { margin-top:40px; font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--gold); text-decoration:none; border:1px solid var(--border); padding:12px 28px; border-radius:2px; transition:all .25s; }
+
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   nav { padding: 16px 24px; }
   .nav-links { display: none; }
+  .nav-cta { display: none; }
+  .nav-menu-btn { display: flex; }
   #hero { padding: 0 24px 60px; }
   .hero-title { font-size: clamp(56px, 15vw, 100px); }
   .hero-bottom { flex-direction: column; align-items: flex-start; gap: 32px; }
@@ -914,7 +931,20 @@ footer {
     <li><a href="#contact">contact</a></li>
   </ul>
   <a href="#contact" class="nav-cta">CONNECT →</a>
+  <button class="nav-menu-btn" id="menuBtn" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <ul class="mobile-nav-links">
+    <li><a href="#about" class="mobile-link">ABOUT</a></li>
+    <li><a href="#projects" class="mobile-link">VENTURES</a></li>
+    <li><a href="writing.html" class="mobile-link">WRITING</a></li>
+    <li><a href="#contact" class="mobile-link">CONNECT</a></li>
+  </ul>
+  <a href="https://lens.qizh.space" target="_blank" rel="noopener" class="mobile-nav-cta mobile-link">CRYPTOLENS ↗</a>
+</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -939,8 +969,8 @@ footer {
     </div>
     <div class="hero-stats">
       <div class="stat">
-        <div class="stat-num">1</div>
-        <div class="stat-label">ACTIVE VENTURE</div>
+        <div class="stat-num">2</div>
+        <div class="stat-label">ACTIVE VENTURES</div>
       </div>
       <div class="stat">
         <div class="stat-num">∞</div>
@@ -1043,7 +1073,7 @@ footer {
           <div class="status-dot"></div>
           <span class="status-text">ACTIVE · BUILDING</span>
         </div>
-        <div class="project-tag">AI · DEVELOPER TOOLS · 2025</div>
+        <div class="project-tag">AI · DEVELOPER TOOLS · 2026</div>
         <div class="project-name">Vibe<span class="gold">Coding</span></div>
         <p class="project-tagline">Code the way you think. Ship the way you dream.</p>
         <p class="project-desc">
@@ -1101,15 +1131,19 @@ footer {
       <div class="project-arrow">↗</div>
     </div>
 
-    <div class="project-card project-small-card fade-up fade-up-d2">
-      <div class="project-tag">NEXT · COMING SOON</div>
-      <div class="project-name">Next <span class="gold">Venture</span></div>
-      <p class="project-tagline">The next bet is always the biggest one.</p>
+    <a href="https://lens.qizh.space" target="_blank" rel="noopener" class="project-card project-small-card fade-up fade-up-d2">
+      <div class="project-status">
+        <div class="status-dot"></div>
+        <span class="status-text">ACTIVE · LIVE</span>
+      </div>
+      <div class="project-tag">AI · CRYPTO INTELLIGENCE · 2026</div>
+      <div class="project-name">Crypto<span class="gold">Lens</span></div>
+      <p class="project-tagline">Filtered crypto × AI intelligence.</p>
       <p class="project-desc">
-        下一个项目正在孵化中。如果你对 AI、金融科技、或开发者工具有想法，欢迎聊聊。
+        实时聚合加密市场信号，用 AI 过滤噪音，每日提炼最值得关注的核心信号。节省每天 2 小时的信息焦虑。Save 2 hours daily on noise.
       </p>
-      <div class="project-arrow">→</div>
-    </div>
+      <div class="project-arrow">↗</div>
+    </a>
   </div>
 </section>
 
@@ -1123,7 +1157,7 @@ footer {
 
   <div class="writing-grid fade-up">
     <div class="writing-featured">
-      <div class="writing-featured-tag">FEATURED ESSAY · 2025</div>
+      <div class="writing-featured-tag">FEATURED ESSAY · 2026</div>
       <h3 class="writing-featured-title">
         为什么 Vibe Coding 是<br>
         <em>这个时代最重要的技能</em>
@@ -1132,7 +1166,7 @@ footer {
         当 AI 把编程的门槛降到接近零，真正稀缺的不再是技术能力，而是想象力、品味和执行力。Vibe Coding 不是偷懒，它是一种新的创造方式——用直觉和意图引导 AI，把脑海中的愿景变成现实产品…
       </p>
       <div class="writing-meta">
-        <span class="writing-date">MAY 2025 · 8 MIN READ</span>
+        <span class="writing-date">MAY 2026 · 8 MIN READ</span>
         <a href="post.html" class="read-link">READ MORE →</a>
       </div>
     </div>
@@ -1141,25 +1175,25 @@ footer {
       <a href="post.html" class="writing-list-item">
         <div class="wli-cat">WEALTH · TECH</div>
         <div class="wli-title">The AI Wealth Stack: How to Build Leverage in 2025</div>
-        <div class="wli-meta">APR 2025 · 6 MIN</div>
+        <div class="wli-meta">APR 2026 · 6 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="post.html" class="writing-list-item">
         <div class="wli-cat">STARTUP · BUILDING</div>
         <div class="wli-title">从0到1：我如何在30天内验证一个创业想法</div>
-        <div class="wli-meta">MAR 2025 · 5 MIN</div>
+        <div class="wli-meta">MAR 2026 · 5 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="post.html" class="writing-list-item">
         <div class="wli-cat">AI · PRODUCT</div>
         <div class="wli-title">Why I Only Build AI-Native Products Now</div>
-        <div class="wli-meta">FEB 2025 · 4 MIN</div>
+        <div class="wli-meta">FEB 2026 · 4 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="post.html" class="writing-list-item">
         <div class="wli-cat">MINDSET · GROWTH</div>
         <div class="wli-title">技术人如何构建个人IP：一个builder的实践指南</div>
-        <div class="wli-meta">JAN 2025 · 7 MIN</div>
+        <div class="wli-meta">JAN 2026 · 7 MIN</div>
         <span class="wli-arrow">→</span>
       </a>
       <a href="writing.html" class="writing-list-item" style="border-bottom:none;">
@@ -1213,27 +1247,28 @@ footer {
   <div class="contact-right fade-up fade-up-d2">
     <div class="contact-form-label">SEND A MESSAGE // 发消息</div>
     <div class="form-group">
-      <label>Your Name / 姓名</label>
-      <input type="text" placeholder="How should I call you?">
+      <label for="f-name">Your Name / 姓名</label>
+      <input id="f-name" type="text" placeholder="How should I call you?">
     </div>
     <div class="form-group">
-      <label>Email</label>
-      <input type="email" placeholder="your@email.com">
+      <label for="f-email">Email</label>
+      <input id="f-email" type="email" placeholder="your@email.com">
     </div>
     <div class="form-group">
-      <label>I'm reaching out about / 关于</label>
-      <select>
+      <label for="f-topic">I'm reaching out about / 关于</label>
+      <select id="f-topic">
         <option>Collaboration / 合作</option>
         <option>Investment / 投资</option>
         <option>VibeCoding</option>
+        <option>CryptoLens</option>
         <option>Just to say hi / 打个招呼</option>
       </select>
     </div>
     <div class="form-group">
-      <label>Message / 消息</label>
-      <textarea placeholder="Tell me what's on your mind..."></textarea>
+      <label for="f-msg">Message / 消息</label>
+      <textarea id="f-msg" placeholder="Tell me what's on your mind..."></textarea>
     </div>
-    <button class="btn-submit">SEND MESSAGE →</button>
+    <button class="btn-submit" onclick="sendMessage()">SEND MESSAGE →</button>
   </div>
 </section>
 
@@ -1278,6 +1313,34 @@ window.addEventListener('scroll', () => {
   const nav = document.querySelector('nav');
   nav.style.background = window.scrollY > 60 ? 'rgba(8,8,8,.95)' : 'rgba(8,8,8,.7)';
 });
+
+// Mobile nav
+const menuBtn = document.getElementById('menuBtn');
+const mobileNav = document.getElementById('mobileNav');
+menuBtn.addEventListener('click', () => {
+  const open = mobileNav.classList.toggle('open');
+  menuBtn.classList.toggle('open', open);
+  document.body.style.overflow = open ? 'hidden' : '';
+});
+document.querySelectorAll('.mobile-link').forEach(link => {
+  link.addEventListener('click', () => {
+    mobileNav.classList.remove('open');
+    menuBtn.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+
+// Contact form → mailto
+function sendMessage() {
+  const name = document.getElementById('f-name').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const topic = document.getElementById('f-topic').value;
+  const msg = document.getElementById('f-msg').value.trim();
+  if (!msg) { alert('Please write a message first.'); return; }
+  const subject = encodeURIComponent(`[${topic}] from ${name || 'visitor'}`);
+  const body = encodeURIComponent(`From: ${name || 'anonymous'}\nEmail: ${email || 'not provided'}\n\n${msg}`);
+  window.location.href = `mailto:1733680684@qq.com?subject=${subject}&body=${body}`;
+}
 </script>
 </body>
 </html>
