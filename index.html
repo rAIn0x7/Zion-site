@@ -895,6 +895,159 @@ footer {
 .mobile-nav-links a:hover { color:var(--gold); }
 .mobile-nav-cta { margin-top:40px; font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--gold); text-decoration:none; border:1px solid var(--border); padding:12px 28px; border-radius:2px; transition:all .25s; }
 
+/* ── SUBSCRIBE SECTION ── */
+#subscribe {
+  padding: 120px 48px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  background: radial-gradient(ellipse at center, rgba(201,168,76,.05) 0%, transparent 68%);
+}
+.sub-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .22em;
+  color: var(--gold);
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.sub-eyebrow::before, .sub-eyebrow::after {
+  content: '';
+  width: 40px; height: 1px;
+  background: var(--gold);
+  opacity: .5;
+}
+.sub-title {
+  font-family: var(--font-display);
+  font-size: clamp(52px, 8vw, 110px);
+  letter-spacing: .03em;
+  line-height: .9;
+  color: var(--white);
+  margin-bottom: 32px;
+}
+.sub-title em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--gold);
+  font-size: .95em;
+}
+.sub-desc {
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--muted);
+  max-width: 500px;
+  margin: 0 auto 36px;
+}
+.sub-social {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+.sub-social-num {
+  font-family: var(--font-display);
+  font-size: 44px;
+  letter-spacing: .06em;
+  color: var(--gold);
+  line-height: 1;
+}
+.sub-social-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .13em;
+  color: var(--muted);
+}
+.sub-form {
+  display: flex;
+  gap: 0;
+  max-width: 460px;
+  margin: 0 auto 16px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+  transition: border-color .25s;
+}
+.sub-form:focus-within { border-color: rgba(201,168,76,.5); }
+.sub-input {
+  flex: 1;
+  background: rgba(255,255,255,.03);
+  border: none;
+  padding: 15px 20px;
+  color: var(--white);
+  font-family: var(--font-body);
+  font-size: 14px;
+  outline: none;
+}
+.sub-input::placeholder { color: var(--muted); }
+.sub-btn {
+  background: var(--gold);
+  color: var(--black);
+  border: none;
+  padding: 15px 28px;
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: .1em;
+  cursor: pointer;
+  transition: background .2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.sub-btn:hover { background: var(--gold-lt); }
+.sub-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--dim);
+  margin-bottom: 0;
+}
+.sub-success {
+  display: none;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: .14em;
+  color: #4ade80;
+  margin-bottom: 12px;
+  padding: 14px 24px;
+  border: 1px solid rgba(74,222,128,.2);
+  border-radius: 2px;
+  max-width: 460px;
+  margin: 0 auto 16px;
+}
+.sub-success.show { display: block; }
+.sub-perks {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  margin-top: 48px;
+  flex-wrap: wrap;
+}
+.sub-perk {
+  text-align: left;
+  max-width: 160px;
+}
+.sub-perk-icon {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gold);
+  letter-spacing: .1em;
+  margin-bottom: 8px;
+}
+.sub-perk-text {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+@media (max-width: 900px) {
+  #subscribe { padding: 80px 24px; }
+  .sub-form { max-width: 100%; }
+  .sub-perks { gap: 24px; }
+}
+
 /* ── SCROLL PROGRESS ── */
 .progress-bar {
   position: fixed;
@@ -1020,7 +1173,7 @@ a.writing-featured {
     <li><a href="writing.html">writing</a></li>
     <li><a href="#contact">contact</a></li>
   </ul>
-  <a href="#contact" class="nav-cta">CONNECT →</a>
+  <a href="#subscribe" class="nav-cta">SUBSCRIBE →</a>
   <button class="nav-menu-btn" id="menuBtn" aria-label="Toggle menu">
     <span></span><span></span><span></span>
   </button>
@@ -1061,6 +1214,10 @@ a.writing-featured {
       <div class="stat">
         <div class="stat-num">2</div>
         <div class="stat-label">ACTIVE VENTURES</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">500+</div>
+        <div class="stat-label">NEWSLETTER READERS</div>
       </div>
       <div class="stat">
         <div class="stat-num">∞</div>
@@ -1296,6 +1453,40 @@ a.writing-featured {
   </div>
 </section>
 
+<!-- SUBSCRIBE -->
+<section id="subscribe" class="fade-up">
+  <div class="sub-eyebrow">WEEKLY NEWSLETTER</div>
+  <h2 class="sub-title">AI · 财富 · 下一个<br><em>十年的赌注</em></h2>
+  <p class="sub-desc">
+    每周一篇深度分析——AI 趋势、创业逻辑、财富思维。<br>
+    不发噪音，只发值得你 10 分钟的内容。
+  </p>
+  <div class="sub-social">
+    <span class="sub-social-num">500+</span>
+    <span class="sub-social-label">builders & investors already reading</span>
+  </div>
+  <form class="sub-form" id="subForm" onsubmit="handleSubscribe(event)">
+    <input class="sub-input" type="email" placeholder="your@email.com" required id="subEmail">
+    <button class="sub-btn" type="submit">JOIN FREE →</button>
+  </form>
+  <div class="sub-success" id="subSuccess">✓ You're on the list — see you next week.</div>
+  <p class="sub-note">No spam · 1 email/week · Unsubscribe anytime</p>
+  <div class="sub-perks">
+    <div class="sub-perk">
+      <div class="sub-perk-icon">[ 01 ]</div>
+      <div class="sub-perk-text">AI 行业深度分析，不是新闻摘要</div>
+    </div>
+    <div class="sub-perk">
+      <div class="sub-perk-icon">[ 02 ]</div>
+      <div class="sub-perk-text">创业与财富思维框架，有原创观点</div>
+    </div>
+    <div class="sub-perk">
+      <div class="sub-perk-icon">[ 03 ]</div>
+      <div class="sub-perk-text">Zion 正在构建的项目进展第一手</div>
+    </div>
+  </div>
+</section>
+
 <!-- CONTACT -->
 <section id="contact">
   <div class="contact-left fade-up">
@@ -1444,6 +1635,16 @@ document.querySelectorAll('.mobile-link').forEach(link => {
     document.body.style.overflow = '';
   });
 });
+
+// Newsletter subscribe
+function handleSubscribe(e) {
+  e.preventDefault();
+  const email = document.getElementById('subEmail').value.trim();
+  if (!email) return;
+  // Wire to Substack / Mailchimp / Supabase here
+  document.getElementById('subForm').style.display = 'none';
+  document.getElementById('subSuccess').classList.add('show');
+}
 
 // Contact form → mailto
 function sendMessage() {
