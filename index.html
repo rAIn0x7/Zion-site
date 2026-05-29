@@ -895,6 +895,94 @@ footer {
 .mobile-nav-links a:hover { color:var(--gold); }
 .mobile-nav-cta { margin-top:40px; font-family:var(--font-mono); font-size:11px; letter-spacing:.14em; color:var(--gold); text-decoration:none; border:1px solid var(--border); padding:12px 28px; border-radius:2px; transition:all .25s; }
 
+/* ── SCROLL PROGRESS ── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 2px;
+  background: linear-gradient(to right, var(--gold), var(--gold-lt));
+  z-index: 201;
+  width: 0%;
+  transition: width .08s linear;
+  pointer-events: none;
+}
+
+/* ── MARQUEE PAUSE ON HOVER ── */
+.marquee-wrap:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* ── VALUE ITEM ENHANCED HOVER ── */
+.value-item {
+  border-left: 2px solid transparent;
+  transition: all .3s;
+}
+.value-item:hover {
+  padding-left: 14px;
+  border-left-color: var(--gold);
+}
+
+/* ── NAV ACTIVE STATE ── */
+.nav-links a.active {
+  color: var(--white);
+}
+.nav-links a.active::after {
+  width: 100%;
+}
+
+/* ── WRITING FEATURED AS LINK ── */
+a.writing-featured {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ── PROJECT CARD LIFT ── */
+.project-card:not(.featured):hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.4);
+}
+
+/* ── FORM SUCCESS ── */
+.form-success {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 24px;
+  gap: 16px;
+}
+.form-success.show { display: flex; }
+.form-success-ring {
+  width: 64px; height: 64px;
+  border: 1px solid var(--gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: var(--gold);
+  margin-bottom: 8px;
+  animation: ringFade 0.6s ease forwards;
+}
+@keyframes ringFade {
+  from { opacity: 0; transform: scale(.7); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.form-success-title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  letter-spacing: .1em;
+  color: var(--white);
+}
+.form-success-sub {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  color: var(--muted);
+  line-height: 1.9;
+}
+
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   nav { padding: 16px 24px; }
@@ -918,6 +1006,7 @@ footer {
 </head>
 <body>
 
+<div class="progress-bar" id="progressBar"></div>
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 <div class="grid-lines"><span></span><span></span><span></span><span></span></div>
@@ -1157,7 +1246,7 @@ footer {
   </div>
 
   <div class="writing-grid fade-up">
-    <div class="writing-featured">
+    <a href="post.html" class="writing-featured">
       <div class="writing-featured-tag">FEATURED ESSAY · 2026</div>
       <h3 class="writing-featured-title">
         为什么 Vibe Coding 是<br>
@@ -1168,9 +1257,9 @@ footer {
       </p>
       <div class="writing-meta">
         <span class="writing-date">MAY 2026 · 8 MIN READ</span>
-        <a href="post.html" class="read-link">READ MORE →</a>
+        <span class="read-link">READ MORE →</span>
       </div>
-    </div>
+    </a>
 
     <div class="writing-list">
       <a href="post.html" class="writing-list-item">
@@ -1246,30 +1335,37 @@ footer {
   </div>
 
   <div class="contact-right fade-up fade-up-d2">
-    <div class="contact-form-label">SEND A MESSAGE // 发消息</div>
-    <div class="form-group">
-      <label for="f-name">Your Name / 姓名</label>
-      <input id="f-name" type="text" placeholder="How should I call you?">
+    <div id="formFields">
+      <div class="contact-form-label">SEND A MESSAGE // 发消息</div>
+      <div class="form-group">
+        <label for="f-name">Your Name / 姓名</label>
+        <input id="f-name" type="text" placeholder="How should I call you?">
+      </div>
+      <div class="form-group">
+        <label for="f-email">Email</label>
+        <input id="f-email" type="email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label for="f-topic">I'm reaching out about / 关于</label>
+        <select id="f-topic">
+          <option>Collaboration / 合作</option>
+          <option>Investment / 投资</option>
+          <option>VibeCoding</option>
+          <option>CryptoLens</option>
+          <option>Just to say hi / 打个招呼</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="f-msg">Message / 消息</label>
+        <textarea id="f-msg" placeholder="Tell me what's on your mind..."></textarea>
+      </div>
+      <button class="btn-submit" onclick="sendMessage()">SEND MESSAGE →</button>
     </div>
-    <div class="form-group">
-      <label for="f-email">Email</label>
-      <input id="f-email" type="email" placeholder="your@email.com">
+    <div class="form-success" id="formSuccess">
+      <div class="form-success-ring">✓</div>
+      <div class="form-success-title">MESSAGE READY</div>
+      <div class="form-success-sub">Your email client has been opened.<br>Looking forward to connecting.</div>
     </div>
-    <div class="form-group">
-      <label for="f-topic">I'm reaching out about / 关于</label>
-      <select id="f-topic">
-        <option>Collaboration / 合作</option>
-        <option>Investment / 投资</option>
-        <option>VibeCoding</option>
-        <option>CryptoLens</option>
-        <option>Just to say hi / 打个招呼</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label for="f-msg">Message / 消息</label>
-      <textarea id="f-msg" placeholder="Tell me what's on your mind..."></textarea>
-    </div>
-    <button class="btn-submit" onclick="sendMessage()">SEND MESSAGE →</button>
   </div>
 </section>
 
@@ -1309,11 +1405,29 @@ const observer = new IntersectionObserver(entries => {
 }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
 document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-// Nav active state
+// Scroll: progress bar + nav background
+const progressBar = document.getElementById('progressBar');
 window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = (scrollTop / docHeight * 100) + '%';
   const nav = document.querySelector('nav');
-  nav.style.background = window.scrollY > 60 ? 'rgba(8,8,8,.95)' : 'rgba(8,8,8,.7)';
+  nav.style.background = scrollTop > 60 ? 'rgba(8,8,8,.95)' : 'rgba(8,8,8,.7)';
 });
+
+// Active nav section detection
+const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+const sectionObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const id = entry.target.getAttribute('id');
+      navLinks.forEach(link => {
+        link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+      });
+    }
+  });
+}, { rootMargin: '-30% 0px -65% 0px' });
+document.querySelectorAll('section[id]').forEach(s => sectionObserver.observe(s));
 
 // Mobile nav
 const menuBtn = document.getElementById('menuBtn');
@@ -1337,10 +1451,18 @@ function sendMessage() {
   const email = document.getElementById('f-email').value.trim();
   const topic = document.getElementById('f-topic').value;
   const msg = document.getElementById('f-msg').value.trim();
-  if (!msg) { alert('Please write a message first.'); return; }
+  if (!msg) {
+    const ta = document.getElementById('f-msg');
+    ta.style.borderColor = 'rgba(255,80,80,.6)';
+    ta.focus();
+    setTimeout(() => { ta.style.borderColor = ''; }, 1800);
+    return;
+  }
   const subject = encodeURIComponent(`[${topic}] from ${name || 'visitor'}`);
   const body = encodeURIComponent(`From: ${name || 'anonymous'}\nEmail: ${email || 'not provided'}\n\n${msg}`);
   window.location.href = `mailto:1733680684@qq.com?subject=${subject}&body=${body}`;
+  document.getElementById('formFields').style.display = 'none';
+  document.getElementById('formSuccess').classList.add('show');
 }
 </script>
 </body>
