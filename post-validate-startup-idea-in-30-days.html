@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="别憋大招。我用一个 30 天流程,以最小成本最快速度验证需求——找痛点、做最小可用、丢给真实用户、看数据,然后决定继续还是杀掉。">
+<title>从 0 到 1:我如何在 30 天内验证一个创业想法 — Zion</title>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0908;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);
+--display:'Bebas Neue',sans-serif;--serif:'Instrument Serif',serif;--body:'Outfit',system-ui,sans-serif;--mono:'DM Mono',monospace;}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.85;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.aurora i{position:absolute;width:46vw;height:46vw;left:-8vw;top:-12vw;border-radius:50%;filter:blur(110px);opacity:.28;background:radial-gradient(circle,rgba(216,162,74,.5),transparent 70%)}
+nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+padding:16px 32px;backdrop-filter:blur(12px);background:rgba(10,9,8,.78);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:22px;letter-spacing:.16em}.logo span{color:var(--gold)}
+.nav-r{display:flex;gap:22px;align-items:center}
+.nav-r a{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:lowercase}
+.nav-r a:hover{color:var(--white)}
+.nav-r .cta{color:var(--gold);border:1px solid var(--border);padding:8px 16px;border-radius:99px;text-transform:none}
+.nav-r .cta:hover{background:var(--gold);color:var(--black)}
+.art{max-width:720px;margin:0 auto;padding:70px 24px 40px}
+.back{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--muted);display:inline-block;margin-bottom:34px}
+.back:hover{color:var(--gold)}
+.chip{display:inline-block;padding:5px 13px;border-radius:99px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;
+background:rgba(201,168,76,.16);color:var(--gold-lt);margin-bottom:24px}
+h1.t{font-family:var(--body);font-weight:600;font-size:clamp(30px,5vw,48px);line-height:1.18;letter-spacing:-.01em;margin-bottom:18px}
+.meta{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--dim);padding-bottom:34px;margin-bottom:40px;border-bottom:1px solid var(--border)}
+.body p{font-size:17px;color:#ded8cc;margin-bottom:24px}
+.body h2{font-family:var(--body);font-weight:600;font-size:24px;color:var(--white);margin:48px 0 18px;letter-spacing:-.01em}
+.body blockquote{font-family:var(--serif);font-style:italic;font-size:24px;line-height:1.45;color:var(--gold-lt);
+border-left:2px solid var(--gold);padding:6px 0 6px 24px;margin:36px 0}
+.cta-box{margin:60px auto 0;max-width:720px;border:1px solid var(--border);border-radius:14px;padding:40px 32px;text-align:center;
+background:radial-gradient(ellipse at 50% 0,rgba(201,168,76,.08),transparent 70%),rgba(201,168,76,.02)}
+.cta-box h3{font-family:var(--display);font-size:40px;letter-spacing:.04em;margin-bottom:10px}.cta-box h3 em{font-family:var(--serif);font-style:italic;color:var(--gold)}
+.cta-box p{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);margin-bottom:22px}
+.cta-box a{display:inline-block;background:var(--gold);color:var(--black);font-family:var(--mono);font-size:12px;letter-spacing:.1em;font-weight:500;padding:13px 28px;border-radius:99px;transition:.25s}
+.cta-box a:hover{background:var(--gold-lt)}
+footer{border-top:1px solid var(--border);margin-top:60px;padding:28px 32px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--dim)}
+footer a:hover{color:var(--gold)}
+@media(max-width:600px){nav{padding:14px 20px}.art{padding:48px 22px 30px}.body p{font-size:16px}}
+</style>
+</head>
+<body>
+<div class="aurora"><i></i></div>
+<nav>
+  <a href="index.html" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="writing.html">writing</a><a href="about.html">about</a><a href="index.html#subscribe" class="cta">Subscribe →</a></div>
+</nav>
+<article class="art">
+  <a href="writing.html" class="back">← All writing</a>
+  <span class="chip">STARTUP</span>
+  <h1 class="t">从 0 到 1:我如何在 30 天内验证一个创业想法</h1>
+  <div class="meta">MAR 2026 · 5 MIN READ · BY ZION</div>
+  <div class="body">
+<p>我杀掉过一个自己写了三个月的产品。三个月,夜里两点改 bug,自以为打磨得很精致——上线第一周,日活个位数,而且其中一半是我自己。那一刻我才真正懂了一件事:你花在没人要的东西上的每一分钟,都是在给自己的判断力交学费。</p>
+<p>从那以后我给自己定了条规矩:任何新想法,先用 30 天验证,不准超。30 天之内,这东西要么显出活气,要么我亲手把它埋了。听起来很冷酷,但这恰恰是对自己时间最大的温柔。</p>
+<h2>第 1–7 天:找痛点,别找点子</h2>
+<p>点子是廉价的,痛点才值钱。我做 CryptoLens 的起点不是"我想做个链上分析工具",而是一个具体到尴尬的场景:我自己每天要在七八个标签页之间来回切,Etherscan、Dune、几个 Telegram 群,就为了搞清楚一个钱包到底在干嘛。这个动作我重复了上百次。痛点就是那种你不自觉地、反复地、用蠢办法在解决的东西。</p>
+<p>头一周我不写一行代码。我去翻 Twitter 上别人的抱怨,去 Discord 里潜水,去问五个真实的人——不是问"你觉得这个想法好不好"(这个问题永远得到礼貌的"挺好啊"),而是问"你上次遇到这个问题是什么时候、当时怎么解决的、花了多久"。过去式的问题才能逼出真相。一个肯为这事骂娘的人,胜过十个说"听起来不错"的人。</p>
+<blockquote>验证的不是你的点子有多聪明,而是别人的痛有多真。</blockquote>
+<h2>第 8–20 天:最小可用,丑一点没关系</h2>
+<p>这是完美主义者最容易翻车的地方。我自己也犯过——总想着登录系统要做好、UI 要顺、边界情况要全。停。第一个版本的唯一任务是:让一个真实的人,完成那一个核心动作。</p>
+<p>Lens 的第一版,我用 Cursor 加 Claude 三个晚上拼出来的。Supabase 存数据,前端粗糙到我都不好意思截图,核心功能就一个:粘贴一个钱包地址,给你一句人话的总结。没有登录,没有付费,没有 onboarding 引导。我甚至把它部署在一个免费的 Vercel 域名上。整个东西成本接近于零,除了我那三个通宵。</p>
+<p>关键不是它能做多少,而是它能不能让你观察到一个真实的人在用它时的反应。功能越少,信号越干净。如果连这一个动作都没人愿意做完,加再多功能也救不回来。我现在做任何 MVP,都强迫自己回答:砍到不能再砍,剩下的那一个动作是什么?</p>
+<h2>第 21–30 天:丢给真实用户,然后冷酷地看数据</h2>
+<p>做出来不算验证,被用才算。我把 Lens 丢进了三个我自己活跃的群,配一句话:"做了个小工具,粘地址出总结,帮我试试?"然后我做了一件很多人不敢做的事——闭嘴,看。</p>
+<p>我盯的不是有多少人点了链接(那只代表我面子还行),而是:有多少人粘了第二个地址。第一次是给我面子,第二次才是给产品投票。Lens 那一批二十几个种子用户里,有六个人在没有我催的情况下回来用了第三次、第四次,还有两个跑来问"能不能批量"。那一刻我才允许自己继续投入。</p>
+<p>反过来说,如果数据是平的——大家点进来,粘一次,礼貌地说"挺酷的",然后再也不回来——那这就是一个清晰的"杀"信号,哪怕它让你心碎。我见过太多人(包括过去的我)在这种时候骗自己:"是不是我推广不够""是不是再加个功能就好了"。不。沉默的二次留存就是答案。第 30 天我会做一个二选一的决定:加倍投入,或者干净地停掉,去做下一个。没有"再观察观察"。</p>
+<p>这套流程救我的,不是帮我做出更多产品,而是帮我更快地放弃错的、把活下来的时间全押在对的上面。30 天、几乎零成本、一个真实信号——这是我能给一个想法最公平、也最残忍的审判。先验证,再 all in。憋大招的浪漫,我已经赔不起了。</p>
+  </div>
+</article>
+<div class="cta-box">
+  <h3>GET THE <em>signal</em></h3>
+  <p>每周一篇深度分析 · 500+ builders & investors reading</p>
+  <a href="index.html#subscribe">JOIN THE NEWSLETTER →</a>
+</div>
+<footer>
+  <span>© 2026 · qizh.space</span>
+  <span><a href="index.html">Home</a> · <a href="writing.html">Writing</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a></span>
+</footer>
+</body>
+</html>
