@@ -408,7 +408,7 @@ class Game extends Phaser.Scene {
     this.spawnT -= dt;
     if (this.spawnT > 0 || this.enemies.length > 140) return;
     this.spawnT = Math.max(0.28, 1.3 - this.elapsed * 0.012);
-    const n = 1 + Math.floor(this.elapsed / 25);
+    const n = Math.min(7, 1 + Math.floor(this.elapsed / 28)); // 封顶波数:后期可玩 + 保帧率
     for (let i = 0; i < n; i++) {
       const r = Math.random(); let type = 'basic';
       if (this.elapsed > 30 && r < 0.10) type = 'tank';
@@ -427,7 +427,7 @@ class Game extends Phaser.Scene {
     this.addEnemy(type, x, y);
   }
   addEnemy(type, x, y) {
-    const hp0 = 18 + this.elapsed * 1.4;
+    const hp0 = 16 + this.elapsed * 1.25; // 平滑血量曲线
     let e;
     if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 30, sprite: 'enemy_tank', col: 0xc060ff };
     else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
