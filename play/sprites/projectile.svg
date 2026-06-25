@@ -1,0 +1,18 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="pGlow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#fff7c2" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#ffcf3a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="pStar" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff3a0"/>
+      <stop offset="1" stop-color="#ffb01f"/>
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="40" fill="url(#pGlow)"/>
+  <path d="M50 14 L60 40 L88 42 L66 60 L74 88 L50 71 L26 88 L34 60 L12 42 L40 40 Z" fill="url(#pStar)" stroke="#c47a00" stroke-width="3.5" stroke-linejoin="round"/>
+  <path d="M50 26 L56 42 L72 43 L59 54 L64 71 L50 60 L36 71 L41 54 L28 43 L44 42 Z" fill="#fffbe0" opacity="0.6"/>
+  <circle cx="44" cy="44" r="3.5" fill="#fff"/>
+  <circle cx="16" cy="22" r="3" fill="#fff7c2"/>
+  <circle cx="84" cy="76" r="2.5" fill="#fff7c2"/>
+</svg>

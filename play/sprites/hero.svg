@@ -1,0 +1,30 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="hHat" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7c5cff"/>
+      <stop offset="1" stop-color="#4a2fb0"/>
+    </linearGradient>
+    <linearGradient id="hRobe" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#6a8bff"/>
+      <stop offset="1" stop-color="#3a55c8"/>
+    </linearGradient>
+  </defs>
+  <ellipse cx="50" cy="92" rx="24" ry="5" fill="#000" opacity="0.18"/>
+  <path d="M30 70 Q50 60 70 70 L76 90 Q50 96 24 90 Z" fill="url(#hRobe)" stroke="#22306e" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M50 64 L50 90" stroke="#22306e" stroke-width="2.5" opacity="0.5"/>
+  <circle cx="50" cy="48" r="22" fill="#ffe0bd" stroke="#3a2a1a" stroke-width="3"/>
+  <path d="M30 42 Q34 30 50 30 Q66 30 70 42 Q60 36 50 38 Q40 36 30 42 Z" fill="#7a4a25" stroke="#3a2a1a" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M28 38 Q50 6 72 38 Q50 30 28 38 Z" fill="url(#hHat)" stroke="#2b1a66" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M22 40 Q50 30 78 40 Q50 50 22 40 Z" fill="#8a6bff" stroke="#2b1a66" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="58" cy="22" r="3.5" fill="#ffe14d" stroke="#2b1a66" stroke-width="2"/>
+  <ellipse cx="42" cy="50" rx="5" ry="6.5" fill="#2a2a3a"/>
+  <ellipse cx="58" cy="50" rx="5" ry="6.5" fill="#2a2a3a"/>
+  <circle cx="43.5" cy="48" r="1.8" fill="#fff"/>
+  <circle cx="59.5" cy="48" r="1.8" fill="#fff"/>
+  <circle cx="34" cy="57" r="3.5" fill="#ff9ab0" opacity="0.8"/>
+  <circle cx="66" cy="57" r="3.5" fill="#ff9ab0" opacity="0.8"/>
+  <path d="M45 59 Q50 63 55 59" fill="none" stroke="#3a2a1a" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="74" y1="56" x2="80" y2="88" stroke="#6a4a2a" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="73" cy="52" r="6" fill="#5ff0d8" stroke="#1a6a5a" stroke-width="2.5"/>
+  <circle cx="71" cy="50" r="1.8" fill="#fff"/>
+</svg>
