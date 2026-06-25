@@ -335,8 +335,9 @@ class Game extends Phaser.Scene {
       { t: '🪃 回旋镖 +1', f: () => { this.stats.boom += 1; } },
     ];
   }
-  spawnChest() {
-    const x = 60 + Math.random()*(W-120), y = 130 + Math.random()*(H-280);
+  spawnChest(px, py) {
+    const x = (px === undefined) ? 60 + Math.random()*(W-120) : px;
+    const y = (py === undefined) ? 130 + Math.random()*(H-280) : py;
     const obj = this.add.image(x, y, 'gem').setTint(0xffd23a).setDisplaySize(32, 32).setDepth(2);
     this.tweens.add({ targets: obj, scale: obj.scale*1.18, duration: 500, yoyo: true, repeat: -1 });
     this.chests.push({ x, y, obj });
@@ -422,6 +423,9 @@ class Game extends Phaser.Scene {
       this.boss = e; e.abilityT = 5; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
       const t = this.add.text(W/2, H/2, '👹 BOSS 来袭!', { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(15);
       this.tweens.add({ targets: t, alpha: 0, y: H/2-50, duration: 1300, onComplete: () => t.destroy() });
+    } else if (type !== 'mini' && this.elapsed > 20 && Math.random() < 0.05) { // 精英怪:金色强化,必爆宝箱
+      e.elite = true; e.hp *= 3; e.maxHp *= 3; e.xp *= 4; e.r *= 1.4;
+      e.obj.setDisplaySize(e.r*2.8, e.r*2.8).setTint(0xffd700);
     }
     this.enemies.push(e);
     return e;
@@ -668,6 +672,7 @@ class Game extends Phaser.Scene {
     e.dead = true; this.kills++;
     this.burst(e.x, e.y, e.col, (e.type === 'tank' || e.type === 'boss') ? 12 : 6); SFX.kill();
     if (e.splits) { for (let k = 0; k < 2; k++) this.addEnemy('mini', e.x + (Math.random()-0.5)*30, e.y + (Math.random()-0.5)*30); } // 分裂怪
+    if (e.elite) { this.spawnChest(e.x, e.y); this.burst(e.x, e.y, 0xffd700, 14); } // 精英怪必爆宝箱
     if (this.kills === 100) this.tryAch('kill100');
     if (e === this.boss) {
       this.boss = null; this.cameras.main.shake(300, 0.013); this.ring(e.x, e.y, 0xc060ff, 190); SFX.level();
