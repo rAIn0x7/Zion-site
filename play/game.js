@@ -265,7 +265,7 @@ class Game extends Phaser.Scene {
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     this.stars = []; // 动态星空背景(替代扁平网格)
     for (let i = 0; i < 56; i++) { const s = this.add.circle(Math.random()*W, Math.random()*H, Math.random() < 0.3 ? 1.7 : 1, 0x4a5a8a, 0.55).setDepth(-1); s.vy = 8 + Math.random()*24; this.stars.push(s); }
-    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60;
+    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60; this.combo = 0; this.comboT = 0;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
@@ -286,6 +286,7 @@ class Game extends Phaser.Scene {
     if (this.over || this.paused) return;
     const dt = Math.min(dms, 50) / 1000;
     this.elapsed += dt; this.hurtCd -= dt;
+    this.comboT -= dt; if (this.comboT <= 0) this.combo = 0;
     this.musicT -= dt; if (this.musicT <= 0) { this.musicT = 0.28; SFX.beat(); }
     this.updateStars(dt);
     this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt); this.updateFrost(dt); this.updateBooms(dt); this.updateBiome(dt);
@@ -670,6 +671,8 @@ class Game extends Phaser.Scene {
   killEnemy(e) {
     if (e.dead) return;
     e.dead = true; this.kills++;
+    this.combo++; this.comboT = 2.0;
+    if (this.combo === 25 || this.combo === 50 || this.combo === 100 || this.combo === 200) { this.banner('🔥 连杀 x' + this.combo + '!', '#ff9a40'); this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10); }
     this.burst(e.x, e.y, e.col, (e.type === 'tank' || e.type === 'boss') ? 12 : 6); SFX.kill();
     if (e.splits) { for (let k = 0; k < 2; k++) this.addEnemy('mini', e.x + (Math.random()-0.5)*30, e.y + (Math.random()-0.5)*30); } // 分裂怪
     if (e.elite) { this.spawnChest(e.x, e.y); this.burst(e.x, e.y, 0xffd700, 14); } // 精英怪必爆宝箱
@@ -727,6 +730,7 @@ class Game extends Phaser.Scene {
     this.add.rectangle(W/2, 40, W-30, 10, 0x222).setDepth(10);
     this.xpFill = this.add.rectangle(16, 40, 0, 10, 0x8affc0).setOrigin(0,0.5).setDepth(11);
     this.info = this.add.text(W/2, 58, '', { fontSize: '15px', color: '#cde', resolution: DPR }).setOrigin(0.5,0).setDepth(11);
+    this.comboText = this.add.text(W/2, 80, '', { fontSize: '16px', color: '#ff9a40', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5,0).setDepth(11);
     this.add.text(W/2, H-24, '拖动摇杆 / WASD 移动 · 自动开火 · 活得越久越强', { fontSize: '11px', color: '#7a9', resolution: DPR }).setOrigin(0.5,0).setDepth(10);
     // 静音开关
     this.muteBtn = this.add.text(W-14, 76, SFX.muted ? '🔇' : '🔊', { fontSize: '20px', resolution: DPR }).setOrigin(1, 0).setDepth(12).setInteractive({ useHandCursor: true });
@@ -743,6 +747,7 @@ class Game extends Phaser.Scene {
     this.hpFill.width = (W-30) * Math.max(0, this.player.hp / this.player.maxHp);
     this.xpFill.width = (W-30) * Math.max(0, this.xp / this.xpNeed);
     this.info.setText(`Lv.${this.level}   ⏱ ${Math.floor(this.elapsed)}s   💀 ${this.kills}`);
+    this.comboText.setText(this.combo >= 5 ? `🔥 连杀 x${this.combo}` : '');
     const bossAlive = this.boss && !this.boss.dead;
     this.bossLabel.setVisible(bossAlive); this.bossBarBg.setVisible(bossAlive); this.bossBarFill.setVisible(bossAlive);
     if (bossAlive) this.bossBarFill.width = (W-40) * Math.max(0, this.boss.hp / this.boss.maxHp);
