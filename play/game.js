@@ -22,6 +22,15 @@ const SFX = {
   hurt() { this.blip(90, 0.12, 'sawtooth', 0.05); },
   level() { this.blip(523, 0.1, 'triangle', 0.06); setTimeout(() => this.blip(784, 0.13, 'triangle', 0.06), 90); },
   over() { this.blip(160, 0.3, 'sawtooth', 0.07); setTimeout(() => this.blip(80, 0.5, 'sawtooth', 0.07), 130); },
+  beatI: 0,
+  beat() { // 循环背景乐:低音 bass loop + 隔拍 arp
+    if (this.muted || !this.ctx) return;
+    const bass = [98.0, 110.0, 130.81, 110.0, 98.0, 87.31, 130.81, 123.47];
+    const f = bass[this.beatI % bass.length];
+    this.blip(f, 0.26, 'triangle', 0.045);
+    if (this.beatI % 2 === 0) this.blip(f * 3.01, 0.10, 'square', 0.015);
+    this.beatI++;
+  },
   toggle() { this.muted = !this.muted; localStorage.setItem('fm_muted', this.muted ? '1' : '0'); return this.muted; },
 };
 
@@ -237,8 +246,9 @@ class Game extends Phaser.Scene {
     this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0, chain: 0 };
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
-    for (let gx = 60; gx < W; gx += 60) this.add.rectangle(gx, H/2, 1, H, 0x16203a).setDepth(-1);
-    for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a).setDepth(-1);
+    this.stars = []; // 动态星空背景(替代扁平网格)
+    for (let i = 0; i < 56; i++) { const s = this.add.circle(Math.random()*W, Math.random()*H, Math.random() < 0.3 ? 1.7 : 1, 0x4a5a8a, 0.55).setDepth(-1); s.vy = 8 + Math.random()*24; this.stars.push(s); }
+    this.floatN = 0; this.musicT = 0;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
@@ -259,6 +269,8 @@ class Game extends Phaser.Scene {
     if (this.over || this.paused) return;
     const dt = Math.min(dms, 50) / 1000;
     this.elapsed += dt; this.hurtCd -= dt;
+    this.musicT -= dt; if (this.musicT <= 0) { this.musicT = 0.28; SFX.beat(); }
+    this.updateStars(dt);
     this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt);
     this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateEbullets(dt); this.updateHUD();
   }
@@ -274,6 +286,15 @@ class Game extends Phaser.Scene {
   ring(x, y, color, r) {
     const c = this.add.circle(x, y, 8, color, 0).setStrokeStyle(3, color, 0.9).setDepth(6);
     this.tweens.add({ targets: c, scale: (r || 80) / 8, alpha: 0, duration: 340, onComplete: () => c.destroy() });
+  }
+  updateStars(dt) {
+    for (const s of this.stars) { s.y += s.vy * dt; if (s.y > H + 2) { s.y = -2; s.x = Math.random() * W; } }
+  }
+  floatText(x, y, txt, color) { // 漂浮伤害数字(并发上限,防刷屏)
+    if (this.floatN >= 22) return;
+    this.floatN++;
+    const t = this.add.text(x, y, txt, { fontSize: '15px', color: color || '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(7);
+    this.tweens.add({ targets: t, y: y - 30, alpha: 0, duration: 480, onComplete: () => { t.destroy(); this.floatN--; } });
   }
 
   // ---------- 玩家 ----------
@@ -497,6 +518,7 @@ class Game extends Phaser.Scene {
           e.hp -= pr.dmg;
           e.obj.setTintFill(0xffffff);
           this.time.delayedCall(60, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
+          this.floatText(e.x, e.y - e.r, '' + Math.round(pr.dmg), this.boltEvolved ? '#fff0a0' : '#ffffff');
           const ka = Phaser.Math.Angle.Between(this.player.x, this.player.y, e.x, e.y); // 受击击退,打击更实
           e.x += Math.cos(ka) * 6; e.y += Math.sin(ka) * 6;
           if (e.hp <= 0) this.killEnemy(e);
