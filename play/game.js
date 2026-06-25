@@ -228,7 +228,7 @@ class Game extends Phaser.Scene {
 
   create() {
     this.over = false; this.paused = false;
-    this.enemies = []; this.projs = []; this.gems = []; this.orbiters = [];
+    this.enemies = []; this.projs = []; this.gems = []; this.orbiters = []; this.ebullets = [];
     this.elapsed = 0; this.kills = 0; this.level = 1; this.xp = 0; this.xpNeed = 5;
     this.fireT = 0; this.spawnT = 0.5; this.hurtCd = 0;
     this.bossT = 50; this.boss = null; this.auraObj = null; this.auraT = 0;
@@ -260,7 +260,7 @@ class Game extends Phaser.Scene {
     const dt = Math.min(dms, 50) / 1000;
     this.elapsed += dt; this.hurtCd -= dt;
     this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt);
-    this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateHUD();
+    this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateEbullets(dt); this.updateHUD();
   }
 
   // ---------- 打击感小工具 ----------
@@ -302,8 +302,10 @@ class Game extends Phaser.Scene {
     const n = 1 + Math.floor(this.elapsed / 25);
     for (let i = 0; i < n; i++) {
       const r = Math.random(); let type = 'basic';
-      if (this.elapsed > 30 && r < 0.12) type = 'tank';
-      else if (this.elapsed > 15 && r < 0.34) type = 'fast';
+      if (this.elapsed > 30 && r < 0.10) type = 'tank';
+      else if (this.elapsed > 35 && r < 0.22) type = 'splitter';
+      else if (this.elapsed > 25 && r < 0.36) type = 'shooter';
+      else if (this.elapsed > 15 && r < 0.52) type = 'fast';
       this.spawnEnemy(type);
     }
   }
@@ -313,30 +315,68 @@ class Game extends Phaser.Scene {
     else if (edge === 1) { x = Math.random()*W; y = H+20; }
     else if (edge === 2) { x = -20; y = Math.random()*H; }
     else { x = W+20; y = Math.random()*H; }
+    this.addEnemy(type, x, y);
+  }
+  addEnemy(type, x, y) {
     const hp0 = 18 + this.elapsed * 1.4;
     let e;
     if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 30, sprite: 'enemy_tank', col: 0xc060ff };
     else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
+    else if (type === 'shooter') e = { type, r: 13, hp: hp0*1.4, maxHp: hp0*1.4, speed: 48 + this.elapsed*0.3, dmg: 8, xp: 2, sprite: 'enemy_fast', col: 0xffb060, fireT: 1.5 };
+    else if (type === 'splitter') e = { type, r: 16, hp: hp0*1.2, maxHp: hp0*1.2, speed: 50 + this.elapsed*0.4, dmg: 12, xp: 2, sprite: 'enemy_basic', col: 0xe0e060, splits: true };
+    else if (type === 'mini') e = { type, r: 8, hp: hp0*0.4, maxHp: hp0*0.4, speed: 80 + this.elapsed*0.4, dmg: 7, xp: 1, sprite: 'enemy_basic', col: 0x7be86a };
     else if (type === 'fast') e = { type, r: 11, hp: hp0*0.55, maxHp: hp0*0.55, speed: 95 + this.elapsed*0.5, dmg: 9, xp: 1, sprite: 'enemy_fast', col: 0xff7a9c };
     else e = { type, r: 14, hp: hp0, maxHp: hp0, speed: 56 + this.elapsed*0.5, dmg: 12, xp: 1, sprite: 'enemy_basic', col: 0x7be86a };
     e.x = x; e.y = y; e.orbCd = 0; e.slowT = 0; e.speed = Math.min(e.speed, type === 'fast' ? 185 : 150);
     e.obj = this.add.image(x, y, e.sprite).setDepth(3).setDisplaySize(e.r*2.8, e.r*2.8);
+    if (type === 'shooter') e.obj.setTint(0xffb060);
+    if (type === 'splitter') e.obj.setTint(0xe0e060);
     if (type === 'boss') {
-      this.boss = e; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
+      this.boss = e; e.abilityT = 5; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
       const t = this.add.text(W/2, H/2, '👹 BOSS 来袭!', { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(15);
       this.tweens.add({ targets: t, alpha: 0, y: H/2-50, duration: 1300, onComplete: () => t.destroy() });
     }
     this.enemies.push(e);
+    return e;
+  }
+  enemyShoot(e, angle) {
+    const obj = this.add.image(e.x, e.y, 'projectile').setDepth(4).setDisplaySize(17, 17).setTint(0xff6060);
+    obj.rotation = angle;
+    this.ebullets.push({ x: e.x, y: e.y, vx: Math.cos(angle)*250, vy: Math.sin(angle)*250, life: 3, dmg: 8, obj });
+  }
+  updateEbullets(dt) {
+    const p = this.player;
+    for (const b of this.ebullets) {
+      b.x += b.vx*dt; b.y += b.vy*dt; b.life -= dt; b.obj.x = b.x; b.obj.y = b.y;
+      if (b.life <= 0 || b.x < -30 || b.x > W+30 || b.y < -30 || b.y > H+30) { b.dead = true; continue; }
+      if (Phaser.Math.Distance.Between(b.x, b.y, p.x, p.y) < p.r + 6) {
+        b.dead = true; p.hp -= b.dmg;
+        if (this.hurtCd <= 0) { this.cameras.main.shake(120, 0.006); SFX.hurt(); p.obj.setTint(0xff6666); this.time.delayedCall(110, () => { if (p.obj.active) p.obj.clearTint(); }); this.hurtCd = 0.45; }
+        if (p.hp <= 0) { this.end(); break; }
+      }
+    }
+    this.ebullets = this.ebullets.filter(b => { if (b.dead) b.obj.destroy(); return !b.dead; });
   }
   moveEnemies(dt) {
     const p = this.player;
     for (const e of this.enemies) {
       if (e.orbCd > 0) e.orbCd -= dt;
       let sp = e.speed; if (e.slowT > 0) { e.slowT -= dt; sp *= 0.5; } // 奥能风暴减速
+      const d = Phaser.Math.Distance.Between(e.x, e.y, p.x, p.y);
       const a = Phaser.Math.Angle.Between(e.x, e.y, p.x, p.y);
-      e.x += Math.cos(a)*sp*dt; e.y += Math.sin(a)*sp*dt;
+      if (e.type === 'shooter') {                 // 远程射手:拉开距离 + 射击
+        if (d > 220) { e.x += Math.cos(a)*sp*dt; e.y += Math.sin(a)*sp*dt; }
+        e.fireT -= dt;
+        if (e.fireT <= 0 && d < 430) { this.enemyShoot(e, a); e.fireT = 1.8; }
+      } else {
+        e.x += Math.cos(a)*sp*dt; e.y += Math.sin(a)*sp*dt;
+      }
+      if (e === this.boss) {                       // Boss 技能:周期召唤
+        e.abilityT -= dt;
+        if (e.abilityT <= 0) { e.abilityT = 6; this.ring(e.x, e.y, 0xc060ff, 80); for (let k = 0; k < 2; k++) this.addEnemy('basic', e.x + (Math.random()-0.5)*60, e.y + (Math.random()-0.5)*60); }
+      }
       e.obj.x = e.x; e.obj.y = e.y;
-      if (Phaser.Math.Distance.Between(e.x, e.y, p.x, p.y) < e.r + p.r) {
+      if (d < e.r + p.r) {
         this.player.hp -= e.dmg * dt;
         if (this.hurtCd <= 0) { this.cameras.main.shake(120, 0.006); SFX.hurt(); this.player.obj.setTint(0xff6666); this.time.delayedCall(110, () => { if (this.player.obj.active) this.player.obj.clearTint(); }); this.hurtCd = 0.45; }
         if (this.player.hp <= 0) return this.end();
@@ -475,6 +515,7 @@ class Game extends Phaser.Scene {
     if (e.dead) return;
     e.dead = true; this.kills++;
     this.burst(e.x, e.y, e.col, (e.type === 'tank' || e.type === 'boss') ? 12 : 6); SFX.kill();
+    if (e.splits) { for (let k = 0; k < 2; k++) this.addEnemy('mini', e.x + (Math.random()-0.5)*30, e.y + (Math.random()-0.5)*30); } // 分裂怪
     if (e === this.boss) {
       this.boss = null; this.cameras.main.shake(300, 0.013); this.ring(e.x, e.y, 0xc060ff, 190); SFX.level();
       for (let k = 0; k < 6; k++) { const a = k/6*Math.PI*2; this.dropGem(e.x+Math.cos(a)*34, e.y+Math.sin(a)*34, 5, true); }
