@@ -90,6 +90,13 @@ function shareScore(secs, level, kills, best) {
 }
 window._makeCard = makeScoreCard; // 便于测试
 
+/* ── 可选英雄(各有起手特性) ── */
+const CHARS = [
+  { key: 'mage',    name: '🧙 法师', desc: '均衡\n标准弹幕', tint: 0xffffff, apply: (s, p) => {} },
+  { key: 'warrior', name: '🛡 战士', desc: '高血近战\n起手带光球', tint: 0xff9a9a, apply: (s, p) => { p.maxHp += 50; p.hp = p.maxHp; s.moveSpeed *= 1.05; s.fireCd *= 1.15; s.orbit = 1; } },
+  { key: 'ranger',  name: '🏹 游侠', desc: '快但脆\n起手双发', tint: 0x9affc0, apply: (s, p) => { p.maxHp -= 20; p.hp = p.maxHp; s.moveSpeed *= 1.18; s.projCount = 2; s.fireCd *= 0.9; } },
+];
+
 /* ── 浮动虚拟摇杆 ── */
 class VirtualJoystick {
   constructor(scene, opts = {}) {
@@ -155,20 +162,23 @@ class Title extends Phaser.Scene {
     const best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
     if (best > 0) this.add.text(W/2, H*0.535, `🏆 最佳存活 ${best} 秒`, { fontSize: '14px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5);
 
-    const btn = this.add.rectangle(W/2, H*0.63, 240, 70, 0x2f7fd0).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H*0.63, '▶  开始', { fontSize: '28px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
-    btn.on('pointerover', () => btn.setScale(1.05));
-    btn.on('pointerout', () => btn.setScale(1));
-    const start = () => { SFX.init(); this.scene.start('game'); };
-    btn.on('pointerup', start);
-    this.input.keyboard.once('keydown', start);
+    this.add.text(W/2, H*0.565, '选择英雄 · 点击开始', { fontSize: '15px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5);
+    CHARS.forEach((c, i) => {
+      const cx = W/2 + (i-1)*168, cy = H*0.64;
+      const card = this.add.rectangle(cx, cy, 152, 102, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
+      this.add.text(cx, cy-26, c.name, { fontSize: '20px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
+      this.add.text(cx, cy+16, c.desc, { fontSize: '12px', color: '#9fbed8', align: 'center', resolution: DPR }).setOrigin(0.5);
+      card.on('pointerover', () => card.setScale(1.05)); card.on('pointerout', () => card.setScale(1));
+      card.on('pointerup', () => { SFX.init(); this.scene.start('game', { char: c.key }); });
+    });
+    this.input.keyboard.once('keydown', () => { SFX.init(); this.scene.start('game', { char: 'mage' }); });
 
-    const shop = this.add.rectangle(W/2, H*0.71, 240, 54, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H*0.71, '🛒 永久升级商店', { fontSize: '19px', color: '#cfe', resolution: DPR }).setOrigin(0.5);
+    const shop = this.add.rectangle(W/2, H*0.72, 240, 52, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
+    this.add.text(W/2, H*0.72, '🛒 永久升级商店', { fontSize: '19px', color: '#cfe', resolution: DPR }).setOrigin(0.5);
     shop.on('pointerover', () => shop.setScale(1.04)); shop.on('pointerout', () => shop.setScale(1));
     shop.on('pointerup', () => { SFX.init(); this.scene.start('shop'); });
 
-    this.add.text(W/2, H*0.78, '拖动屏幕任意处移动 · 桌面用 WASD · 自动开火', { fontSize: '12px', color: '#7a9', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H*0.79, '拖动屏幕任意处移动 · 桌面用 WASD · 自动开火', { fontSize: '12px', color: '#7a9', resolution: DPR }).setOrigin(0.5);
     const link = this.add.text(W/2, H-40, 'by Zion · qizh.space ↗', { fontSize: '13px', color: '#6fd0ff', resolution: DPR }).setOrigin(0.5).setInteractive({ useHandCursor: true });
     link.on('pointerup', () => window.open(HUB_URL, '_blank'));
   }
@@ -223,7 +233,8 @@ class Game extends Phaser.Scene {
     this.fireT = 0; this.spawnT = 0.5; this.hurtCd = 0;
     this.bossT = 50; this.boss = null; this.auraObj = null; this.auraT = 0;
     this.boltEvolved = false; this.orbEvolved = false; this.auraEvolved = false; this.leveling = false;
-    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0 };
+    this.chainT = 0; this.chainEvolved = false;
+    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0, chain: 0 };
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     for (let gx = 60; gx < W; gx += 60) this.add.rectangle(gx, H/2, 1, H, 0x16203a).setDepth(-1);
@@ -231,7 +242,10 @@ class Game extends Phaser.Scene {
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
-    META.applyTo(this.stats, this.player); // 应用局外永久强化
+    const ch = CHARS.find(c => c.key === ((this.scene.settings.data && this.scene.settings.data.char) || 'mage')) || CHARS[0];
+    ch.apply(this.stats, this.player); this.player.obj.setTint(ch.tint); // 英雄起手特性
+    META.applyTo(this.stats, this.player); // 局外永久强化
+    this.syncOrbiters();                   // 战士起手光球
 
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT');
     this.input.keyboard.on('keydown-P', () => this.togglePause());
@@ -245,7 +259,7 @@ class Game extends Phaser.Scene {
     if (this.over || this.paused) return;
     const dt = Math.min(dms, 50) / 1000;
     this.elapsed += dt; this.hurtCd -= dt;
-    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt);
+    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt);
     this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateHUD();
   }
 
@@ -396,11 +410,37 @@ class Game extends Phaser.Scene {
       }
     }
   }
+  // ---------- 闪电链(自动跳跃武器) ----------
+  zapLine(x1, y1, x2, y2) {
+    const g = this.add.graphics().setDepth(4); g.lineStyle(3, 0x9fe0ff, 0.9);
+    g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.strokePath();
+    this.tweens.add({ targets: g, alpha: 0, duration: 150, onComplete: () => g.destroy() });
+  }
+  updateChain(dt) {
+    if (this.stats.chain <= 0) return;
+    this.chainT -= dt;
+    if (this.chainT > 0 || this.enemies.length === 0) return;
+    this.chainT = this.chainEvolved ? 0.6 : 0.9;
+    const jumps = this.stats.chain + 1 + (this.chainEvolved ? 2 : 0);
+    const hit = new Set(); let last = { x: this.player.x, y: this.player.y };
+    for (let j = 0; j < jumps; j++) {
+      let best = null, bd = 230;
+      for (const e of this.enemies) { if (e.dead || hit.has(e)) continue; const d = Phaser.Math.Distance.Between(last.x, last.y, e.x, e.y); if (d < bd) { bd = d; best = e; } }
+      if (!best) break;
+      hit.add(best);
+      best.hp -= this.stats.dmg * 0.8 * (this.chainEvolved ? 1.5 : 1);
+      this.zapLine(last.x, last.y, best.x, best.y);
+      best.obj.setTintFill(0xaaddff); this.time.delayedCall(70, () => { if (best.obj && best.obj.active && !best.dead) best.obj.clearTint(); });
+      last = { x: best.x, y: best.y };
+      if (best.hp <= 0) this.killEnemy(best);
+    }
+  }
   // ---------- 武器进化 ----------
   checkEvolutions() {
     if (!this.boltEvolved && this.stats.projCount >= 5 && this.stats.pierce >= 2) { this.boltEvolved = true; this.evolveBanner('多重散射弹'); }
     if (!this.orbEvolved && this.stats.orbit >= 4) { this.orbEvolved = true; this.orbiters.forEach(o => o.setDisplaySize(34, 34).setTint(0xfff0a0)); this.evolveBanner('光刃环'); }
     if (!this.auraEvolved && this.stats.aura >= 4) { this.auraEvolved = true; if (this.auraObj) this.auraObj.setFillStyle(0xc0a0ff, 0.16); this.evolveBanner('奥能风暴'); }
+    if (!this.chainEvolved && this.stats.chain >= 4) { this.chainEvolved = true; this.evolveBanner('连锁风暴'); }
   }
   evolveBanner(name) {
     this.cameras.main.shake(220, 0.007); SFX.level();
@@ -473,6 +513,7 @@ class Game extends Phaser.Scene {
       { t: '🎯 子弹穿透 +1', f: () => this.stats.pierce += 1 },
       { t: '🛡 环绕光球 +1', f: () => { this.stats.orbit += 1; this.syncOrbiters(); } },
       { t: '🌀 伤害光环 +1', f: () => { this.stats.aura += 1; } },
+      { t: '⚡ 闪电链 +1', f: () => { this.stats.chain += 1; } },
     ];
     Phaser.Utils.Array.Shuffle(pool);
     const pick = pool.slice(0, 3), layer = [];
