@@ -1,8 +1,8 @@
 /* FingerMOBA — 单手幸存者(Survivor 风)。Phaser + SVG 贴图,秒开。
    摇杆/WASD 走位 + 自动开火 + 怪潮 + 升级三选一 + 打击感 + 最高分 + 引流 CTA。 */
 const W = 540, H = 960;
-const DPR = Math.min(window.devicePixelRatio || 1, 2);
-const RASTER = 256;
+const DPR = Math.min(window.devicePixelRatio || 1, 3); // 跟随设备像素比(封顶 3,覆盖主流 3x 手机屏)
+const RASTER = 384;                                    // SVG 栅格化分辨率(够大标题大图也不糊)
 const SPRITES = ['hero', 'enemy_basic', 'enemy_fast', 'enemy_tank', 'gem', 'projectile'];
 const BEST_KEY = 'fm_best_secs';
 const HUB_URL = 'https://qizh.space';
@@ -258,6 +258,8 @@ class Game extends Phaser.Scene {
           e.hp -= this.stats.dmg;
           e.obj.setTintFill(0xffffff);
           this.time.delayedCall(60, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
+          const ka = Phaser.Math.Angle.Between(this.player.x, this.player.y, e.x, e.y); // 受击击退,打击更实
+          e.x += Math.cos(ka) * 6; e.y += Math.sin(ka) * 6;
           if (e.hp <= 0) this.killEnemy(e);
           if (pr.pierce > 0) pr.pierce--; else { pr.dead = true; }
           break;
