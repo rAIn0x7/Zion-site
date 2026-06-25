@@ -259,12 +259,12 @@ class Game extends Phaser.Scene {
     this.bossT = 50; this.boss = null; this.auraObj = null; this.auraT = 0;
     this.boltEvolved = false; this.orbEvolved = false; this.auraEvolved = false; this.leveling = false;
     this.chainT = 0; this.chainEvolved = false;
-    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0, chain: 0 };
+    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0, chain: 0, crit: 0.05, critMul: 2.0 };
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     this.stars = []; // 动态星空背景(替代扁平网格)
     for (let i = 0; i < 56; i++) { const s = this.add.circle(Math.random()*W, Math.random()*H, Math.random() < 0.3 ? 1.7 : 1, 0x4a5a8a, 0.55).setDepth(-1); s.vy = 8 + Math.random()*24; this.stars.push(s); }
-    this.floatN = 0; this.musicT = 0; this._toastN = 0;
+    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
@@ -288,7 +288,7 @@ class Game extends Phaser.Scene {
     this.musicT -= dt; if (this.musicT <= 0) { this.musicT = 0.28; SFX.beat(); }
     this.updateStars(dt);
     this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt);
-    this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateEbullets(dt); this.updateHUD();
+    this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateEbullets(dt); this.updateChests(); this.updateHUD();
   }
 
   // ---------- 打击感小工具 ----------
@@ -306,11 +306,48 @@ class Game extends Phaser.Scene {
   updateStars(dt) {
     for (const s of this.stars) { s.y += s.vy * dt; if (s.y > H + 2) { s.y = -2; s.x = Math.random() * W; } }
   }
-  floatText(x, y, txt, color) { // 漂浮伤害数字(并发上限,防刷屏)
+  floatText(x, y, txt, color, big) { // 漂浮伤害数字(并发上限,防刷屏;暴击更大)
     if (this.floatN >= 22) return;
     this.floatN++;
-    const t = this.add.text(x, y, txt, { fontSize: '15px', color: color || '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(7);
-    this.tweens.add({ targets: t, y: y - 30, alpha: 0, duration: 480, onComplete: () => { t.destroy(); this.floatN--; } });
+    const t = this.add.text(x, y, txt, { fontSize: big ? '22px' : '15px', color: color || '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(7);
+    this.tweens.add({ targets: t, y: y - 30, alpha: 0, duration: big ? 600 : 480, onComplete: () => { t.destroy(); this.floatN--; } });
+  }
+  banner(text, color) { // 居中横幅(进化/宝箱)
+    this.cameras.main.shake(180, 0.005);
+    const t = this.add.text(W/2, H*0.34, text, { fontSize: '24px', color: color || '#f5c84c', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(16);
+    this.tweens.add({ targets: t, scale: 1.15, alpha: 0, y: H*0.29, duration: 1600, onComplete: () => t.destroy() });
+  }
+  upgradePool() {
+    return [
+      { t: '⚔ 伤害 +25%', f: () => this.stats.dmg *= 1.25 },
+      { t: '🔥 攻速 +20%', f: () => this.stats.fireCd *= 0.82 },
+      { t: '➕ 多一发子弹', f: () => this.stats.projCount += 1 },
+      { t: '🏃 移速 +12%', f: () => this.stats.moveSpeed *= 1.12 },
+      { t: '❤ 上限+25 并回满', f: () => { this.player.maxHp += 25; this.player.hp = this.player.maxHp; } },
+      { t: '🧲 拾取范围 +40%', f: () => this.stats.pickup *= 1.4 },
+      { t: '🎯 子弹穿透 +1', f: () => this.stats.pierce += 1 },
+      { t: '💥 暴击率 +8%', f: () => this.stats.crit += 0.08 },
+      { t: '🛡 环绕光球 +1', f: () => { this.stats.orbit += 1; this.syncOrbiters(); } },
+      { t: '🌀 伤害光环 +1', f: () => { this.stats.aura += 1; } },
+      { t: '⚡ 闪电链 +1', f: () => { this.stats.chain += 1; } },
+    ];
+  }
+  spawnChest() {
+    const x = 60 + Math.random()*(W-120), y = 130 + Math.random()*(H-280);
+    const obj = this.add.image(x, y, 'gem').setTint(0xffd23a).setDisplaySize(32, 32).setDepth(2);
+    this.tweens.add({ targets: obj, scale: obj.scale*1.18, duration: 500, yoyo: true, repeat: -1 });
+    this.chests.push({ x, y, obj });
+  }
+  updateChests() {
+    for (const c of this.chests) {
+      if (Phaser.Math.Distance.Between(c.x, c.y, this.player.x, this.player.y) < this.player.r + 20) {
+        c.got = true;
+        const u = Phaser.Utils.Array.GetRandom(this.upgradePool());
+        u.f(); this.checkEvolutions(); SFX.level();
+        this.banner('🎁 宝箱:' + u.t, '#ffd23a');
+      }
+    }
+    this.chests = this.chests.filter(c => { if (c.got) c.obj.destroy(); return !c.got; });
   }
   tryAch(key) { if (ACH.unlock(key)) { const d = ACH.defs.find(a => a.key === key); this.achToast(d ? d.name : key); SFX.level(); } }
   achToast(name) { // 成就解锁横幅
@@ -341,6 +378,8 @@ class Game extends Phaser.Scene {
   spawn(dt) {
     this.bossT -= dt;
     if (this.bossT <= 0 && !this.boss) { this.spawnEnemy('boss'); this.bossT = 50; }
+    this.chestT -= dt;
+    if (this.chestT <= 0) { this.spawnChest(); this.chestT = 26; }
     this.spawnT -= dt;
     if (this.spawnT > 0 || this.enemies.length > 140) return;
     this.spawnT = Math.max(0.28, 1.3 - this.elapsed * 0.012);
@@ -528,10 +567,8 @@ class Game extends Phaser.Scene {
     if (!this.chainEvolved && this.stats.chain >= 4) { this.chainEvolved = true; this.evolveBanner('连锁风暴'); }
   }
   evolveBanner(name) {
-    this.tryAch('evolve');
-    this.cameras.main.shake(220, 0.007); SFX.level();
-    const t = this.add.text(W/2, H*0.32, `⚡ 武器进化:${name}!`, { fontSize: '25px', color: '#f5c84c', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(16);
-    this.tweens.add({ targets: t, scale: 1.18, alpha: 0, y: H*0.27, duration: 1700, onComplete: () => t.destroy() });
+    this.tryAch('evolve'); SFX.level();
+    this.banner(`⚡ 武器进化:${name}!`, '#f5c84c');
   }
   moveProjs(dt) {
     for (const pr of this.projs) {
@@ -540,10 +577,12 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) {
         if (e.dead) continue;
         if (Phaser.Math.Distance.Between(pr.x, pr.y, e.x, e.y) < e.r + 6) {
-          e.hp -= pr.dmg;
+          const crit = Math.random() < this.stats.crit;
+          const dmg = pr.dmg * (crit ? this.stats.critMul : 1);
+          e.hp -= dmg;
           e.obj.setTintFill(0xffffff);
           this.time.delayedCall(60, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
-          this.floatText(e.x, e.y - e.r, '' + Math.round(pr.dmg), this.boltEvolved ? '#fff0a0' : '#ffffff');
+          this.floatText(e.x, e.y - e.r, '' + Math.round(dmg), crit ? '#ffd23a' : (this.boltEvolved ? '#fff0a0' : '#ffffff'), crit);
           const ka = Phaser.Math.Angle.Between(this.player.x, this.player.y, e.x, e.y); // 受击击退,打击更实
           e.x += Math.cos(ka) * 6; e.y += Math.sin(ka) * 6;
           if (e.hp <= 0) this.killEnemy(e);
@@ -594,18 +633,7 @@ class Game extends Phaser.Scene {
     this.ring(this.player.x, this.player.y, 0x8affc0, 110); SFX.level();
     this.paused = true; this.leveling = true;
     if (this.level >= 15) this.tryAch('lv15');
-    const pool = [
-      { t: '⚔ 伤害 +25%', f: () => this.stats.dmg *= 1.25 },
-      { t: '🔥 攻速 +20%', f: () => this.stats.fireCd *= 0.82 },
-      { t: '➕ 多一发子弹', f: () => this.stats.projCount += 1 },
-      { t: '🏃 移速 +12%', f: () => this.stats.moveSpeed *= 1.12 },
-      { t: '❤ 上限+25 并回满', f: () => { this.player.maxHp += 25; this.player.hp = this.player.maxHp; } },
-      { t: '🧲 拾取范围 +40%', f: () => this.stats.pickup *= 1.4 },
-      { t: '🎯 子弹穿透 +1', f: () => this.stats.pierce += 1 },
-      { t: '🛡 环绕光球 +1', f: () => { this.stats.orbit += 1; this.syncOrbiters(); } },
-      { t: '🌀 伤害光环 +1', f: () => { this.stats.aura += 1; } },
-      { t: '⚡ 闪电链 +1', f: () => { this.stats.chain += 1; } },
-    ];
+    const pool = this.upgradePool();
     Phaser.Utils.Array.Shuffle(pool);
     const pick = pool.slice(0, 3), layer = [];
     layer.push(this.add.rectangle(W/2, H/2, W, H, 0x000, 0.72).setDepth(20));
