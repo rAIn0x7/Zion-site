@@ -105,6 +105,7 @@ const CHARS = [
   { key: 'warrior', name: '🛡 战士', desc: '高血近战\n起手带光球', tint: 0xff9a9a, apply: (s, p) => { p.maxHp += 50; p.hp = p.maxHp; s.moveSpeed *= 1.05; s.fireCd *= 1.15; s.orbit = 1; } },
   { key: 'ranger',  name: '🏹 游侠', desc: '快但脆\n起手双发', tint: 0x9affc0, apply: (s, p) => { p.maxHp -= 20; p.hp = p.maxHp; s.moveSpeed *= 1.18; s.projCount = 2; s.fireCd *= 0.9; } },
   { key: 'assassin', name: '🥷 刺客', desc: '极快极脆\n高伤起手', tint: 0xc090ff, apply: (s, p) => { p.maxHp -= 35; p.hp = p.maxHp; s.moveSpeed *= 1.25; s.dmg *= 1.35; s.fireCd *= 0.85; } },
+  { key: 'cryo', name: '❄ 冰法', desc: '起手冰霜\n控场流', tint: 0xa0e0ff, apply: (s, p) => { s.frost = 1; s.pickup *= 1.2; p.maxHp += 10; p.hp = p.maxHp; } },
 ];
 
 /* ── 成就系统(localStorage) ── */
@@ -187,25 +188,44 @@ class Title extends Phaser.Scene {
     this.add.text(W/2, H*0.405, `💰 ${META.coins()}      🏅 成就 ${ACH.count()}/${ACH.defs.length}`, { fontSize: '15px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5);
     if (best > 0) this.add.text(W/2, H*0.44, `🏆 最佳存活 ${best} 秒`, { fontSize: '13px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5);
 
-    this.add.text(W/2, H*0.485, '选择英雄 · 点击开始', { fontSize: '15px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5);
-    CHARS.forEach((c, i) => {
-      const cx = W/2 + ((i % 2) ? 86 : -86), cy = H * (i < 2 ? 0.575 : 0.685);
-      const card = this.add.rectangle(cx, cy, 162, 100, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-      this.add.text(cx, cy-26, c.name, { fontSize: '19px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
-      this.add.text(cx, cy+16, c.desc, { fontSize: '12px', color: '#9fbed8', align: 'center', resolution: DPR }).setOrigin(0.5);
-      card.on('pointerover', () => card.setScale(1.05)); card.on('pointerout', () => card.setScale(1));
-      card.on('pointerup', () => { SFX.init(); this.scene.start('game', { char: c.key }); });
-    });
-    this.input.keyboard.once('keydown', () => { SFX.init(); this.scene.start('game', { char: 'mage' }); });
+    const playBtn = this.add.rectangle(W/2, H*0.585, 264, 76, 0x2f7fd0).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
+    this.add.text(W/2, H*0.585, '▶  选择英雄开始', { fontSize: '26px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
+    playBtn.on('pointerover', () => playBtn.setScale(1.05)); playBtn.on('pointerout', () => playBtn.setScale(1));
+    const toSelect = () => { SFX.init(); this.scene.start('select'); };
+    playBtn.on('pointerup', toSelect);
+    this.input.keyboard.once('keydown', toSelect);
 
-    const shop = this.add.rectangle(W/2, H*0.78, 240, 50, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H*0.78, '🛒 永久升级商店', { fontSize: '19px', color: '#cfe', resolution: DPR }).setOrigin(0.5);
+    const shop = this.add.rectangle(W/2, H*0.69, 240, 50, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
+    this.add.text(W/2, H*0.69, '🛒 永久升级商店', { fontSize: '19px', color: '#cfe', resolution: DPR }).setOrigin(0.5);
     shop.on('pointerover', () => shop.setScale(1.04)); shop.on('pointerout', () => shop.setScale(1));
     shop.on('pointerup', () => { SFX.init(); this.scene.start('shop'); });
 
     this.add.text(W/2, H*0.84, '拖动屏幕任意处移动 · 桌面 WASD · 自动开火', { fontSize: '12px', color: '#7a9', resolution: DPR }).setOrigin(0.5);
     const link = this.add.text(W/2, H-40, 'by Zion · qizh.space ↗', { fontSize: '13px', color: '#6fd0ff', resolution: DPR }).setOrigin(0.5).setInteractive({ useHandCursor: true });
     link.on('pointerup', () => window.open(HUB_URL, '_blank'));
+  }
+}
+
+/* ── 英雄选择(独立页,支持扩充阵容) ── */
+class CharSelect extends Phaser.Scene {
+  constructor() { super('select'); }
+  create() {
+    this.add.rectangle(W/2, H/2, W, H, 0x0b1020);
+    for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a);
+    this.add.text(W/2, 70, '选择英雄', { fontSize: '34px', color: '#9fe07a', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
+    CHARS.forEach((c, i) => {
+      const cx = W/2 + ((i % 2) ? 92 : -92), cy = 180 + Math.floor(i/2)*152;
+      const card = this.add.rectangle(cx, cy, 172, 130, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
+      this.add.image(cx, cy-32, 'hero').setDisplaySize(46, 46).setTint(c.tint);
+      this.add.text(cx, cy+18, c.name, { fontSize: '19px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
+      this.add.text(cx, cy+46, c.desc, { fontSize: '11px', color: '#9fbed8', align: 'center', resolution: DPR }).setOrigin(0.5);
+      card.on('pointerover', () => card.setScale(1.04)); card.on('pointerout', () => card.setScale(1));
+      card.on('pointerup', () => { SFX.init(); this.scene.start('game', { char: c.key }); });
+    });
+    const back = this.add.rectangle(W/2, H-60, 200, 54, 0x244).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
+    this.add.text(W/2, H-60, '← 返回', { fontSize: '22px', color: '#fff', resolution: DPR }).setOrigin(0.5);
+    back.on('pointerup', () => this.scene.start('title'));
+    this.input.keyboard.once('keydown-ESC', () => this.scene.start('title'));
   }
 }
 
@@ -816,5 +836,5 @@ window.game = new Phaser.Game({
   type: Phaser.AUTO, parent: 'game', backgroundColor: '#0b1020',
   scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: W * DPR, height: H * DPR, zoom: 1 / DPR, autoRound: true },
   render: { antialias: true, antialiasGL: true, roundPixels: false, pixelArt: false, mipmapFilter: 'LINEAR_MIPMAP_LINEAR', powerPreference: 'high-performance' },
-  scene: [Boot, Title, Shop, Game],
+  scene: [Boot, Title, CharSelect, Shop, Game],
 });
