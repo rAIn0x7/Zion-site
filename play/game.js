@@ -834,7 +834,7 @@ class Game extends Phaser.Scene {
 
 window.game = new Phaser.Game({
   type: Phaser.AUTO, parent: 'game', backgroundColor: '#0b1020',
-  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: W * DPR, height: H * DPR, zoom: 1 / DPR, autoRound: true },
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: W, height: H },
   render: { antialias: true, antialiasGL: true, roundPixels: false, pixelArt: false, mipmapFilter: 'LINEAR_MIPMAP_LINEAR', powerPreference: 'high-performance' },
   scene: [Boot, Title, CharSelect, Shop, Game],
 });
