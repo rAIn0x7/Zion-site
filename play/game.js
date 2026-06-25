@@ -52,6 +52,44 @@ const META = {
   award(secs, kills) { const c = Math.floor((secs * 1.5 + kills) * (1 + 0.20 * this.lvl('gold'))); this.setCoins(this.coins() + c); return c; },
 };
 
+/* ── 分享成绩图(离屏 canvas 画战绩卡 → 微信分享 / 下载) ── */
+function makeScoreCard(secs, level, kills, best) {
+  const c = document.createElement('canvas'); c.width = 720; c.height = 900;
+  const x = c.getContext('2d');
+  x.fillStyle = '#0b1020'; x.fillRect(0, 0, 720, 900);
+  x.strokeStyle = 'rgba(40,60,100,0.4)'; x.lineWidth = 1;
+  for (let i = 60; i < 900; i += 60) { x.beginPath(); x.moveTo(0, i); x.lineTo(720, i); x.stroke(); }
+  for (let i = 60; i < 720; i += 60) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 900); x.stroke(); }
+  x.textAlign = 'center';
+  x.fillStyle = '#9fe07a'; x.font = 'bold 66px sans-serif'; x.fillText('FINGER MOBA', 360, 130);
+  x.fillStyle = '#cde'; x.font = '28px sans-serif'; x.fillText('单手幸存 · 我的战绩', 360, 184);
+  x.fillStyle = '#f5c84c'; x.font = 'bold 150px sans-serif'; x.fillText(secs + '″', 360, 400);
+  x.fillStyle = '#9fbed8'; x.font = '30px sans-serif'; x.fillText('存活时间', 360, 452);
+  x.fillStyle = '#fff'; x.font = 'bold 46px sans-serif'; x.fillText('Lv.' + level + '        💀 ' + kills, 360, 552);
+  x.fillStyle = '#8aa'; x.font = '26px sans-serif'; x.fillText('🏆 历史最佳 ' + best + ' 秒', 360, 614);
+  x.fillStyle = '#1c2b4a'; x.fillRect(110, 700, 500, 92); x.strokeStyle = '#6fd0ff'; x.lineWidth = 3; x.strokeRect(110, 700, 500, 92);
+  x.fillStyle = '#6fd0ff'; x.font = 'bold 34px sans-serif'; x.fillText('来 qizh.space/play 挑战我', 360, 758);
+  x.fillStyle = '#7a9'; x.font = '23px sans-serif'; x.fillText('微信搜「Zion降噪」· by Zion', 360, 846);
+  return c;
+}
+function shareScore(secs, level, kills, best) {
+  const card = makeScoreCard(secs, level, kills, best);
+  card.toBlob(async (blob) => {
+    if (!blob) return;
+    const file = new File([blob], 'fingermoba.png', { type: 'image/png' });
+    try {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: 'FingerMOBA 战绩', text: `我在 FingerMOBA 活了 ${secs} 秒,来挑战:qizh.space/play` });
+        return;
+      }
+    } catch (e) { /* 用户取消或不支持 → 落到下载 */ }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = `fingermoba-${secs}s.png`; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 3000);
+  }, 'image/png');
+}
+window._makeCard = makeScoreCard; // 便于测试
+
 /* ── 浮动虚拟摇杆 ── */
 class VirtualJoystick {
   constructor(scene, opts = {}) {
@@ -488,15 +526,21 @@ class Game extends Phaser.Scene {
     const earned = META.award(secs, this.kills);
     this.add.text(W/2, H/2-28, `💰 +${earned}   (共 ${META.coins()})`, { fontSize: '16px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5).setDepth(31);
 
-    const again = this.add.rectangle(W/2, H/2+10, 220, 64, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(31).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H/2+10, '再来一局', { fontSize: '24px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(32);
+    const curBest = Math.max(secs, best);
+    const again = this.add.rectangle(W/2, H/2+6, 220, 60, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(31).setInteractive({ useHandCursor: true });
+    this.add.text(W/2, H/2+6, '再来一局', { fontSize: '24px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(32);
     again.on('pointerover', () => again.setScale(1.05)); again.on('pointerout', () => again.setScale(1));
     again.on('pointerup', () => this.scene.restart());
 
+    const share = this.add.rectangle(W/2, H/2+74, 220, 54, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setDepth(31).setInteractive({ useHandCursor: true });
+    this.add.text(W/2, H/2+74, '📤 分享成绩', { fontSize: '20px', color: '#cfe', resolution: DPR }).setOrigin(0.5).setDepth(32);
+    share.on('pointerover', () => share.setScale(1.04)); share.on('pointerout', () => share.setScale(1));
+    share.on('pointerup', () => shareScore(secs, this.level, this.kills, curBest));
+
     // 引流 CTA:回标题 + 去作者主页
-    const home = this.add.text(W/2-60, H/2+90, '← 标题', { fontSize: '16px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
+    const home = this.add.text(W/2-60, H/2+140, '← 标题', { fontSize: '16px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
     home.on('pointerup', () => this.scene.start('title'));
-    const hub = this.add.text(W/2+70, H/2+90, '更多作品 qizh.space ↗', { fontSize: '16px', color: '#6fd0ff', resolution: DPR }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
+    const hub = this.add.text(W/2+70, H/2+140, '更多作品 qizh.space ↗', { fontSize: '16px', color: '#6fd0ff', resolution: DPR }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
     hub.on('pointerup', () => window.open(HUB_URL, '_blank'));
   }
 }
