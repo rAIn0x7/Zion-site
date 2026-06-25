@@ -182,26 +182,26 @@ class Title extends Phaser.Scene {
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020);
     for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a);
     this.add.image(W/2, H*0.20, 'hero').setDisplaySize(100, 100);
-    this.add.text(W/2, H*0.31, 'FINGER MOBA', { fontSize: '50px', color: '#9fe07a', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
-    this.add.text(W/2, H*0.355, '单手幸存 · 怪潮中活到最后', { fontSize: '16px', color: '#cde', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H*0.31, 'FINGER MOBA', { fontSize: '50px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5);
+    this.add.text(W/2, H*0.355, '单手幸存 · 怪潮中活到最后', { fontSize: '16px', color: '#cde' }).setOrigin(0.5);
     const best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
-    this.add.text(W/2, H*0.405, `💰 ${META.coins()}      🏅 成就 ${ACH.count()}/${ACH.defs.length}`, { fontSize: '15px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5);
-    if (best > 0) this.add.text(W/2, H*0.44, `🏆 最佳存活 ${best} 秒`, { fontSize: '13px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H*0.405, `💰 ${META.coins()}      🏅 成就 ${ACH.count()}/${ACH.defs.length}`, { fontSize: '15px', color: '#f5c84c' }).setOrigin(0.5);
+    if (best > 0) this.add.text(W/2, H*0.44, `🏆 最佳存活 ${best} 秒`, { fontSize: '13px', color: '#9fbed8' }).setOrigin(0.5);
 
     const playBtn = this.add.rectangle(W/2, H*0.585, 264, 76, 0x2f7fd0).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H*0.585, '▶  选择英雄开始', { fontSize: '26px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H*0.585, '▶  选择英雄开始', { fontSize: '26px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
     playBtn.on('pointerover', () => playBtn.setScale(1.05)); playBtn.on('pointerout', () => playBtn.setScale(1));
     const toSelect = () => { SFX.init(); this.scene.start('select'); };
     playBtn.on('pointerup', toSelect);
     this.input.keyboard.once('keydown', toSelect);
 
     const shop = this.add.rectangle(W/2, H*0.69, 240, 50, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H*0.69, '🛒 永久升级商店', { fontSize: '19px', color: '#cfe', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H*0.69, '🛒 永久升级商店', { fontSize: '19px', color: '#cfe' }).setOrigin(0.5);
     shop.on('pointerover', () => shop.setScale(1.04)); shop.on('pointerout', () => shop.setScale(1));
     shop.on('pointerup', () => { SFX.init(); this.scene.start('shop'); });
 
-    this.add.text(W/2, H*0.84, '拖动屏幕任意处移动 · 桌面 WASD · 自动开火', { fontSize: '12px', color: '#7a9', resolution: DPR }).setOrigin(0.5);
-    const link = this.add.text(W/2, H-40, 'by Zion · qizh.space ↗', { fontSize: '13px', color: '#6fd0ff', resolution: DPR }).setOrigin(0.5).setInteractive({ useHandCursor: true });
+    this.add.text(W/2, H*0.84, '拖动屏幕任意处移动 · 桌面 WASD · 自动开火', { fontSize: '12px', color: '#7a9' }).setOrigin(0.5);
+    const link = this.add.text(W/2, H-40, 'by Zion · qizh.space ↗', { fontSize: '13px', color: '#6fd0ff' }).setOrigin(0.5).setInteractive({ useHandCursor: true });
     link.on('pointerup', () => window.open(HUB_URL, '_blank'));
   }
 }
@@ -212,18 +212,18 @@ class CharSelect extends Phaser.Scene {
   create() {
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020);
     for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a);
-    this.add.text(W/2, 70, '选择英雄', { fontSize: '34px', color: '#9fe07a', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, 70, '选择英雄', { fontSize: '34px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5);
     CHARS.forEach((c, i) => {
       const cx = W/2 + ((i % 2) ? 92 : -92), cy = 180 + Math.floor(i/2)*152;
       const card = this.add.rectangle(cx, cy, 172, 130, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
       this.add.image(cx, cy-32, 'hero').setDisplaySize(46, 46).setTint(c.tint);
-      this.add.text(cx, cy+18, c.name, { fontSize: '19px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
-      this.add.text(cx, cy+46, c.desc, { fontSize: '11px', color: '#9fbed8', align: 'center', resolution: DPR }).setOrigin(0.5);
+      this.add.text(cx, cy+18, c.name, { fontSize: '19px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
+      this.add.text(cx, cy+46, c.desc, { fontSize: '11px', color: '#9fbed8', align: 'center' }).setOrigin(0.5);
       card.on('pointerover', () => card.setScale(1.04)); card.on('pointerout', () => card.setScale(1));
       card.on('pointerup', () => { SFX.init(); this.scene.start('game', { char: c.key }); });
     });
     const back = this.add.rectangle(W/2, H-60, 200, 54, 0x244).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H-60, '← 返回', { fontSize: '22px', color: '#fff', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H-60, '← 返回', { fontSize: '22px', color: '#fff' }).setOrigin(0.5);
     back.on('pointerup', () => this.scene.start('title'));
     this.input.keyboard.once('keydown-ESC', () => this.scene.start('title'));
   }
@@ -235,23 +235,23 @@ class Shop extends Phaser.Scene {
   create() {
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020);
     for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a);
-    this.add.text(W/2, 54, '🛒 永久升级', { fontSize: '32px', color: '#9fe07a', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
-    this.coinText = this.add.text(W/2, 100, '', { fontSize: '22px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5);
-    this.add.text(W/2, 132, '金币来自每局战绩(存活时间 + 击杀),死了也算', { fontSize: '12px', color: '#7a9', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, 54, '🛒 永久升级', { fontSize: '32px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5);
+    this.coinText = this.add.text(W/2, 100, '', { fontSize: '22px', color: '#f5c84c' }).setOrigin(0.5);
+    this.add.text(W/2, 132, '金币来自每局战绩(存活时间 + 击杀),死了也算', { fontSize: '12px', color: '#7a9' }).setOrigin(0.5);
     this.rows = [];
     META.upgrades.forEach((u, i) => {
       const y = 192 + i * 96;
       this.add.rectangle(W/2, y, W-44, 84, 0x141d33).setStrokeStyle(1, 0x2a3a55);
-      this.add.text(38, y-17, u.name, { fontSize: '19px', color: '#fff', resolution: DPR }).setOrigin(0, 0.5);
-      const lvT = this.add.text(38, y+15, '', { fontSize: '13px', color: '#9fbed8', resolution: DPR }).setOrigin(0, 0.5);
+      this.add.text(38, y-17, u.name, { fontSize: '19px', color: '#fff' }).setOrigin(0, 0.5);
+      const lvT = this.add.text(38, y+15, '', { fontSize: '13px', color: '#9fbed8' }).setOrigin(0, 0.5);
       const btn = this.add.rectangle(W-98, y, 126, 54, 0x2f7fd0).setInteractive({ useHandCursor: true });
-      const btnT = this.add.text(W-98, y, '', { fontSize: '15px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
+      const btnT = this.add.text(W-98, y, '', { fontSize: '15px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
       btn.on('pointerover', () => btn.setScale(1.04)); btn.on('pointerout', () => btn.setScale(1));
       btn.on('pointerup', () => { if (META.buy(u)) SFX.level(); else this.cameras.main.shake(120, 0.004); this.refresh(); });
       this.rows.push({ u, lvT, btn, btnT });
     });
     const back = this.add.rectangle(W/2, H-64, 200, 58, 0x244).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H-64, '← 返回', { fontSize: '22px', color: '#fff', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H-64, '← 返回', { fontSize: '22px', color: '#fff' }).setOrigin(0.5);
     back.on('pointerover', () => back.setScale(1.04)); back.on('pointerout', () => back.setScale(1));
     back.on('pointerup', () => this.scene.start('title'));
     this.input.keyboard.once('keydown-ESC', () => this.scene.start('title'));
@@ -331,12 +331,12 @@ class Game extends Phaser.Scene {
   floatText(x, y, txt, color, big) { // 漂浮伤害数字(并发上限,防刷屏;暴击更大)
     if (this.floatN >= 22) return;
     this.floatN++;
-    const t = this.add.text(x, y, txt, { fontSize: big ? '22px' : '15px', color: color || '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(7);
+    const t = this.add.text(x, y, txt, { fontSize: big ? '22px' : '15px', color: color || '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(7);
     this.tweens.add({ targets: t, y: y - 30, alpha: 0, duration: big ? 600 : 480, onComplete: () => { t.destroy(); this.floatN--; } });
   }
   banner(text, color) { // 居中横幅(进化/宝箱)
     this.cameras.main.shake(180, 0.005);
-    const t = this.add.text(W/2, H*0.34, text, { fontSize: '24px', color: color || '#f5c84c', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(16);
+    const t = this.add.text(W/2, H*0.34, text, { fontSize: '24px', color: color || '#f5c84c', fontStyle: 'bold' }).setOrigin(0.5).setDepth(16);
     this.tweens.add({ targets: t, scale: 1.15, alpha: 0, y: H*0.29, duration: 1600, onComplete: () => t.destroy() });
   }
   upgradePool() {
@@ -378,7 +378,7 @@ class Game extends Phaser.Scene {
   achToast(name) { // 成就解锁横幅
     const y = 118 + this._toastN * 42; this._toastN++;
     const bg = this.add.rectangle(W/2, y, 300, 36, 0x1c2b4a, 0.96).setStrokeStyle(2, 0xf5c84c).setDepth(28).setAlpha(0);
-    const t = this.add.text(W/2, y, '🏅 成就解锁:' + name, { fontSize: '15px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5).setDepth(29).setAlpha(0);
+    const t = this.add.text(W/2, y, '🏅 成就解锁:' + name, { fontSize: '15px', color: '#f5c84c' }).setOrigin(0.5).setDepth(29).setAlpha(0);
     this.tweens.add({ targets: [bg, t], alpha: 1, duration: 200 });
     this.time.delayedCall(2200, () => { this.tweens.add({ targets: [bg, t], alpha: 0, duration: 400, onComplete: () => { bg.destroy(); t.destroy(); this._toastN = Math.max(0, this._toastN - 1); } }); });
   }
@@ -395,7 +395,7 @@ class Game extends Phaser.Scene {
       const l = Math.hypot(vx, vy), speed = Math.min(l, 1) * this.stats.moveSpeed;
       p.x += (vx/l)*speed*dt; p.y += (vy/l)*speed*dt; p.obj.setFlipX(vx < 0);
     }
-    p.x = Phaser.Math.Clamp(p.x, 16, W-16); p.y = Phaser.Math.Clamp(p.y, 60, H-90);
+    p.x = Phaser.Math.Clamp(p.x, 16, W-16); p.y = Phaser.Math.Clamp(p.y, 54, H-26);
     p.obj.x = p.x; p.obj.y = p.y;
   }
 
@@ -442,7 +442,7 @@ class Game extends Phaser.Scene {
     if (type === 'splitter') e.obj.setTint(0xe0e060);
     if (type === 'boss') {
       this.boss = e; e.abilityT = 5; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
-      const t = this.add.text(W/2, H/2, '👹 BOSS 来袭!', { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(15);
+      const t = this.add.text(W/2, H/2, '👹 BOSS 来袭!', { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(15);
       this.tweens.add({ targets: t, alpha: 0, y: H/2-50, duration: 1300, onComplete: () => t.destroy() });
     } else if (type !== 'mini' && this.elapsed > 20 && Math.random() < 0.05) { // 精英怪:金色强化,必爆宝箱
       e.elite = true; e.hp *= 3; e.maxHp *= 3; e.xp *= 4; e.r *= 1.4;
@@ -513,7 +513,7 @@ class Game extends Phaser.Scene {
       const obj = this.add.image(this.player.x, this.player.y, 'projectile').setDepth(4).setDisplaySize(psz, psz);
       if (this.boltEvolved) obj.setTint(0xfff0a0);
       obj.rotation = a;
-      this.projs.push({ x: this.player.x, y: this.player.y, vx: Math.cos(a)*this.stats.projSpeed, vy: Math.sin(a)*this.stats.projSpeed, life: 1.2, pierce: this.stats.pierce, dmg: pdmg, obj });
+      this.projs.push({ x: this.player.x, y: this.player.y, vx: Math.cos(a)*this.stats.projSpeed, vy: Math.sin(a)*this.stats.projSpeed, life: 2.6, pierce: this.stats.pierce, dmg: pdmg, obj });
     }
   }
   nearest(x, y) { let best = null, bd = 1e9; for (const e of this.enemies) { const d = Phaser.Math.Distance.Between(x, y, e.x, e.y); if (d < bd) { bd = d; best = e; } } return best; }
@@ -731,11 +731,11 @@ class Game extends Phaser.Scene {
     Phaser.Utils.Array.Shuffle(pool);
     const pick = pool.slice(0, 3), layer = [];
     layer.push(this.add.rectangle(W/2, H/2, W, H, 0x000, 0.72).setDepth(20));
-    layer.push(this.add.text(W/2, H/2-200, `Lv.${this.level} 升级！三选一`, { fontSize: '24px', color: '#9fe07a', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(21));
+    layer.push(this.add.text(W/2, H/2-200, `Lv.${this.level} 升级！三选一`, { fontSize: '24px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(21));
     pick.forEach((u, i) => {
       const cy = H/2 - 90 + i*110;
       const card = this.add.rectangle(W/2, cy, 380, 90, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setDepth(21).setInteractive();
-      const txt = this.add.text(W/2, cy, u.t, { fontSize: '22px', color: '#fff', resolution: DPR }).setOrigin(0.5).setDepth(22);
+      const txt = this.add.text(W/2, cy, u.t, { fontSize: '22px', color: '#fff' }).setOrigin(0.5).setDepth(22);
       card.on('pointerover', () => card.setFillStyle(0x274066));
       card.on('pointerout', () => card.setFillStyle(0x1c2b4a));
       card.on('pointerup', () => { u.f(); layer.forEach(o => o.destroy()); card.destroy(); txt.destroy(); this.paused = false; this.leveling = false; this.checkEvolutions(); });
@@ -749,17 +749,17 @@ class Game extends Phaser.Scene {
     this.hpFill = this.add.rectangle(16, 18, W-30, 16, 0xff5a5a).setOrigin(0,0.5).setDepth(11);
     this.add.rectangle(W/2, 40, W-30, 10, 0x222).setDepth(10);
     this.xpFill = this.add.rectangle(16, 40, 0, 10, 0x8affc0).setOrigin(0,0.5).setDepth(11);
-    this.info = this.add.text(W/2, 58, '', { fontSize: '15px', color: '#cde', resolution: DPR }).setOrigin(0.5,0).setDepth(11);
-    this.comboText = this.add.text(W/2, 80, '', { fontSize: '16px', color: '#ff9a40', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5,0).setDepth(11);
-    this.add.text(W/2, H-24, '拖动摇杆 / WASD 移动 · 自动开火 · 活得越久越强', { fontSize: '11px', color: '#7a9', resolution: DPR }).setOrigin(0.5,0).setDepth(10);
+    this.info = this.add.text(W/2, 58, '', { fontSize: '15px', color: '#cde' }).setOrigin(0.5,0).setDepth(11);
+    this.comboText = this.add.text(W/2, 80, '', { fontSize: '16px', color: '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5,0).setDepth(11);
+    this.add.text(W/2, H-24, '拖动摇杆 / WASD 移动 · 自动开火 · 活得越久越强', { fontSize: '11px', color: '#7a9' }).setOrigin(0.5,0).setDepth(10);
     // 静音开关
-    this.muteBtn = this.add.text(W-14, 76, SFX.muted ? '🔇' : '🔊', { fontSize: '20px', resolution: DPR }).setOrigin(1, 0).setDepth(12).setInteractive({ useHandCursor: true });
+    this.muteBtn = this.add.text(W-14, 76, SFX.muted ? '🔇' : '🔊', { fontSize: '20px' }).setOrigin(1, 0).setDepth(12).setInteractive({ useHandCursor: true });
     this.muteBtn.on('pointerup', () => this.muteBtn.setText(SFX.toggle() ? '🔇' : '🔊'));
-    this.pauseBtn = this.add.text(14, 76, '⏸', { fontSize: '20px', resolution: DPR }).setOrigin(0, 0).setDepth(12).setInteractive({ useHandCursor: true });
+    this.pauseBtn = this.add.text(14, 76, '⏸', { fontSize: '20px' }).setOrigin(0, 0).setDepth(12).setInteractive({ useHandCursor: true });
     this.pauseBtn.on('pointerup', () => this.togglePause());
     this.vignette = this.add.rectangle(W/2, H/2, W, H, 0xff2200, 0).setDepth(9); // 低血红光预警
     // Boss 血条(默认隐藏,Boss 出现时显示)
-    this.bossLabel = this.add.text(W/2, H-66, '👹 BOSS', { fontSize: '12px', color: '#e0a0ff', resolution: DPR }).setOrigin(0.5).setDepth(11).setVisible(false);
+    this.bossLabel = this.add.text(W/2, H-66, '👹 BOSS', { fontSize: '12px', color: '#e0a0ff' }).setOrigin(0.5).setDepth(11).setVisible(false);
     this.bossBarBg = this.add.rectangle(W/2, H-50, W-40, 12, 0x331033).setDepth(10).setVisible(false);
     this.bossBarFill = this.add.rectangle(16, H-50, W-40, 12, 0xc060ff).setOrigin(0, 0.5).setDepth(11).setVisible(false);
   }
@@ -779,11 +779,14 @@ class Game extends Phaser.Scene {
     if (!this.paused) {
       this.paused = true;
       const dim = this.add.rectangle(W/2, H/2, W, H, 0x000, 0.62).setDepth(25);
-      const t = this.add.text(W/2, H/2-50, '已暂停', { fontSize: '40px', color: '#cde', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(26);
-      const btn = this.add.rectangle(W/2, H/2+44, 200, 60, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(26).setInteractive({ useHandCursor: true });
-      const bt = this.add.text(W/2, H/2+44, '▶ 继续', { fontSize: '24px', color: '#fff', resolution: DPR }).setOrigin(0.5).setDepth(27);
+      const t = this.add.text(W/2, H/2-50, '已暂停', { fontSize: '40px', color: '#cde', fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
+      const btn = this.add.rectangle(W/2, H/2+30, 200, 58, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(26).setInteractive({ useHandCursor: true });
+      const bt = this.add.text(W/2, H/2+30, '▶ 继续', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setDepth(27);
       btn.on('pointerup', () => this.togglePause());
-      this.pauseLayer = [dim, t, btn, bt];
+      const home = this.add.rectangle(W/2, H/2+102, 200, 52, 0x244).setStrokeStyle(2, 0x6fd0ff).setDepth(26).setInteractive({ useHandCursor: true });
+      const ht = this.add.text(W/2, H/2+102, '← 返回标题', { fontSize: '20px', color: '#cfe' }).setOrigin(0.5).setDepth(27);
+      home.on('pointerup', () => { this.paused = false; if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; } this.scene.start('title'); });
+      this.pauseLayer = [dim, t, btn, bt, home, ht];
     } else {
       this.paused = false;
       if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; }
@@ -798,11 +801,11 @@ class Game extends Phaser.Scene {
     if (isRecord) localStorage.setItem(BEST_KEY, String(secs));
 
     this.add.rectangle(W/2, H/2, W, H, 0x000, 0.80).setDepth(30);
-    this.add.text(W/2, H/2-150, isRecord ? '🏆 新纪录！' : '你倒下了', { fontSize: '40px', color: isRecord ? '#f5c84c' : '#ff7a7a', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(31);
-    this.add.text(W/2, H/2-90, `存活 ${secs} 秒 · Lv.${this.level} · 击杀 ${this.kills}`, { fontSize: '18px', color: '#cde', resolution: DPR }).setOrigin(0.5).setDepth(31);
-    this.add.text(W/2, H/2-58, isRecord ? '之前最佳 ' + best + ' 秒' : '最佳 ' + best + ' 秒', { fontSize: '13px', color: '#8aa', resolution: DPR }).setOrigin(0.5).setDepth(31);
+    this.add.text(W/2, H/2-150, isRecord ? '🏆 新纪录！' : '你倒下了', { fontSize: '40px', color: isRecord ? '#f5c84c' : '#ff7a7a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(31);
+    this.add.text(W/2, H/2-90, `存活 ${secs} 秒 · Lv.${this.level} · 击杀 ${this.kills}`, { fontSize: '18px', color: '#cde' }).setOrigin(0.5).setDepth(31);
+    this.add.text(W/2, H/2-58, isRecord ? '之前最佳 ' + best + ' 秒' : '最佳 ' + best + ' 秒', { fontSize: '13px', color: '#8aa' }).setOrigin(0.5).setDepth(31);
     const earned = META.award(secs, this.kills);
-    this.add.text(W/2, H/2-30, `💰 +${earned}   (共 ${META.coins()})`, { fontSize: '16px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5).setDepth(31);
+    this.add.text(W/2, H/2-30, `💰 +${earned}   (共 ${META.coins()})`, { fontSize: '16px', color: '#f5c84c' }).setOrigin(0.5).setDepth(31);
     let newAch = 0; const tryEnd = (k) => { if (ACH.unlock(k)) newAch++; };
     if (secs >= 120) tryEnd('survive120');
     if (secs >= 300) tryEnd('survive300');
@@ -811,23 +814,23 @@ class Game extends Phaser.Scene {
     localStorage.setItem('fm_total_kills', String(tk));
     if (tk >= 2000) tryEnd('kill2000');
     if (META.coins() >= 1000) tryEnd('rich1000');
-    if (newAch > 0) this.add.text(W/2, H/2-6, `🏅 解锁 ${newAch} 个新成就`, { fontSize: '14px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5).setDepth(31);
+    if (newAch > 0) this.add.text(W/2, H/2-6, `🏅 解锁 ${newAch} 个新成就`, { fontSize: '14px', color: '#f5c84c' }).setOrigin(0.5).setDepth(31);
 
     const curBest = Math.max(secs, best);
     const again = this.add.rectangle(W/2, H/2+6, 220, 60, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(31).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H/2+6, '再来一局', { fontSize: '24px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(32);
+    this.add.text(W/2, H/2+6, '再来一局', { fontSize: '24px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(32);
     again.on('pointerover', () => again.setScale(1.05)); again.on('pointerout', () => again.setScale(1));
     again.on('pointerup', () => this.scene.restart());
 
     const share = this.add.rectangle(W/2, H/2+74, 220, 54, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setDepth(31).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H/2+74, '📤 分享成绩', { fontSize: '20px', color: '#cfe', resolution: DPR }).setOrigin(0.5).setDepth(32);
+    this.add.text(W/2, H/2+74, '📤 分享成绩', { fontSize: '20px', color: '#cfe' }).setOrigin(0.5).setDepth(32);
     share.on('pointerover', () => share.setScale(1.04)); share.on('pointerout', () => share.setScale(1));
     share.on('pointerup', () => shareScore(secs, this.level, this.kills, curBest));
 
     // 引流 CTA:回标题 + 去作者主页
-    const home = this.add.text(W/2-60, H/2+140, '← 标题', { fontSize: '16px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
+    const home = this.add.text(W/2-60, H/2+140, '← 标题', { fontSize: '16px', color: '#9fbed8' }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
     home.on('pointerup', () => this.scene.start('title'));
-    const hub = this.add.text(W/2+70, H/2+140, '更多作品 qizh.space ↗', { fontSize: '16px', color: '#6fd0ff', resolution: DPR }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
+    const hub = this.add.text(W/2+70, H/2+140, '更多作品 qizh.space ↗', { fontSize: '16px', color: '#6fd0ff' }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
     hub.on('pointerup', () => window.open(HUB_URL, '_blank'));
   }
 }
