@@ -104,7 +104,23 @@ const CHARS = [
   { key: 'mage',    name: '🧙 法师', desc: '均衡\n标准弹幕', tint: 0xffffff, apply: (s, p) => {} },
   { key: 'warrior', name: '🛡 战士', desc: '高血近战\n起手带光球', tint: 0xff9a9a, apply: (s, p) => { p.maxHp += 50; p.hp = p.maxHp; s.moveSpeed *= 1.05; s.fireCd *= 1.15; s.orbit = 1; } },
   { key: 'ranger',  name: '🏹 游侠', desc: '快但脆\n起手双发', tint: 0x9affc0, apply: (s, p) => { p.maxHp -= 20; p.hp = p.maxHp; s.moveSpeed *= 1.18; s.projCount = 2; s.fireCd *= 0.9; } },
+  { key: 'assassin', name: '🥷 刺客', desc: '极快极脆\n高伤起手', tint: 0xc090ff, apply: (s, p) => { p.maxHp -= 35; p.hp = p.maxHp; s.moveSpeed *= 1.25; s.dmg *= 1.35; s.fireCd *= 0.85; } },
 ];
+
+/* ── 成就系统(localStorage) ── */
+const ACH_KEY = 'fm_ach';
+const ACH = {
+  defs: [
+    { key: 'kill100', name: '初战告捷' }, { key: 'survive120', name: '生存专家' },
+    { key: 'survive300', name: '不死之身' }, { key: 'boss1', name: '屠龙者' },
+    { key: 'evolve', name: '武器大师' }, { key: 'lv15', name: '登峰造极' },
+    { key: 'kill2000', name: '百战之王' }, { key: 'rich1000', name: '小富翁' },
+  ],
+  got() { try { return JSON.parse(localStorage.getItem(ACH_KEY) || '{}'); } catch (e) { return {}; } },
+  has(k) { return !!this.got()[k]; },
+  unlock(k) { if (this.has(k)) return false; const o = this.got(); o[k] = 1; localStorage.setItem(ACH_KEY, JSON.stringify(o)); return true; },
+  count() { return Object.keys(this.got()).length; },
+};
 
 /* ── 浮动虚拟摇杆 ── */
 class VirtualJoystick {
@@ -164,30 +180,30 @@ class Title extends Phaser.Scene {
   create() {
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020);
     for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a);
-    this.add.image(W/2, H*0.27, 'hero').setDisplaySize(116, 116);
-    this.add.text(W/2, H*0.40, 'FINGER MOBA', { fontSize: '52px', color: '#9fe07a', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
-    this.add.text(W/2, H*0.455, '单手幸存 · 怪潮中活到最后', { fontSize: '17px', color: '#cde', resolution: DPR }).setOrigin(0.5);
-    this.add.text(W/2, H*0.50, `💰 ${META.coins()}`, { fontSize: '17px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5);
+    this.add.image(W/2, H*0.20, 'hero').setDisplaySize(100, 100);
+    this.add.text(W/2, H*0.31, 'FINGER MOBA', { fontSize: '50px', color: '#9fe07a', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H*0.355, '单手幸存 · 怪潮中活到最后', { fontSize: '16px', color: '#cde', resolution: DPR }).setOrigin(0.5);
     const best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
-    if (best > 0) this.add.text(W/2, H*0.535, `🏆 最佳存活 ${best} 秒`, { fontSize: '14px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H*0.405, `💰 ${META.coins()}      🏅 成就 ${ACH.count()}/${ACH.defs.length}`, { fontSize: '15px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5);
+    if (best > 0) this.add.text(W/2, H*0.44, `🏆 最佳存活 ${best} 秒`, { fontSize: '13px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5);
 
-    this.add.text(W/2, H*0.565, '选择英雄 · 点击开始', { fontSize: '15px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H*0.485, '选择英雄 · 点击开始', { fontSize: '15px', color: '#9fbed8', resolution: DPR }).setOrigin(0.5);
     CHARS.forEach((c, i) => {
-      const cx = W/2 + (i-1)*168, cy = H*0.64;
-      const card = this.add.rectangle(cx, cy, 152, 102, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-      this.add.text(cx, cy-26, c.name, { fontSize: '20px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
+      const cx = W/2 + ((i % 2) ? 86 : -86), cy = H * (i < 2 ? 0.575 : 0.685);
+      const card = this.add.rectangle(cx, cy, 162, 100, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
+      this.add.text(cx, cy-26, c.name, { fontSize: '19px', color: '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5);
       this.add.text(cx, cy+16, c.desc, { fontSize: '12px', color: '#9fbed8', align: 'center', resolution: DPR }).setOrigin(0.5);
       card.on('pointerover', () => card.setScale(1.05)); card.on('pointerout', () => card.setScale(1));
       card.on('pointerup', () => { SFX.init(); this.scene.start('game', { char: c.key }); });
     });
     this.input.keyboard.once('keydown', () => { SFX.init(); this.scene.start('game', { char: 'mage' }); });
 
-    const shop = this.add.rectangle(W/2, H*0.72, 240, 52, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-    this.add.text(W/2, H*0.72, '🛒 永久升级商店', { fontSize: '19px', color: '#cfe', resolution: DPR }).setOrigin(0.5);
+    const shop = this.add.rectangle(W/2, H*0.78, 240, 50, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
+    this.add.text(W/2, H*0.78, '🛒 永久升级商店', { fontSize: '19px', color: '#cfe', resolution: DPR }).setOrigin(0.5);
     shop.on('pointerover', () => shop.setScale(1.04)); shop.on('pointerout', () => shop.setScale(1));
     shop.on('pointerup', () => { SFX.init(); this.scene.start('shop'); });
 
-    this.add.text(W/2, H*0.79, '拖动屏幕任意处移动 · 桌面用 WASD · 自动开火', { fontSize: '12px', color: '#7a9', resolution: DPR }).setOrigin(0.5);
+    this.add.text(W/2, H*0.84, '拖动屏幕任意处移动 · 桌面 WASD · 自动开火', { fontSize: '12px', color: '#7a9', resolution: DPR }).setOrigin(0.5);
     const link = this.add.text(W/2, H-40, 'by Zion · qizh.space ↗', { fontSize: '13px', color: '#6fd0ff', resolution: DPR }).setOrigin(0.5).setInteractive({ useHandCursor: true });
     link.on('pointerup', () => window.open(HUB_URL, '_blank'));
   }
@@ -248,7 +264,7 @@ class Game extends Phaser.Scene {
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     this.stars = []; // 动态星空背景(替代扁平网格)
     for (let i = 0; i < 56; i++) { const s = this.add.circle(Math.random()*W, Math.random()*H, Math.random() < 0.3 ? 1.7 : 1, 0x4a5a8a, 0.55).setDepth(-1); s.vy = 8 + Math.random()*24; this.stars.push(s); }
-    this.floatN = 0; this.musicT = 0;
+    this.floatN = 0; this.musicT = 0; this._toastN = 0;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
@@ -295,6 +311,14 @@ class Game extends Phaser.Scene {
     this.floatN++;
     const t = this.add.text(x, y, txt, { fontSize: '15px', color: color || '#fff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(7);
     this.tweens.add({ targets: t, y: y - 30, alpha: 0, duration: 480, onComplete: () => { t.destroy(); this.floatN--; } });
+  }
+  tryAch(key) { if (ACH.unlock(key)) { const d = ACH.defs.find(a => a.key === key); this.achToast(d ? d.name : key); SFX.level(); } }
+  achToast(name) { // 成就解锁横幅
+    const y = 118 + this._toastN * 42; this._toastN++;
+    const bg = this.add.rectangle(W/2, y, 300, 36, 0x1c2b4a, 0.96).setStrokeStyle(2, 0xf5c84c).setDepth(28).setAlpha(0);
+    const t = this.add.text(W/2, y, '🏅 成就解锁:' + name, { fontSize: '15px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5).setDepth(29).setAlpha(0);
+    this.tweens.add({ targets: [bg, t], alpha: 1, duration: 200 });
+    this.time.delayedCall(2200, () => { this.tweens.add({ targets: [bg, t], alpha: 0, duration: 400, onComplete: () => { bg.destroy(); t.destroy(); this._toastN = Math.max(0, this._toastN - 1); } }); });
   }
 
   // ---------- 玩家 ----------
@@ -504,6 +528,7 @@ class Game extends Phaser.Scene {
     if (!this.chainEvolved && this.stats.chain >= 4) { this.chainEvolved = true; this.evolveBanner('连锁风暴'); }
   }
   evolveBanner(name) {
+    this.tryAch('evolve');
     this.cameras.main.shake(220, 0.007); SFX.level();
     const t = this.add.text(W/2, H*0.32, `⚡ 武器进化:${name}!`, { fontSize: '25px', color: '#f5c84c', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(16);
     this.tweens.add({ targets: t, scale: 1.18, alpha: 0, y: H*0.27, duration: 1700, onComplete: () => t.destroy() });
@@ -538,8 +563,10 @@ class Game extends Phaser.Scene {
     e.dead = true; this.kills++;
     this.burst(e.x, e.y, e.col, (e.type === 'tank' || e.type === 'boss') ? 12 : 6); SFX.kill();
     if (e.splits) { for (let k = 0; k < 2; k++) this.addEnemy('mini', e.x + (Math.random()-0.5)*30, e.y + (Math.random()-0.5)*30); } // 分裂怪
+    if (this.kills === 100) this.tryAch('kill100');
     if (e === this.boss) {
       this.boss = null; this.cameras.main.shake(300, 0.013); this.ring(e.x, e.y, 0xc060ff, 190); SFX.level();
+      this.tryAch('boss1');
       for (let k = 0; k < 6; k++) { const a = k/6*Math.PI*2; this.dropGem(e.x+Math.cos(a)*34, e.y+Math.sin(a)*34, 5, true); }
     } else {
       this.dropGem(e.x, e.y, e.xp, e.type === 'tank');
@@ -566,6 +593,7 @@ class Game extends Phaser.Scene {
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + 15);
     this.ring(this.player.x, this.player.y, 0x8affc0, 110); SFX.level();
     this.paused = true; this.leveling = true;
+    if (this.level >= 15) this.tryAch('lv15');
     const pool = [
       { t: '⚔ 伤害 +25%', f: () => this.stats.dmg *= 1.25 },
       { t: '🔥 攻速 +20%', f: () => this.stats.fireCd *= 0.82 },
@@ -650,7 +678,16 @@ class Game extends Phaser.Scene {
     this.add.text(W/2, H/2-90, `存活 ${secs} 秒 · Lv.${this.level} · 击杀 ${this.kills}`, { fontSize: '18px', color: '#cde', resolution: DPR }).setOrigin(0.5).setDepth(31);
     this.add.text(W/2, H/2-58, isRecord ? '之前最佳 ' + best + ' 秒' : '最佳 ' + best + ' 秒', { fontSize: '13px', color: '#8aa', resolution: DPR }).setOrigin(0.5).setDepth(31);
     const earned = META.award(secs, this.kills);
-    this.add.text(W/2, H/2-28, `💰 +${earned}   (共 ${META.coins()})`, { fontSize: '16px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5).setDepth(31);
+    this.add.text(W/2, H/2-30, `💰 +${earned}   (共 ${META.coins()})`, { fontSize: '16px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5).setDepth(31);
+    let newAch = 0; const tryEnd = (k) => { if (ACH.unlock(k)) newAch++; };
+    if (secs >= 120) tryEnd('survive120');
+    if (secs >= 300) tryEnd('survive300');
+    if (this.level >= 15) tryEnd('lv15');
+    const tk = parseInt(localStorage.getItem('fm_total_kills') || '0', 10) + this.kills;
+    localStorage.setItem('fm_total_kills', String(tk));
+    if (tk >= 2000) tryEnd('kill2000');
+    if (META.coins() >= 1000) tryEnd('rich1000');
+    if (newAch > 0) this.add.text(W/2, H/2-6, `🏅 解锁 ${newAch} 个新成就`, { fontSize: '14px', color: '#f5c84c', resolution: DPR }).setOrigin(0.5).setDepth(31);
 
     const curBest = Math.max(secs, best);
     const again = this.add.rectangle(W/2, H/2+6, 220, 60, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(31).setInteractive({ useHandCursor: true });
