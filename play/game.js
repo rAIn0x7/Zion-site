@@ -258,13 +258,13 @@ class Game extends Phaser.Scene {
     this.fireT = 0; this.spawnT = 0.5; this.hurtCd = 0;
     this.bossT = 50; this.boss = null; this.auraObj = null; this.auraT = 0;
     this.boltEvolved = false; this.orbEvolved = false; this.auraEvolved = false; this.leveling = false;
-    this.chainT = 0; this.chainEvolved = false;
-    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0, chain: 0, crit: 0.05, critMul: 2.0 };
+    this.chainT = 0; this.chainEvolved = false; this.frostT = 0; this.frostEvolved = false;
+    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0, chain: 0, frost: 0, crit: 0.05, critMul: 2.0 };
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     this.stars = []; // 动态星空背景(替代扁平网格)
     for (let i = 0; i < 56; i++) { const s = this.add.circle(Math.random()*W, Math.random()*H, Math.random() < 0.3 ? 1.7 : 1, 0x4a5a8a, 0.55).setDepth(-1); s.vy = 8 + Math.random()*24; this.stars.push(s); }
-    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22;
+    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
@@ -287,7 +287,7 @@ class Game extends Phaser.Scene {
     this.elapsed += dt; this.hurtCd -= dt;
     this.musicT -= dt; if (this.musicT <= 0) { this.musicT = 0.28; SFX.beat(); }
     this.updateStars(dt);
-    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt);
+    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt); this.updateFrost(dt); this.updateBiome(dt);
     this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateEbullets(dt); this.updateChests(); this.updateHUD();
   }
 
@@ -330,6 +330,7 @@ class Game extends Phaser.Scene {
       { t: '🛡 环绕光球 +1', f: () => { this.stats.orbit += 1; this.syncOrbiters(); } },
       { t: '🌀 伤害光环 +1', f: () => { this.stats.aura += 1; } },
       { t: '⚡ 闪电链 +1', f: () => { this.stats.chain += 1; } },
+      { t: '❄ 冰霜新星 +1', f: () => { this.stats.frost += 1; } },
     ];
   }
   spawnChest() {
@@ -559,12 +560,40 @@ class Game extends Phaser.Scene {
       if (best.hp <= 0) this.killEnemy(best);
     }
   }
+  // ---------- 冰霜新星(周期 AoE + 减速) ----------
+  updateFrost(dt) {
+    if (this.stats.frost <= 0) return;
+    this.frostT -= dt;
+    if (this.frostT > 0) return;
+    this.frostT = this.frostEvolved ? 1.5 : 2.4;
+    const R = (90 + this.stats.frost * 30) * (this.frostEvolved ? 1.4 : 1);
+    this.ring(this.player.x, this.player.y, this.frostEvolved ? 0xb0e0ff : 0x9fe0ff, R);
+    for (const e of this.enemies) {
+      if (e.dead) continue;
+      if (Phaser.Math.Distance.Between(this.player.x, this.player.y, e.x, e.y) < R + e.r) {
+        e.hp -= this.stats.dmg * 0.5 * this.stats.frost * (this.frostEvolved ? 1.6 : 1);
+        e.slowT = this.frostEvolved ? 0.8 : 0.45;
+        if (e.hp <= 0) this.killEnemy(e);
+      }
+    }
+  }
+  // ---------- 生物群系切换(视觉变化 + 进度感) ----------
+  updateBiome(dt) {
+    this.biomeT -= dt;
+    if (this.biomeT > 0) return;
+    this.biomeT = 60; this.biome++;
+    const cols = [0x4a5a8a, 0x6a4a8a, 0x4a6a5a, 0x8a5a4a, 0x5a5aa0];
+    const c = cols[this.biome % cols.length];
+    for (const s of this.stars) s.setFillStyle(c, 0.55);
+    this.banner('🌌 进入新区域', '#9fe0ff');
+  }
   // ---------- 武器进化 ----------
   checkEvolutions() {
     if (!this.boltEvolved && this.stats.projCount >= 5 && this.stats.pierce >= 2) { this.boltEvolved = true; this.evolveBanner('多重散射弹'); }
     if (!this.orbEvolved && this.stats.orbit >= 4) { this.orbEvolved = true; this.orbiters.forEach(o => o.setDisplaySize(34, 34).setTint(0xfff0a0)); this.evolveBanner('光刃环'); }
     if (!this.auraEvolved && this.stats.aura >= 4) { this.auraEvolved = true; if (this.auraObj) this.auraObj.setFillStyle(0xc0a0ff, 0.16); this.evolveBanner('奥能风暴'); }
     if (!this.chainEvolved && this.stats.chain >= 4) { this.chainEvolved = true; this.evolveBanner('连锁风暴'); }
+    if (!this.frostEvolved && this.stats.frost >= 4) { this.frostEvolved = true; this.evolveBanner('暴风雪'); }
   }
   evolveBanner(name) {
     this.tryAch('evolve'); SFX.level();
