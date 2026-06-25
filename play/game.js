@@ -259,7 +259,8 @@ class Game extends Phaser.Scene {
     this.bossT = 50; this.boss = null; this.auraObj = null; this.auraT = 0;
     this.boltEvolved = false; this.orbEvolved = false; this.auraEvolved = false; this.leveling = false;
     this.chainT = 0; this.chainEvolved = false; this.frostT = 0; this.frostEvolved = false;
-    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0, chain: 0, frost: 0, crit: 0.05, critMul: 2.0 };
+    this.booms = []; this.boomT = 0; this.boomEvolved = false;
+    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0, chain: 0, frost: 0, boom: 0, crit: 0.05, critMul: 2.0 };
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     this.stars = []; // 动态星空背景(替代扁平网格)
@@ -287,7 +288,7 @@ class Game extends Phaser.Scene {
     this.elapsed += dt; this.hurtCd -= dt;
     this.musicT -= dt; if (this.musicT <= 0) { this.musicT = 0.28; SFX.beat(); }
     this.updateStars(dt);
-    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt); this.updateFrost(dt); this.updateBiome(dt);
+    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt); this.updateFrost(dt); this.updateBooms(dt); this.updateBiome(dt);
     this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateEbullets(dt); this.updateChests(); this.updateHUD();
   }
 
@@ -331,6 +332,7 @@ class Game extends Phaser.Scene {
       { t: '🌀 伤害光环 +1', f: () => { this.stats.aura += 1; } },
       { t: '⚡ 闪电链 +1', f: () => { this.stats.chain += 1; } },
       { t: '❄ 冰霜新星 +1', f: () => { this.stats.frost += 1; } },
+      { t: '🪃 回旋镖 +1', f: () => { this.stats.boom += 1; } },
     ];
   }
   spawnChest() {
@@ -560,6 +562,40 @@ class Game extends Phaser.Scene {
       if (best.hp <= 0) this.killEnemy(best);
     }
   }
+  // ---------- 回旋镖(飞出再飞回,来回切割) ----------
+  throwBooms() {
+    const n = this.stats.boom, tgt = this.nearest(this.player.x, this.player.y);
+    const base = tgt ? Phaser.Math.Angle.Between(this.player.x, this.player.y, tgt.x, tgt.y) : 0;
+    for (let i = 0; i < n; i++) {
+      const a = base + (i - (n-1)/2) * 0.5;
+      const obj = this.add.image(this.player.x, this.player.y, 'projectile').setDepth(4).setDisplaySize(this.boomEvolved ? 30 : 24, this.boomEvolved ? 30 : 24).setTint(0x80ffd0);
+      this.booms.push({ x: this.player.x, y: this.player.y, a, t: 0, phase: 0, hit: new Set(), obj, dmg: this.stats.dmg * (this.boomEvolved ? 1.5 : 0.9) });
+    }
+  }
+  updateBooms(dt) {
+    if (this.stats.boom > 0) { this.boomT -= dt; if (this.boomT <= 0) { this.boomT = this.boomEvolved ? 1.0 : 1.6; this.throwBooms(); } }
+    const SP = 340, OUT = 0.5;
+    for (const b of this.booms) {
+      b.t += dt; b.obj.rotation += 0.5;
+      if (b.t < OUT) { b.x += Math.cos(b.a)*SP*dt; b.y += Math.sin(b.a)*SP*dt; }
+      else {
+        if (b.phase === 0) { b.phase = 1; b.hit.clear(); }
+        const ra = Phaser.Math.Angle.Between(b.x, b.y, this.player.x, this.player.y);
+        b.x += Math.cos(ra)*SP*1.2*dt; b.y += Math.sin(ra)*SP*1.2*dt;
+        if (Phaser.Math.Distance.Between(b.x, b.y, this.player.x, this.player.y) < 22 || b.t > 2.2) b.dead = true;
+      }
+      b.obj.x = b.x; b.obj.y = b.y;
+      for (const e of this.enemies) {
+        if (e.dead || b.hit.has(e)) continue;
+        if (Phaser.Math.Distance.Between(b.x, b.y, e.x, e.y) < e.r + 14) {
+          b.hit.add(e); e.hp -= b.dmg;
+          this.floatText(e.x, e.y - e.r, '' + Math.round(b.dmg), '#80ffd0');
+          if (e.hp <= 0) this.killEnemy(e);
+        }
+      }
+    }
+    this.booms = this.booms.filter(b => { if (b.dead) b.obj.destroy(); return !b.dead; });
+  }
   // ---------- 冰霜新星(周期 AoE + 减速) ----------
   updateFrost(dt) {
     if (this.stats.frost <= 0) return;
@@ -594,6 +630,7 @@ class Game extends Phaser.Scene {
     if (!this.auraEvolved && this.stats.aura >= 4) { this.auraEvolved = true; if (this.auraObj) this.auraObj.setFillStyle(0xc0a0ff, 0.16); this.evolveBanner('奥能风暴'); }
     if (!this.chainEvolved && this.stats.chain >= 4) { this.chainEvolved = true; this.evolveBanner('连锁风暴'); }
     if (!this.frostEvolved && this.stats.frost >= 4) { this.frostEvolved = true; this.evolveBanner('暴风雪'); }
+    if (!this.boomEvolved && this.stats.boom >= 4) { this.boomEvolved = true; this.evolveBanner('环切飞轮'); }
   }
   evolveBanner(name) {
     this.tryAch('evolve'); SFX.level();
