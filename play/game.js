@@ -222,7 +222,7 @@ class Game extends Phaser.Scene {
     this.elapsed = 0; this.kills = 0; this.level = 1; this.xp = 0; this.xpNeed = 5;
     this.fireT = 0; this.spawnT = 0.5; this.hurtCd = 0;
     this.bossT = 50; this.boss = null; this.auraObj = null; this.auraT = 0;
-    this.boltEvolved = false; this.orbEvolved = false; this.auraEvolved = false;
+    this.boltEvolved = false; this.orbEvolved = false; this.auraEvolved = false; this.leveling = false;
     this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0 };
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
@@ -234,6 +234,8 @@ class Game extends Phaser.Scene {
     META.applyTo(this.stats, this.player); // 应用局外永久强化
 
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT');
+    this.input.keyboard.on('keydown-P', () => this.togglePause());
+    this.input.keyboard.on('keydown-ESC', () => this.togglePause());
     this.stick = new VirtualJoystick(this, { radius: 70, deadZone: 0.12, depth: 12 });
 
     this.makeHUD();
@@ -457,10 +459,10 @@ class Game extends Phaser.Scene {
     this.gems = this.gems.filter(gm => !gm.got);
   }
   levelUp() {
-    this.xp -= this.xpNeed; this.level++; this.xpNeed = Math.floor(this.xpNeed * 1.45 + 3);
+    this.xp -= this.xpNeed; this.level++; this.xpNeed = Math.floor(this.xpNeed * 1.38 + 3);
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + 15);
     this.ring(this.player.x, this.player.y, 0x8affc0, 110); SFX.level();
-    this.paused = true;
+    this.paused = true; this.leveling = true;
     const pool = [
       { t: '⚔ 伤害 +25%', f: () => this.stats.dmg *= 1.25 },
       { t: '🔥 攻速 +20%', f: () => this.stats.fireCd *= 0.82 },
@@ -482,7 +484,7 @@ class Game extends Phaser.Scene {
       const txt = this.add.text(W/2, cy, u.t, { fontSize: '22px', color: '#fff', resolution: DPR }).setOrigin(0.5).setDepth(22);
       card.on('pointerover', () => card.setFillStyle(0x274066));
       card.on('pointerout', () => card.setFillStyle(0x1c2b4a));
-      card.on('pointerup', () => { u.f(); layer.forEach(o => o.destroy()); card.destroy(); txt.destroy(); this.paused = false; this.checkEvolutions(); });
+      card.on('pointerup', () => { u.f(); layer.forEach(o => o.destroy()); card.destroy(); txt.destroy(); this.paused = false; this.leveling = false; this.checkEvolutions(); });
       layer.push(card, txt);
     });
   }
@@ -498,6 +500,9 @@ class Game extends Phaser.Scene {
     // 静音开关
     this.muteBtn = this.add.text(W-14, 76, SFX.muted ? '🔇' : '🔊', { fontSize: '20px', resolution: DPR }).setOrigin(1, 0).setDepth(12).setInteractive({ useHandCursor: true });
     this.muteBtn.on('pointerup', () => this.muteBtn.setText(SFX.toggle() ? '🔇' : '🔊'));
+    this.pauseBtn = this.add.text(14, 76, '⏸', { fontSize: '20px', resolution: DPR }).setOrigin(0, 0).setDepth(12).setInteractive({ useHandCursor: true });
+    this.pauseBtn.on('pointerup', () => this.togglePause());
+    this.vignette = this.add.rectangle(W/2, H/2, W, H, 0xff2200, 0).setDepth(9); // 低血红光预警
     // Boss 血条(默认隐藏,Boss 出现时显示)
     this.bossLabel = this.add.text(W/2, H-66, '👹 BOSS', { fontSize: '12px', color: '#e0a0ff', resolution: DPR }).setOrigin(0.5).setDepth(11).setVisible(false);
     this.bossBarBg = this.add.rectangle(W/2, H-50, W-40, 12, 0x331033).setDepth(10).setVisible(false);
@@ -510,6 +515,23 @@ class Game extends Phaser.Scene {
     const bossAlive = this.boss && !this.boss.dead;
     this.bossLabel.setVisible(bossAlive); this.bossBarBg.setVisible(bossAlive); this.bossBarFill.setVisible(bossAlive);
     if (bossAlive) this.bossBarFill.width = (W-40) * Math.max(0, this.boss.hp / this.boss.maxHp);
+    const f = this.player.hp / this.player.maxHp; // 低血红光
+    this.vignette.setAlpha(f < 0.35 ? (0.35 - f) / 0.35 * 0.22 : 0);
+  }
+  togglePause() {
+    if (this.over || this.leveling) return;
+    if (!this.paused) {
+      this.paused = true;
+      const dim = this.add.rectangle(W/2, H/2, W, H, 0x000, 0.62).setDepth(25);
+      const t = this.add.text(W/2, H/2-50, '已暂停', { fontSize: '40px', color: '#cde', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(26);
+      const btn = this.add.rectangle(W/2, H/2+44, 200, 60, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(26).setInteractive({ useHandCursor: true });
+      const bt = this.add.text(W/2, H/2+44, '▶ 继续', { fontSize: '24px', color: '#fff', resolution: DPR }).setOrigin(0.5).setDepth(27);
+      btn.on('pointerup', () => this.togglePause());
+      this.pauseLayer = [dim, t, btn, bt];
+    } else {
+      this.paused = false;
+      if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; }
+    }
   }
   end() {
     this.over = true;
