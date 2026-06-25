@@ -11,11 +11,21 @@
   #boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#9fe07a;
     font-size:14px;letter-spacing:.1em;z-index:5}
 </style>
-<script src="vendor/phaser.min.js"></script>
 </head>
 <body>
 <div id="boot">载入中…</div>
 <div id="game"></div>
-<script src="game.js"></script>
+<script>
+// Phaser 优先走国内 CDN(七牛 staticfile,国内快),失败回退到本站自托管副本;两者都就绪后再加载游戏。
+(function () {
+  function loadGame() { var g = document.createElement('script'); g.src = 'game.js'; document.body.appendChild(g); }
+  function fromLocal() { var f = document.createElement('script'); f.src = 'vendor/phaser.min.js'; f.onload = loadGame; f.onerror = loadGame; document.head.appendChild(f); }
+  var p = document.createElement('script');
+  p.src = 'https://cdn.staticfile.org/phaser/3.80.1/phaser.min.js';
+  p.onload = loadGame;
+  p.onerror = fromLocal;
+  document.head.appendChild(p);
+})();
+</script>
 </body>
 </html>
