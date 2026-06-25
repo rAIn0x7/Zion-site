@@ -1,0 +1,7 @@
+[     125ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:9127/favicon.ico:0
+[     583ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://finnhub.io/api/v1/stock/candle?symbol=TSLA&resolution=5&from=1780019759&to=1780023359&token=d87eb1hr01ql0hsle8r0d87eb1hr01ql0hsle8rg:0
+[     639ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://finnhub.io/api/v1/stock/candle?symbol=AAPL&resolution=5&from=1780019759&to=1780023359&token=d87eb1hr01ql0hsle8r0d87eb1hr01ql0hsle8rg:0
+[     642ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://finnhub.io/api/v1/stock/candle?symbol=NVDA&resolution=5&from=1780019759&to=1780023359&token=d87eb1hr01ql0hsle8r0d87eb1hr01ql0hsle8rg:0
+[     724ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://finnhub.io/api/v1/stock/candle?symbol=SPY&resolution=5&from=1780019759&to=1780023359&token=d87eb1hr01ql0hsle8r0d87eb1hr01ql0hsle8rg:0
+[     741ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://finnhub.io/api/v1/stock/candle?symbol=PLTR&resolution=5&from=1780019759&to=1780023359&token=d87eb1hr01ql0hsle8r0d87eb1hr01ql0hsle8rg:0
+[     742ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://finnhub.io/api/v1/stock/candle?symbol=SPY&resolution=60&from=1779936959&to=1780023359&token=d87eb1hr01ql0hsle8r0d87eb1hr01ql0hsle8rg:0

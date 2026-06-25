@@ -1,0 +1,204 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - link "METALLENS" [ref=e3] [cursor=pointer]:
+      - /url: /
+    - generic [ref=e4]:
+      - button "ALL" [ref=e5] [cursor=pointer]
+      - button "GOLD" [ref=e6] [cursor=pointer]
+      - button "SILVER" [ref=e7] [cursor=pointer]
+      - button "OIL" [ref=e8] [cursor=pointer]
+      - button "MACRO" [ref=e9] [cursor=pointer]
+      - button "AI" [ref=e10] [cursor=pointer]
+    - generic [ref=e11]:
+      - link "ZION ↗" [ref=e12] [cursor=pointer]:
+        - /url: https://qizh.space
+      - link "CRYPTO ↗" [ref=e13] [cursor=pointer]:
+        - /url: https://lens.qizh.space
+      - link "STOCKS ↗" [ref=e14] [cursor=pointer]:
+        - /url: https://stocks.qizh.space
+      - button "EN" [ref=e15] [cursor=pointer]
+      - button "登录" [ref=e16] [cursor=pointer]
+      - link "Subscribe" [ref=e17] [cursor=pointer]:
+        - /url: subscribe.html
+  - generic [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e22]:
+        - generic [ref=e23]: 市场脉搏
+        - generic [ref=e24]: 基于 22 条信号 · 7天前
+      - generic [ref=e25]:
+        - generic [ref=e26]: 看多
+        - generic [ref=e27]: "+38"
+      - paragraph [ref=e28]: Gold rallies on Fed rate cut expectations and safe-haven demand amid geopolitical tensions. Silver follows. Oil steady on OPEC+ production discipline.
+      - generic [ref=e29]:
+        - generic [ref=e30] [cursor=pointer]: "#XAU"
+        - generic [ref=e31] [cursor=pointer]: "#Fed policy"
+        - generic [ref=e32] [cursor=pointer]: "#safe-haven"
+        - generic [ref=e33] [cursor=pointer]: "#OPEC+"
+      - generic [ref=e34]:
+        - generic [ref=e35]: 14天历史
+        - generic [ref=e38]:
+          - generic [ref=e39]: May 22
+          - generic [ref=e40]: 今日
+    - generic [ref=e41]:
+      - generic [ref=e44]: XAU/USD · SPOT
+      - generic [ref=e46]: —
+      - generic [ref=e48]: Chart builds as data arrives…
+  - generic [ref=e50]:
+    - main [ref=e51]:
+      - generic [ref=e52]:
+        - generic [ref=e53] [cursor=pointer]:
+          - generic [ref=e54]:
+            - generic [ref=e55]: Reuters · 7天前
+            - generic [ref=e56]:
+              - generic [ref=e57]: gold
+              - generic [ref=e58]: ●9
+          - link "Gold Hits $2,400 on Fed Rate Cut Bets" [ref=e59]:
+            - /url: https://reuters.com
+          - paragraph [ref=e60]: Gold surged to $2,400/oz as traders priced in earlier Fed rate cuts following softer CPI data.
+          - generic [ref=e61]:
+            - generic [ref=e62]: "#XAU"
+            - generic [ref=e63]: "#Fed"
+            - generic [ref=e64]: "#rate-cut"
+        - generic [ref=e65] [cursor=pointer]:
+          - generic [ref=e66]:
+            - generic [ref=e67]: Bloomberg · 7天前
+            - generic [ref=e68]:
+              - generic [ref=e69]: silver
+              - generic [ref=e70]: ●8
+          - link "Silver Outperforms on Industrial Demand Surge" [ref=e71]:
+            - /url: https://bloomberg.com
+          - paragraph [ref=e72]: Silver gained 4% this week, driven by solar panel manufacturing demand and golds rally.
+          - generic [ref=e73]:
+            - generic [ref=e74]: "#XAG"
+            - generic [ref=e75]: "#solar"
+            - generic [ref=e76]: "#industrial"
+        - generic [ref=e77] [cursor=pointer]:
+          - generic [ref=e78]:
+            - generic [ref=e79]: FT · 7天前
+            - generic [ref=e80]:
+              - generic [ref=e81]: oil
+              - generic [ref=e82]: ●8
+          - link "OPEC+ Extends Output Cuts Through Q3" [ref=e83]:
+            - /url: https://ft.com
+          - paragraph [ref=e84]: OPEC+ agrees to maintain production discipline, supporting Brent crude above $85/barrel.
+          - generic [ref=e85]:
+            - generic [ref=e86]: "#oil"
+            - generic [ref=e87]: "#OPEC"
+            - generic [ref=e88]: "#supply"
+        - generic [ref=e89] [cursor=pointer]:
+          - generic [ref=e90]:
+            - generic [ref=e91]: WSJ · 7天前
+            - generic [ref=e92]:
+              - generic [ref=e93]: gold
+              - generic [ref=e94]: ●8
+          - link "Central Banks Add Record Gold Reserves" [ref=e95]:
+            - /url: https://wsj.com
+          - paragraph [ref=e96]: Global central banks purchased 290 tonnes of gold in Q1, the highest in decades.
+          - generic [ref=e97]:
+            - generic [ref=e98]: "#XAU"
+            - generic [ref=e99]: "#central-banks"
+            - generic [ref=e100]: "#reserves"
+        - generic [ref=e101] [cursor=pointer]:
+          - generic [ref=e102]:
+            - generic [ref=e103]: CNBC · 7天前
+            - generic [ref=e104]:
+              - generic [ref=e105]: macro
+              - generic [ref=e106]: ●7
+          - link "Copper Rally Signals Global Growth Optimism" [ref=e107]:
+            - /url: https://cnbc.com
+          - paragraph [ref=e108]: Copper prices hit 2-year highs as China manufacturing PMI beats expectations.
+          - generic [ref=e109]:
+            - generic [ref=e110]: "#XCU"
+            - generic [ref=e111]: "#China"
+            - generic [ref=e112]: "#PMI"
+    - complementary [ref=e113]:
+      - generic [ref=e114]:
+        - generic [ref=e115]:
+          - text: 金属
+          - generic [ref=e116]: ~30s
+        - generic [ref=e117]:
+          - generic [ref=e118]:
+            - generic [ref=e119]: XAU
+            - generic [ref=e120]: Gold
+          - img [ref=e121]
+          - generic [ref=e122]:
+            - generic [ref=e123]: $412.77
+            - generic [ref=e124]: +1.05%
+        - generic [ref=e125]:
+          - generic [ref=e126]:
+            - generic [ref=e127]: XAG
+            - generic [ref=e128]: Silver
+          - img [ref=e129]
+          - generic [ref=e130]:
+            - generic [ref=e131]: $68.36
+            - generic [ref=e132]: +1.27%
+        - generic [ref=e133]:
+          - generic [ref=e134]:
+            - generic [ref=e135]: OIL
+            - generic [ref=e136]: Brent
+          - img [ref=e137]
+          - generic [ref=e138]:
+            - generic [ref=e139]: $130.78
+            - generic [ref=e140]: "-0.19%"
+        - generic [ref=e141]:
+          - generic [ref=e142]:
+            - generic [ref=e143]: XPT
+            - generic [ref=e144]: Platinum
+          - img [ref=e145]
+          - generic [ref=e146]:
+            - generic [ref=e147]: $17.45
+            - generic [ref=e148]: +0.11%
+        - generic [ref=e149]:
+          - generic [ref=e150]:
+            - generic [ref=e151]: XCU
+            - generic [ref=e152]: Copper
+          - img [ref=e153]
+          - generic [ref=e154]:
+            - generic [ref=e155]: $39.06
+            - generic [ref=e156]: +1.51%
+      - generic [ref=e157]:
+        - generic [ref=e158]: 每周免费信号
+        - paragraph [ref=e159]: 每周一推送10条精选，不发垃圾邮件。
+        - textbox "your@email.com" [ref=e160]
+        - button "免费订阅" [ref=e161] [cursor=pointer]
+        - paragraph
+      - generic [ref=e162]:
+        - generic [ref=e163]: 热门标签
+        - generic [ref=e164]:
+          - generic [ref=e165] [cursor=pointer]: "#XAU"
+          - generic [ref=e166] [cursor=pointer]: "#Fed"
+          - generic [ref=e167] [cursor=pointer]: "#rate-cut"
+          - generic [ref=e168] [cursor=pointer]: "#XAG"
+          - generic [ref=e169] [cursor=pointer]: "#solar"
+          - generic [ref=e170] [cursor=pointer]: "#industrial"
+          - generic [ref=e171] [cursor=pointer]: "#oil"
+          - generic [ref=e172] [cursor=pointer]: "#OPEC"
+          - generic [ref=e173] [cursor=pointer]: "#supply"
+          - generic [ref=e174] [cursor=pointer]: "#central-banks"
+          - generic [ref=e175] [cursor=pointer]: "#reserves"
+          - generic [ref=e176] [cursor=pointer]: "#XCU"
+          - generic [ref=e177] [cursor=pointer]: "#China"
+          - generic [ref=e178] [cursor=pointer]: "#PMI"
+      - generic [ref=e179]:
+        - generic [ref=e180]: 赞助
+        - paragraph [ref=e181]:
+          - text: Trade gold & commodities on
+          - link "Binance" [ref=e182] [cursor=pointer]:
+            - /url: https://accounts.binance.com/register?ref=YOUR_REF
+          - text: — earn rebates on every trade.
+  - contentinfo [ref=e183]:
+    - paragraph [ref=e184]: MetalLens aggregates information from third-party sources for informational purposes only. Nothing on this site constitutes financial or investment advice. Commodity investments carry significant risk.
+    - generic [ref=e185]:
+      - link "Home" [ref=e186] [cursor=pointer]:
+        - /url: index.html
+      - link "Subscribe" [ref=e187] [cursor=pointer]:
+        - /url: subscribe.html
+      - link "About" [ref=e188] [cursor=pointer]:
+        - /url: about.html
+      - link "Privacy Policy" [ref=e189] [cursor=pointer]:
+        - /url: privacy.html
+  - link "Trade on Binance":
+    - /url: https://www.bsmkweb.cc/register?ref=1216493484
+    - generic [ref=e190] [cursor=pointer]:
+      - img [ref=e191]
+      - text: Trade on Binance

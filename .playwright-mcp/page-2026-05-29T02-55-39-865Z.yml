@@ -1,0 +1,58 @@
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]: CRYPTOLENS
+    - generic [ref=e4]:
+      - button "ALL" [ref=e5] [cursor=pointer]
+      - button "CROSS" [ref=e6] [cursor=pointer]
+      - button "CRYPTO" [ref=e7] [cursor=pointer]
+      - button "AI" [ref=e8] [cursor=pointer]
+      - button "REGULATION" [ref=e9] [cursor=pointer]
+      - button "ON-CHAIN" [ref=e10] [cursor=pointer]
+    - generic [ref=e11]:
+      - link "STOCKS ↗" [ref=e12] [cursor=pointer]:
+        - /url: https://stocks.qizh.space
+      - link "METALS ↗" [ref=e13] [cursor=pointer]:
+        - /url: https://metals.qizh.space
+      - button "EN" [ref=e14] [cursor=pointer]
+      - button "登录" [ref=e15] [cursor=pointer]
+      - link "Subscribe" [ref=e16] [cursor=pointer]:
+        - /url: subscribe.html
+  - generic [ref=e22]:
+    - generic [ref=e25]: BTC/USD · BINANCE
+    - generic [ref=e27]: —
+  - generic [ref=e28]:
+    - generic [ref=e30]: 今日热点
+    - generic [ref=e35]:
+      - main [ref=e36]:
+        - button "加载更多" [ref=e42] [cursor=pointer]
+      - complementary [ref=e43]:
+        - generic [ref=e44]:
+          - generic [ref=e45]: 每周免费信号
+          - paragraph [ref=e46]: 每周一推送10条精选，不发垃圾邮件。
+          - textbox "your@email.com" [ref=e47]
+          - button "免费订阅" [ref=e48] [cursor=pointer]
+          - paragraph
+        - generic [ref=e50]: 热门标签
+        - generic [ref=e51]:
+          - generic [ref=e52]: 赞助
+          - paragraph [ref=e53]:
+            - text: Trade crypto on
+            - link "Binance" [ref=e54] [cursor=pointer]:
+              - /url: https://accounts.binance.com/register?ref=YOUR_REF
+            - text: — earn rebates on every trade.
+  - contentinfo [ref=e55]:
+    - paragraph [ref=e56]: CryptoLens aggregates information from third-party sources for informational purposes only. Nothing on this site constitutes financial or investment advice. Always do your own research before making any investment decisions. Cryptocurrency investments carry significant risk.
+    - generic [ref=e57]:
+      - link "Home" [ref=e58] [cursor=pointer]:
+        - /url: index.html
+      - link "Subscribe" [ref=e59] [cursor=pointer]:
+        - /url: subscribe.html
+      - link "About" [ref=e60] [cursor=pointer]:
+        - /url: about.html
+      - link "Privacy Policy" [ref=e61] [cursor=pointer]:
+        - /url: privacy.html
+  - link "Trade on Binance":
+    - /url: https://www.bsmkweb.cc/register?ref=1216493484
+    - generic [ref=e62] [cursor=pointer]:
+      - img [ref=e63]
+      - text: Trade on Binance

@@ -1,0 +1,5 @@
+[     122ms] [ERROR] Failed to load resource: the server responded with a status of 404 (File not found) @ http://localhost:9128/favicon.ico:0
+[    6271ms] TypeError: t(...) is not a function
+    at setLiveStatus (http://localhost:9128/assets/app.js:449:48)
+    at initGoldPricePoll (http://localhost:9128/assets/app.js:453:3)
+    at init (http://localhost:9128/:148:3)
