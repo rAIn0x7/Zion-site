@@ -184,6 +184,7 @@ class Game extends Phaser.Scene {
     this.elapsed = 0; this.kills = 0; this.level = 1; this.xp = 0; this.xpNeed = 5;
     this.fireT = 0; this.spawnT = 0.5; this.hurtCd = 0;
     this.bossT = 50; this.boss = null; this.auraObj = null; this.auraT = 0;
+    this.boltEvolved = false; this.orbEvolved = false; this.auraEvolved = false;
     this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0 };
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
@@ -264,7 +265,7 @@ class Game extends Phaser.Scene {
     else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
     else if (type === 'fast') e = { type, r: 11, hp: hp0*0.55, maxHp: hp0*0.55, speed: 95 + this.elapsed*0.5, dmg: 9, xp: 1, sprite: 'enemy_fast', col: 0xff7a9c };
     else e = { type, r: 14, hp: hp0, maxHp: hp0, speed: 56 + this.elapsed*0.5, dmg: 12, xp: 1, sprite: 'enemy_basic', col: 0x7be86a };
-    e.x = x; e.y = y; e.orbCd = 0; e.speed = Math.min(e.speed, type === 'fast' ? 185 : 150);
+    e.x = x; e.y = y; e.orbCd = 0; e.slowT = 0; e.speed = Math.min(e.speed, type === 'fast' ? 185 : 150);
     e.obj = this.add.image(x, y, e.sprite).setDepth(3).setDisplaySize(e.r*2.8, e.r*2.8);
     if (type === 'boss') {
       this.boss = e; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
@@ -277,8 +278,9 @@ class Game extends Phaser.Scene {
     const p = this.player;
     for (const e of this.enemies) {
       if (e.orbCd > 0) e.orbCd -= dt;
+      let sp = e.speed; if (e.slowT > 0) { e.slowT -= dt; sp *= 0.5; } // 奥能风暴减速
       const a = Phaser.Math.Angle.Between(e.x, e.y, p.x, p.y);
-      e.x += Math.cos(a)*e.speed*dt; e.y += Math.sin(a)*e.speed*dt;
+      e.x += Math.cos(a)*sp*dt; e.y += Math.sin(a)*sp*dt;
       e.obj.x = e.x; e.obj.y = e.y;
       if (Phaser.Math.Distance.Between(e.x, e.y, p.x, p.y) < e.r + p.r) {
         this.player.hp -= e.dmg * dt;
@@ -296,12 +298,16 @@ class Game extends Phaser.Scene {
     const tgt = this.nearest(this.player.x, this.player.y);
     if (!tgt) return;
     const base = Phaser.Math.Angle.Between(this.player.x, this.player.y, tgt.x, tgt.y);
-    const n = this.stats.projCount, spread = 0.18;
+    const n = this.stats.projCount + (this.boltEvolved ? 2 : 0);     // 进化:多重散射
+    const spread = this.boltEvolved ? 0.26 : 0.18;
+    const pdmg = this.stats.dmg * (this.boltEvolved ? 1.4 : 1);
+    const psz = this.boltEvolved ? 26 : 20;
     for (let i = 0; i < n; i++) {
       const a = base + (i - (n-1)/2) * spread;
-      const obj = this.add.image(this.player.x, this.player.y, 'projectile').setDepth(4).setDisplaySize(20, 20);
+      const obj = this.add.image(this.player.x, this.player.y, 'projectile').setDepth(4).setDisplaySize(psz, psz);
+      if (this.boltEvolved) obj.setTint(0xfff0a0);
       obj.rotation = a;
-      this.projs.push({ x: this.player.x, y: this.player.y, vx: Math.cos(a)*this.stats.projSpeed, vy: Math.sin(a)*this.stats.projSpeed, life: 1.2, pierce: this.stats.pierce, obj });
+      this.projs.push({ x: this.player.x, y: this.player.y, vx: Math.cos(a)*this.stats.projSpeed, vy: Math.sin(a)*this.stats.projSpeed, life: 1.2, pierce: this.stats.pierce, dmg: pdmg, obj });
     }
   }
   nearest(x, y) { let best = null, bd = 1e9; for (const e of this.enemies) { const d = Phaser.Math.Distance.Between(x, y, e.x, e.y); if (d < bd) { bd = d; best = e; } } return best; }
@@ -310,12 +316,13 @@ class Game extends Phaser.Scene {
   syncOrbiters() {
     while (this.orbiters.length < this.stats.orbit) {
       const o = this.add.image(this.player.x, this.player.y, 'projectile').setDepth(4).setDisplaySize(26, 26).setTint(0x9fe0ff);
+      if (this.orbEvolved) o.setDisplaySize(34, 34).setTint(0xfff0a0);
       this.orbiters.push(o);
     }
   }
   updateOrbiters(dt) {
     const n = this.orbiters.length; if (!n) return;
-    const baseA = this.elapsed * 2.6, R = 70;
+    const baseA = this.elapsed * (this.orbEvolved ? 3.4 : 2.6), R = this.orbEvolved ? 92 : 70;
     for (let i = 0; i < n; i++) {
       const a = baseA + i * (Math.PI * 2 / n);
       const ox = this.player.x + Math.cos(a)*R, oy = this.player.y + Math.sin(a)*R;
@@ -323,7 +330,7 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) {
         if (e.dead || e.orbCd > 0) continue;
         if (Phaser.Math.Distance.Between(ox, oy, e.x, e.y) < e.r + 13) {
-          e.hp -= this.stats.dmg * 0.6; e.orbCd = 0.35;
+          e.hp -= this.stats.dmg * (this.orbEvolved ? 1.0 : 0.6); e.orbCd = 0.35;
           e.obj.setTintFill(0xffffff); this.time.delayedCall(50, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
           if (e.hp <= 0) this.killEnemy(e);
         }
@@ -333,20 +340,32 @@ class Game extends Phaser.Scene {
   // ---------- 伤害光环(范围武器) ----------
   updateAura(dt) {
     if (this.stats.aura <= 0) return;
-    const R = 56 + this.stats.aura * 22;
+    const R = (56 + this.stats.aura * 22) * (this.auraEvolved ? 1.4 : 1); // 进化:奥能风暴(更大+减速)
     if (!this.auraObj) this.auraObj = this.add.circle(this.player.x, this.player.y, R, 0x6fd0ff, 0.12).setStrokeStyle(2, 0x6fd0ff, 0.4).setDepth(1);
     this.auraObj.setRadius(R); this.auraObj.x = this.player.x; this.auraObj.y = this.player.y;
     this.auraT -= dt;
     if (this.auraT <= 0) {
-      this.auraT = 0.3;
+      this.auraT = this.auraEvolved ? 0.2 : 0.3;
       for (const e of this.enemies) {
         if (e.dead) continue;
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, e.x, e.y) < R + e.r) {
-          e.hp -= this.stats.dmg * 0.35 * this.stats.aura;
+          e.hp -= this.stats.dmg * 0.35 * this.stats.aura * (this.auraEvolved ? 1.6 : 1);
+          if (this.auraEvolved) e.slowT = 0.25;
           if (e.hp <= 0) this.killEnemy(e);
         }
       }
     }
+  }
+  // ---------- 武器进化 ----------
+  checkEvolutions() {
+    if (!this.boltEvolved && this.stats.projCount >= 5 && this.stats.pierce >= 2) { this.boltEvolved = true; this.evolveBanner('多重散射弹'); }
+    if (!this.orbEvolved && this.stats.orbit >= 4) { this.orbEvolved = true; this.orbiters.forEach(o => o.setDisplaySize(34, 34).setTint(0xfff0a0)); this.evolveBanner('光刃环'); }
+    if (!this.auraEvolved && this.stats.aura >= 4) { this.auraEvolved = true; if (this.auraObj) this.auraObj.setFillStyle(0xc0a0ff, 0.16); this.evolveBanner('奥能风暴'); }
+  }
+  evolveBanner(name) {
+    this.cameras.main.shake(220, 0.007); SFX.level();
+    const t = this.add.text(W/2, H*0.32, `⚡ 武器进化:${name}!`, { fontSize: '25px', color: '#f5c84c', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(16);
+    this.tweens.add({ targets: t, scale: 1.18, alpha: 0, y: H*0.27, duration: 1700, onComplete: () => t.destroy() });
   }
   moveProjs(dt) {
     for (const pr of this.projs) {
@@ -355,7 +374,7 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) {
         if (e.dead) continue;
         if (Phaser.Math.Distance.Between(pr.x, pr.y, e.x, e.y) < e.r + 6) {
-          e.hp -= this.stats.dmg;
+          e.hp -= pr.dmg;
           e.obj.setTintFill(0xffffff);
           this.time.delayedCall(60, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
           const ka = Phaser.Math.Angle.Between(this.player.x, this.player.y, e.x, e.y); // 受击击退,打击更实
@@ -425,7 +444,7 @@ class Game extends Phaser.Scene {
       const txt = this.add.text(W/2, cy, u.t, { fontSize: '22px', color: '#fff', resolution: DPR }).setOrigin(0.5).setDepth(22);
       card.on('pointerover', () => card.setFillStyle(0x274066));
       card.on('pointerout', () => card.setFillStyle(0x1c2b4a));
-      card.on('pointerup', () => { u.f(); layer.forEach(o => o.destroy()); card.destroy(); txt.destroy(); this.paused = false; });
+      card.on('pointerup', () => { u.f(); layer.forEach(o => o.destroy()); card.destroy(); txt.destroy(); this.paused = false; this.checkEvolutions(); });
       layer.push(card, txt);
     });
   }
