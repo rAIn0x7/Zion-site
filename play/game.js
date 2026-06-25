@@ -108,10 +108,10 @@ class Game extends Phaser.Scene {
 
   create() {
     this.over = false; this.paused = false;
-    this.enemies = []; this.projs = []; this.gems = [];
+    this.enemies = []; this.projs = []; this.gems = []; this.orbiters = [];
     this.elapsed = 0; this.kills = 0; this.level = 1; this.xp = 0; this.xpNeed = 5;
     this.fireT = 0; this.spawnT = 0.5; this.hurtCd = 0;
-    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78 };
+    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0 };
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     for (let gx = 60; gx < W; gx += 60) this.add.rectangle(gx, H/2, 1, H, 0x16203a).setDepth(-1);
@@ -130,7 +130,7 @@ class Game extends Phaser.Scene {
     if (this.over || this.paused) return;
     const dt = Math.min(dms, 50) / 1000;
     this.elapsed += dt; this.hurtCd -= dt;
-    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt);
+    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt);
     this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateHUD();
   }
 
@@ -187,13 +187,14 @@ class Game extends Phaser.Scene {
     if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
     else if (type === 'fast') e = { type, r: 11, hp: hp0*0.55, maxHp: hp0*0.55, speed: 95 + this.elapsed*0.5, dmg: 9, xp: 1, sprite: 'enemy_fast', col: 0xff7a9c };
     else e = { type, r: 14, hp: hp0, maxHp: hp0, speed: 56 + this.elapsed*0.5, dmg: 12, xp: 1, sprite: 'enemy_basic', col: 0x7be86a };
-    e.x = x; e.y = y; e.speed = Math.min(e.speed, type === 'fast' ? 185 : 150);
+    e.x = x; e.y = y; e.orbCd = 0; e.speed = Math.min(e.speed, type === 'fast' ? 185 : 150);
     e.obj = this.add.image(x, y, e.sprite).setDepth(3).setDisplaySize(e.r*2.8, e.r*2.8);
     this.enemies.push(e);
   }
   moveEnemies(dt) {
     const p = this.player;
     for (const e of this.enemies) {
+      if (e.orbCd > 0) e.orbCd -= dt;
       const a = Phaser.Math.Angle.Between(e.x, e.y, p.x, p.y);
       e.x += Math.cos(a)*e.speed*dt; e.y += Math.sin(a)*e.speed*dt;
       e.obj.x = e.x; e.obj.y = e.y;
@@ -222,6 +223,31 @@ class Game extends Phaser.Scene {
     }
   }
   nearest(x, y) { let best = null, bd = 1e9; for (const e of this.enemies) { const d = Phaser.Math.Distance.Between(x, y, e.x, e.y); if (d < bd) { bd = d; best = e; } } return best; }
+
+  // ---------- 环绕光球(近战武器) ----------
+  syncOrbiters() {
+    while (this.orbiters.length < this.stats.orbit) {
+      const o = this.add.image(this.player.x, this.player.y, 'projectile').setDepth(4).setDisplaySize(26, 26).setTint(0x9fe0ff);
+      this.orbiters.push(o);
+    }
+  }
+  updateOrbiters(dt) {
+    const n = this.orbiters.length; if (!n) return;
+    const baseA = this.elapsed * 2.6, R = 70;
+    for (let i = 0; i < n; i++) {
+      const a = baseA + i * (Math.PI * 2 / n);
+      const ox = this.player.x + Math.cos(a)*R, oy = this.player.y + Math.sin(a)*R;
+      const o = this.orbiters[i]; o.x = ox; o.y = oy; o.rotation += 0.25;
+      for (const e of this.enemies) {
+        if (e.dead || e.orbCd > 0) continue;
+        if (Phaser.Math.Distance.Between(ox, oy, e.x, e.y) < e.r + 13) {
+          e.hp -= this.stats.dmg * 0.6; e.orbCd = 0.35;
+          e.obj.setTintFill(0xffffff); this.time.delayedCall(50, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
+          if (e.hp <= 0) this.killEnemy(e);
+        }
+      }
+    }
+  }
   moveProjs(dt) {
     for (const pr of this.projs) {
       pr.x += pr.vx*dt; pr.y += pr.vy*dt; pr.life -= dt; pr.obj.x = pr.x; pr.obj.y = pr.y;
@@ -275,6 +301,7 @@ class Game extends Phaser.Scene {
       { t: '❤ 上限+25 并回满', f: () => { this.player.maxHp += 25; this.player.hp = this.player.maxHp; } },
       { t: '🧲 拾取范围 +40%', f: () => this.stats.pickup *= 1.4 },
       { t: '🎯 子弹穿透 +1', f: () => this.stats.pierce += 1 },
+      { t: '🛡 环绕光球 +1', f: () => { this.stats.orbit += 1; this.syncOrbiters(); } },
     ];
     Phaser.Utils.Array.Shuffle(pool);
     const pick = pool.slice(0, 3), layer = [];
