@@ -5,26 +5,56 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>FingerMOBA</title>
 <style>
-  html,body{margin:0;height:100%;background:#070d07;overflow:hidden;
+  html,body{margin:0;height:100%;background:#0b1020;overflow:hidden;
     font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;-webkit-tap-highlight-color:transparent;touch-action:none}
   #game{width:100vw;height:100vh}
-  #boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;color:#9fe07a;
-    font-size:14px;letter-spacing:.1em;z-index:5}
+  #boot{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;z-index:5}
+  .bcard{display:flex;flex-direction:column;align-items:center;gap:16px}
+  .btitle{font-size:30px;font-weight:800;letter-spacing:.1em;color:#9fe07a}
+  .bsub{font-size:12px;color:#7a9;letter-spacing:.12em;margin-top:-8px}
+  .btrack{width:210px;height:8px;background:#1c2b4a;border-radius:99px;overflow:hidden}
+  #bfill{height:100%;width:0;background:linear-gradient(90deg,#3aa0ff,#9fe07a);transition:width .15s ease}
+  #bpct{font-size:13px;color:#9fe07a;letter-spacing:.1em}
 </style>
 </head>
 <body>
-<div id="boot">载入中…</div>
+<div id="boot">
+  <div class="bcard">
+    <div class="btitle">FINGER MOBA</div>
+    <div class="bsub">单手幸存</div>
+    <div class="btrack"><div id="bfill"></div></div>
+    <div id="bpct">载入中… 0%</div>
+  </div>
+</div>
 <div id="game"></div>
 <script>
-// Phaser 优先走国内 CDN(七牛 staticfile,国内快),失败回退到本站自托管副本;两者都就绪后再加载游戏。
+// 带真实进度的加载器:流式 fetch Phaser(国内 CDN 优先,失败回退本站自托管,再失败用 <script> 兜底),
+// 进度条按下载字节走;Phaser 就绪后再加载 game.js。
 (function () {
+  var CDN = 'https://cdn.staticfile.org/phaser/3.80.1/phaser.min.js';
+  var LOCAL = 'vendor/phaser.min.js';
+  var SIZE = 1181917; // 已知大小,content-length 缺失时作分母
+  var fill = document.getElementById('bfill'), pct = document.getElementById('bpct');
+  function setp(p) { p = Math.max(0, Math.min(100, p)); if (fill) fill.style.width = p + '%'; if (pct) pct.textContent = '载入中… ' + p + '%'; }
   function loadGame() { var g = document.createElement('script'); g.src = 'game.js'; document.body.appendChild(g); }
-  function fromLocal() { var f = document.createElement('script'); f.src = 'vendor/phaser.min.js'; f.onload = loadGame; f.onerror = loadGame; document.head.appendChild(f); }
-  var p = document.createElement('script');
-  p.src = 'https://cdn.staticfile.org/phaser/3.80.1/phaser.min.js';
-  p.onload = loadGame;
-  p.onerror = fromLocal;
-  document.head.appendChild(p);
+  function inject(code) { try { var s = document.createElement('script'); s.text = code; document.head.appendChild(s); } catch (e) {} loadGame(); }
+  function streamLoad(url, onFail) {
+    fetch(url).then(function (res) {
+      if (!res.ok || !res.body) throw 0;
+      var total = +(res.headers.get('content-length')) || SIZE, recv = 0, chunks = [], reader = res.body.getReader();
+      (function pump() {
+        reader.read().then(function (r) {
+          if (r.done) { setp(100); new Blob(chunks).text().then(inject); return; }
+          chunks.push(r.value); recv += r.value.length; setp(Math.round(recv / total * 98)); pump();
+        }).catch(function () { onFail && onFail(); });
+      })();
+    }).catch(function () { onFail && onFail(); });
+  }
+  streamLoad(CDN, function () {                 // 国内 CDN 失败 → 本站自托管(仍带进度)
+    streamLoad(LOCAL, function () {             // 都失败 → 普通 <script> 兜底
+      var s = document.createElement('script'); s.src = LOCAL; s.onload = loadGame; s.onerror = loadGame; document.head.appendChild(s);
+    });
+  });
 })();
 </script>
 </body>
