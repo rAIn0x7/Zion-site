@@ -111,7 +111,8 @@ class Game extends Phaser.Scene {
     this.enemies = []; this.projs = []; this.gems = []; this.orbiters = [];
     this.elapsed = 0; this.kills = 0; this.level = 1; this.xp = 0; this.xpNeed = 5;
     this.fireT = 0; this.spawnT = 0.5; this.hurtCd = 0;
-    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0 };
+    this.bossT = 50; this.boss = null; this.auraObj = null; this.auraT = 0;
+    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0 };
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     for (let gx = 60; gx < W; gx += 60) this.add.rectangle(gx, H/2, 1, H, 0x16203a).setDepth(-1);
@@ -130,7 +131,7 @@ class Game extends Phaser.Scene {
     if (this.over || this.paused) return;
     const dt = Math.min(dms, 50) / 1000;
     this.elapsed += dt; this.hurtCd -= dt;
-    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt);
+    this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt);
     this.fire(dt); this.moveProjs(dt); this.moveGems(dt); this.updateHUD();
   }
 
@@ -165,6 +166,8 @@ class Game extends Phaser.Scene {
 
   // ---------- 敌人 ----------
   spawn(dt) {
+    this.bossT -= dt;
+    if (this.bossT <= 0 && !this.boss) { this.spawnEnemy('boss'); this.bossT = 50; }
     this.spawnT -= dt;
     if (this.spawnT > 0 || this.enemies.length > 140) return;
     this.spawnT = Math.max(0.28, 1.3 - this.elapsed * 0.012);
@@ -184,11 +187,17 @@ class Game extends Phaser.Scene {
     else { x = W+20; y = Math.random()*H; }
     const hp0 = 18 + this.elapsed * 1.4;
     let e;
-    if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
+    if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 30, sprite: 'enemy_tank', col: 0xc060ff };
+    else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
     else if (type === 'fast') e = { type, r: 11, hp: hp0*0.55, maxHp: hp0*0.55, speed: 95 + this.elapsed*0.5, dmg: 9, xp: 1, sprite: 'enemy_fast', col: 0xff7a9c };
     else e = { type, r: 14, hp: hp0, maxHp: hp0, speed: 56 + this.elapsed*0.5, dmg: 12, xp: 1, sprite: 'enemy_basic', col: 0x7be86a };
     e.x = x; e.y = y; e.orbCd = 0; e.speed = Math.min(e.speed, type === 'fast' ? 185 : 150);
     e.obj = this.add.image(x, y, e.sprite).setDepth(3).setDisplaySize(e.r*2.8, e.r*2.8);
+    if (type === 'boss') {
+      this.boss = e; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
+      const t = this.add.text(W/2, H/2, '👹 BOSS 来袭!', { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold', resolution: DPR }).setOrigin(0.5).setDepth(15);
+      this.tweens.add({ targets: t, alpha: 0, y: H/2-50, duration: 1300, onComplete: () => t.destroy() });
+    }
     this.enemies.push(e);
   }
   moveEnemies(dt) {
@@ -248,6 +257,24 @@ class Game extends Phaser.Scene {
       }
     }
   }
+  // ---------- 伤害光环(范围武器) ----------
+  updateAura(dt) {
+    if (this.stats.aura <= 0) return;
+    const R = 56 + this.stats.aura * 22;
+    if (!this.auraObj) this.auraObj = this.add.circle(this.player.x, this.player.y, R, 0x6fd0ff, 0.12).setStrokeStyle(2, 0x6fd0ff, 0.4).setDepth(1);
+    this.auraObj.setRadius(R); this.auraObj.x = this.player.x; this.auraObj.y = this.player.y;
+    this.auraT -= dt;
+    if (this.auraT <= 0) {
+      this.auraT = 0.3;
+      for (const e of this.enemies) {
+        if (e.dead) continue;
+        if (Phaser.Math.Distance.Between(this.player.x, this.player.y, e.x, e.y) < R + e.r) {
+          e.hp -= this.stats.dmg * 0.35 * this.stats.aura;
+          if (e.hp <= 0) this.killEnemy(e);
+        }
+      }
+    }
+  }
   moveProjs(dt) {
     for (const pr of this.projs) {
       pr.x += pr.vx*dt; pr.y += pr.vy*dt; pr.life -= dt; pr.obj.x = pr.x; pr.obj.y = pr.y;
@@ -268,11 +295,20 @@ class Game extends Phaser.Scene {
     }
     this.projs = this.projs.filter(pr => { if (pr.dead) pr.obj.destroy(); return !pr.dead; });
   }
+  dropGem(x, y, xp, big) {
+    const g = this.add.image(x, y, 'gem').setDepth(2).setDisplaySize(big ? 28 : 18, big ? 28 : 18);
+    this.gems.push({ x, y, xp, obj: g });
+  }
   killEnemy(e) {
+    if (e.dead) return;
     e.dead = true; this.kills++;
-    this.burst(e.x, e.y, e.col, e.type === 'tank' ? 12 : 6); SFX.kill();
-    const g = this.add.image(e.x, e.y, 'gem').setDepth(2).setDisplaySize(e.type === 'tank' ? 28 : 18, e.type === 'tank' ? 28 : 18);
-    this.gems.push({ x: e.x, y: e.y, xp: e.xp, obj: g });
+    this.burst(e.x, e.y, e.col, (e.type === 'tank' || e.type === 'boss') ? 12 : 6); SFX.kill();
+    if (e === this.boss) {
+      this.boss = null; this.cameras.main.shake(300, 0.013); this.ring(e.x, e.y, 0xc060ff, 190); SFX.level();
+      for (let k = 0; k < 6; k++) { const a = k/6*Math.PI*2; this.dropGem(e.x+Math.cos(a)*34, e.y+Math.sin(a)*34, 5, true); }
+    } else {
+      this.dropGem(e.x, e.y, e.xp, e.type === 'tank');
+    }
     e.obj.destroy();
     this.enemies = this.enemies.filter(en => !en.dead);
   }
@@ -304,6 +340,7 @@ class Game extends Phaser.Scene {
       { t: '🧲 拾取范围 +40%', f: () => this.stats.pickup *= 1.4 },
       { t: '🎯 子弹穿透 +1', f: () => this.stats.pierce += 1 },
       { t: '🛡 环绕光球 +1', f: () => { this.stats.orbit += 1; this.syncOrbiters(); } },
+      { t: '🌀 伤害光环 +1', f: () => { this.stats.aura += 1; } },
     ];
     Phaser.Utils.Array.Shuffle(pool);
     const pick = pool.slice(0, 3), layer = [];
@@ -331,11 +368,18 @@ class Game extends Phaser.Scene {
     // 静音开关
     this.muteBtn = this.add.text(W-14, 76, SFX.muted ? '🔇' : '🔊', { fontSize: '20px', resolution: DPR }).setOrigin(1, 0).setDepth(12).setInteractive({ useHandCursor: true });
     this.muteBtn.on('pointerup', () => this.muteBtn.setText(SFX.toggle() ? '🔇' : '🔊'));
+    // Boss 血条(默认隐藏,Boss 出现时显示)
+    this.bossLabel = this.add.text(W/2, H-66, '👹 BOSS', { fontSize: '12px', color: '#e0a0ff', resolution: DPR }).setOrigin(0.5).setDepth(11).setVisible(false);
+    this.bossBarBg = this.add.rectangle(W/2, H-50, W-40, 12, 0x331033).setDepth(10).setVisible(false);
+    this.bossBarFill = this.add.rectangle(16, H-50, W-40, 12, 0xc060ff).setOrigin(0, 0.5).setDepth(11).setVisible(false);
   }
   updateHUD() {
     this.hpFill.width = (W-30) * Math.max(0, this.player.hp / this.player.maxHp);
     this.xpFill.width = (W-30) * Math.max(0, this.xp / this.xpNeed);
     this.info.setText(`Lv.${this.level}   ⏱ ${Math.floor(this.elapsed)}s   💀 ${this.kills}`);
+    const bossAlive = this.boss && !this.boss.dead;
+    this.bossLabel.setVisible(bossAlive); this.bossBarBg.setVisible(bossAlive); this.bossBarFill.setVisible(bossAlive);
+    if (bossAlive) this.bossBarFill.width = (W-40) * Math.max(0, this.boss.hp / this.boss.maxHp);
   }
   end() {
     this.over = true;
