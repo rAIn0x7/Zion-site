@@ -333,6 +333,22 @@ class Game extends Phaser.Scene {
     this.stick = new VirtualJoystick(this, { radius: 70, deadZone: 0.12, depth: 12 });
 
     this.makeHUD();
+    this.firstRunHint();
+  }
+  firstRunHint() { // 首次进游戏的新手引导(localStorage 记忆,只显示一次)
+    if (localStorage.getItem('fm_seen')) return;
+    localStorage.setItem('fm_seen', '1');
+    this.paused = true;
+    const objs = [
+      this.add.rectangle(W/2, H/2, W, H, 0x000, 0.66).setDepth(35),
+      mkText(this, W/2, H/2-46, '拖动屏幕任意处走位', { fontSize: '23px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(36),
+      mkText(this, W/2, H/2, '自动开火 · 捡 💎 升级 · 活得越久越强', { fontSize: '15px', color: '#cde' }).setOrigin(0.5).setDepth(36),
+      mkText(this, W/2, H/2+56, '👆 点击开始', { fontSize: '17px', color: '#9fe07a' }).setOrigin(0.5).setDepth(36),
+    ];
+    let done = false;
+    const go = () => { if (done) return; done = true; objs.forEach(o => o.destroy()); this.paused = false; };
+    objs[0].setInteractive().on('pointerup', go);
+    this.time.delayedCall(4500, go);
   }
 
   update(_t, dms) {
@@ -791,6 +807,7 @@ class Game extends Phaser.Scene {
     this.info = mkText(this, W/2, 58, '', { fontSize: '15px', color: '#cde' }).setOrigin(0.5,0).setDepth(11);
     this.comboText = mkText(this, W/2, 80, '', { fontSize: '16px', color: '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5,0).setDepth(11);
     mkText(this, W/2, H-24, '拖动摇杆 / WASD 移动 · 自动开火 · 活得越久越强', { fontSize: '11px', color: '#7a9' }).setOrigin(0.5,0).setDepth(10);
+    this.buildText = mkText(this, 10, H-44, '', { fontSize: '13px', color: '#cde' }).setOrigin(0, 1).setDepth(11); // 当前武器/build
     // 静音开关
     this.muteBtn = mkText(this, W-14, 76, SFX.muted ? '🔇' : '🔊', { fontSize: '20px' }).setOrigin(1, 0).setDepth(12).setInteractive({ useHandCursor: true });
     this.muteBtn.on('pointerup', () => this.muteBtn.setText(SFX.toggle() ? '🔇' : '🔊'));
@@ -807,6 +824,14 @@ class Game extends Phaser.Scene {
     this.hpText.setText('❤ ' + Math.max(0, Math.ceil(this.player.hp)) + ' / ' + this.player.maxHp);
     this.xpFill.width = (W-30) * Math.max(0, this.xp / this.xpNeed);
     this.info.setText(`Lv.${this.level}   ⏱ ${Math.floor(this.elapsed)}s   💀 ${this.kills}`);
+    let b = '🔫' + this.stats.projCount + (this.boltEvolved ? '★' : '');
+    const s = this.stats;
+    if (s.orbit) b += ' 🛡' + s.orbit + (this.orbEvolved ? '★' : '');
+    if (s.aura) b += ' 🌀' + s.aura + (this.auraEvolved ? '★' : '');
+    if (s.chain) b += ' ⚡' + s.chain + (this.chainEvolved ? '★' : '');
+    if (s.frost) b += ' ❄' + s.frost + (this.frostEvolved ? '★' : '');
+    if (s.boom) b += ' 🪃' + s.boom + (this.boomEvolved ? '★' : '');
+    this.buildText.setText(b);
     this.comboText.setText(this.combo >= 5 ? `🔥 连杀 x${this.combo}` : '');
     const bossAlive = this.boss && !this.boss.dead;
     this.bossLabel.setVisible(bossAlive); this.bossBarBg.setVisible(bossAlive); this.bossBarFill.setVisible(bossAlive);
