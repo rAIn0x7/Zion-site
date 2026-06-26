@@ -132,6 +132,7 @@ const ACH = {
     { key: 'survive300', name: '不死之身' }, { key: 'boss1', name: '屠龙者' },
     { key: 'evolve', name: '武器大师' }, { key: 'lv15', name: '登峰造极' },
     { key: 'kill2000', name: '百战之王' }, { key: 'rich1000', name: '小富翁' },
+    { key: 'win5', name: '🏆 通关·存活5分钟' },
   ],
   got() { try { return JSON.parse(localStorage.getItem(ACH_KEY) || '{}'); } catch (e) { return {}; } },
   has(k) { return !!this.got()[k]; },
@@ -318,7 +319,7 @@ class Game extends Phaser.Scene {
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     this.stars = []; // 动态星空背景(替代扁平网格)
     for (let i = 0; i < 56; i++) { const s = this.add.circle(Math.random()*W, Math.random()*H, Math.random() < 0.3 ? 1.7 : 1, 0x4a5a8a, 0.55).setDepth(-1); s.vy = 8 + Math.random()*24; this.stars.push(s); }
-    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60; this.combo = 0; this.comboT = 0;
+    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60; this.combo = 0; this.comboT = 0; this.won = false;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
@@ -355,6 +356,7 @@ class Game extends Phaser.Scene {
     if (this.over || this.paused) return;
     const dt = Math.min(dms, 50) / 1000;
     this.elapsed += dt; this.hurtCd -= dt;
+    if (!this.won && this.elapsed >= 300) { this.won = true; this.banner('🏆 通关!存活 5 分钟,奖励 300 金币', '#f5c84c'); META.setCoins(META.coins() + 300); this.tryAch('win5'); } // 软通关:给目标与payoff,之后转无尽冲分
     this.comboT -= dt; if (this.comboT <= 0) this.combo = 0;
     this.musicT -= dt; if (this.musicT <= 0) { this.musicT = 0.28; SFX.beat(); }
     this.updateStars(dt);
@@ -476,7 +478,7 @@ class Game extends Phaser.Scene {
     this.addEnemy(type, x, y);
   }
   addEnemy(type, x, y) {
-    const hp0 = 12 + this.elapsed * 0.9 + Math.min(this.elapsed * this.elapsed * 0.004, 400);
+    const hp0 = 12 + this.elapsed * 0.9 + Math.min(this.elapsed * this.elapsed * 0.004, 400) + Math.max(0, this.elapsed - 316) * 2; // 5分钟后线性继续涨,不再封顶(破"无敌平台期")
     let e;
     if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 30, sprite: 'enemy_tank', col: 0xc060ff };
     else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
@@ -550,9 +552,11 @@ class Game extends Phaser.Scene {
         }
       }
       e.obj.x = e.x; e.obj.y = e.y;
-      if (d < e.r + p.r) {
-        this.player.hp -= e.dmg * (1 + this.elapsed / 300) * dt;
-        if (this.hurtCd <= 0) { this.cameras.main.shake(120, 0.006); SFX.hurt(); this.player.obj.setTint(0xff6666); this.time.delayedCall(110, () => { if (this.player.obj.active) this.player.obj.clearTint(); }); this.hurtCd = 0.45; }
+      if (d < e.r + p.r && this.hurtCd <= 0) { // 离散接触伤害(每 0.45s 一下):站怪堆里会痛,逼你走位,根治"无敌"
+        this.player.hp -= e.dmg * (1 + this.elapsed / 300);
+        this.cameras.main.shake(120, 0.006); SFX.hurt(); this.player.obj.setTint(0xff6666);
+        this.time.delayedCall(110, () => { if (this.player.obj.active) this.player.obj.clearTint(); });
+        this.hurtCd = 0.45;
         if (this.player.hp <= 0) return this.end();
       }
     }
@@ -613,11 +617,11 @@ class Game extends Phaser.Scene {
     this.auraObj.setRadius(R); this.auraObj.x = this.player.x; this.auraObj.y = this.player.y;
     this.auraT -= dt;
     if (this.auraT <= 0) {
-      this.auraT = this.auraEvolved ? 0.2 : 0.3;
+      this.auraT = this.auraEvolved ? 0.35 : 0.5; // 平衡:光环太强,降频
       for (const e of this.enemies) {
         if (e.dead) continue;
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, e.x, e.y) < R + e.r) {
-          e.hp -= this.stats.dmg * 0.35 * this.stats.aura * (1 + 0.12 * this.stats.aura) * (this.auraEvolved ? 1.6 : 1);
+          e.hp -= this.stats.dmg * 0.22 * this.stats.aura * (1 + 0.12 * this.stats.aura) * (this.auraEvolved ? 1.6 : 1);
           if (this.auraEvolved) e.slowT = 0.25;
           if (e.hp <= 0) this.killEnemy(e);
         }
@@ -688,7 +692,7 @@ class Game extends Phaser.Scene {
     if (this.stats.frost <= 0) return;
     this.frostT -= dt;
     if (this.frostT > 0) return;
-    this.frostT = this.frostEvolved ? 1.5 : 2.4;
+    this.frostT = this.frostEvolved ? 1.0 : 1.6; // 平衡:冰霜提频,成为真伤害选项
     const R = (90 + this.stats.frost * 30) * (this.frostEvolved ? 1.4 : 1);
     this.ring(this.player.x, this.player.y, this.frostEvolved ? 0xb0e0ff : 0x9fe0ff, R);
     for (const e of this.enemies) {
@@ -754,7 +758,7 @@ class Game extends Phaser.Scene {
     if (e.dead) return;
     e.dead = true; this.kills++;
     this.combo++; this.comboT = 2.0;
-    if (this.combo === 25 || this.combo === 50 || this.combo === 100 || this.combo === 200) { this.banner('🔥 连杀 x' + this.combo + '!', '#ff9a40'); this.player.hp = Math.min(this.player.maxHp, this.player.hp + 10); }
+    if (this.combo === 25 || this.combo === 50 || this.combo === 100 || this.combo === 200) { this.banner('🔥 连杀 x' + this.combo + '!', '#ff9a40'); } // 去掉回血(原来连杀=不死=无敌源)
     this.burst(e.x, e.y, e.col, (e.type === 'tank' || e.type === 'boss') ? 12 : 6); SFX.kill();
     if (e.splits) { for (let k = 0; k < 2; k++) this.addEnemy('mini', e.x + (Math.random()-0.5)*30, e.y + (Math.random()-0.5)*30); } // 分裂怪
     if (e.elite) { this.spawnChest(e.x, e.y); this.burst(e.x, e.y, 0xffd700, 14); } // 精英怪必爆宝箱
