@@ -140,6 +140,20 @@ const ACH = {
   count() { return Object.keys(this.got()).length; },
 };
 
+/* ── 每日修正(按日期固定,每天换花样 → 给"今天再来一把"的理由) ── */
+function dayStr() { const d = new Date(); return '' + d.getFullYear() + (d.getMonth() + 1) + d.getDate(); }
+function daySeed() { const d = new Date(); return d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate(); }
+const MODIFIERS = [
+  { name: '标准日 · 无修正', apply: () => {} },
+  { name: '狂暴 · 伤害+40% 生命-30%', apply: (g) => { g.stats.dmg *= 1.4; g.player.maxHp = Math.round(g.player.maxHp * 0.7); g.player.hp = g.player.maxHp; } },
+  { name: '神射手 · 暴击率+25%', apply: (g) => { g.stats.crit += 0.25; } },
+  { name: '钢铁 · 生命+60% 伤害-15%', apply: (g) => { g.player.maxHp = Math.round(g.player.maxHp * 1.6); g.player.hp = g.player.maxHp; g.stats.dmg *= 0.85; } },
+  { name: '疾风 · 移速+30% 攻速+15%', apply: (g) => { g.stats.moveSpeed *= 1.3; g.stats.fireCd *= 0.85; } },
+  { name: '专精 · 起手随机一把副武器', apply: (g) => { const ks = ['orbit', 'aura', 'chain', 'frost', 'boom']; g.stats[ks[daySeed() % ks.length]] = 2; g.syncOrbiters(); } },
+];
+function todayMod() { return MODIFIERS[daySeed() % MODIFIERS.length]; }
+function dailyBest() { return parseInt(localStorage.getItem('fm_daily_' + dayStr()) || '0', 10); }
+
 /* ── 浮动虚拟摇杆 ── */
 class VirtualJoystick {
   constructor(scene, opts = {}) {
@@ -204,7 +218,8 @@ class Title extends Phaser.Scene {
     mkText(this, W/2, H*0.355, '单手幸存 · 怪潮中活到最后', { fontSize: '16px', color: '#cde' }).setOrigin(0.5);
     const best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
     mkText(this, W/2, H*0.405, `💰 ${META.coins()}      🏅 成就 ${ACH.count()}/${ACH.defs.length}`, { fontSize: '15px', color: '#f5c84c' }).setOrigin(0.5);
-    if (best > 0) mkText(this, W/2, H*0.44, `🏆 最佳存活 ${best} 秒`, { fontSize: '13px', color: '#9fbed8' }).setOrigin(0.5);
+    if (best > 0) mkText(this, W/2, H*0.44, `🏆 最佳 ${best} 秒   ·   今日最佳 ${dailyBest()} 秒`, { fontSize: '13px', color: '#9fbed8' }).setOrigin(0.5);
+    mkText(this, W/2, H*0.475, `🎲 今日:${todayMod().name}`, { fontSize: '13px', color: '#f5c84c' }).setOrigin(0.5);
 
     const playBtn = this.add.rectangle(W/2, H*0.585, 264, 76, 0x2f7fd0).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
     mkText(this, W/2, H*0.585, '▶  选择英雄开始', { fontSize: '26px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
@@ -297,7 +312,7 @@ class Shop extends Phaser.Scene {
       const lv = META.lvl(r.u.key), maxed = lv >= r.u.max;
       r.lvT.setText(`Lv.${lv}/${r.u.max}   每级 ${r.u.per}`);
       if (maxed) { r.btnT.setText('已满级'); r.btn.setFillStyle(0x3a3a3a); }
-      else { const c = r.u.cost(lv); r.btnT.setText('💰 ' + c); r.btn.setFillStyle(META.coins() >= c ? 0x2f7fd0 : 0x55304a); }
+      else { const c = r.u.cost(lv); const can = META.coins() >= c; r.btnT.setText((can ? '💰 ' : '🔒 ') + c); r.btn.setFillStyle(can ? 0x2f7fd0 : 0x2a2a2a); r.btnT.setColor(can ? '#fff' : '#888'); }
     }
   }
 }
@@ -327,6 +342,7 @@ class Game extends Phaser.Scene {
     ch.apply(this.stats, this.player); this.player.obj.setTint(ch.tint); // 英雄起手特性
     META.applyTo(this.stats, this.player); // 局外永久强化
     this.syncOrbiters();                   // 战士起手光球
+    this.dailyMod = todayMod(); this.dailyMod.apply(this); this.syncOrbiters(); // 每日修正
 
     this.keys = this.input.keyboard.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT');
     this.input.keyboard.on('keydown-P', () => this.togglePause());
@@ -465,6 +481,7 @@ class Game extends Phaser.Scene {
       if (this.elapsed > 30 && r < 0.10) type = 'tank';
       else if (this.elapsed > 35 && r < 0.22) type = 'splitter';
       else if (this.elapsed > 25 && r < 0.36) type = 'shooter';
+      else if (this.elapsed > 40 && r < 0.46) type = 'exploder';
       else if (this.elapsed > 15 && r < 0.52) type = 'fast';
       this.spawnEnemy(type);
     }
@@ -485,12 +502,14 @@ class Game extends Phaser.Scene {
     else if (type === 'shooter') e = { type, r: 13, hp: hp0*1.4, maxHp: hp0*1.4, speed: 48 + this.elapsed*0.3, dmg: 8, xp: 2, sprite: 'enemy_fast', col: 0xffb060, fireT: 1.5 };
     else if (type === 'splitter') e = { type, r: 16, hp: hp0*1.2, maxHp: hp0*1.2, speed: 50 + this.elapsed*0.4, dmg: 12, xp: 2, sprite: 'enemy_basic', col: 0xe0e060, splits: true };
     else if (type === 'mini') e = { type, r: 8, hp: hp0*0.4, maxHp: hp0*0.4, speed: 80 + this.elapsed*0.4, dmg: 7, xp: 1, sprite: 'enemy_basic', col: 0x7be86a };
+    else if (type === 'exploder') e = { type, r: 16, hp: hp0*1.1, maxHp: hp0*1.1, speed: 52 + this.elapsed*0.35, dmg: 10, xp: 2, sprite: 'enemy_basic', col: 0xff8800, explodes: true };
     else if (type === 'fast') e = { type, r: 11, hp: hp0*0.55, maxHp: hp0*0.55, speed: 95 + this.elapsed*0.5, dmg: 9, xp: 1, sprite: 'enemy_fast', col: 0xff7a9c };
     else e = { type, r: 14, hp: hp0, maxHp: hp0, speed: 56 + this.elapsed*0.5, dmg: 12, xp: 1, sprite: 'enemy_basic', col: 0x7be86a };
     e.x = x; e.y = y; e.orbCd = 0; e.slowT = 0; e.speed = Math.min(e.speed, type === 'fast' ? 185 : 150);
     e.obj = this.add.image(x, y, e.sprite).setDepth(3).setDisplaySize(e.r*2.8, e.r*2.8);
     if (type === 'shooter') e.obj.setTint(0xffb060);
     if (type === 'splitter') e.obj.setTint(0xe0e060);
+    if (type === 'exploder') e.obj.setTint(0xff8800);
     if (type === 'boss') {
       this.boss = e; e.abilityT = 5; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
       const t = mkText(this, W/2, H/2, '👹 BOSS 来袭!', { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(15);
@@ -761,6 +780,19 @@ class Game extends Phaser.Scene {
     if (this.combo === 25 || this.combo === 50 || this.combo === 100 || this.combo === 200) { this.banner('🔥 连杀 x' + this.combo + '!', '#ff9a40'); } // 去掉回血(原来连杀=不死=无敌源)
     this.burst(e.x, e.y, e.col, (e.type === 'tank' || e.type === 'boss') ? 12 : 6); SFX.kill();
     if (e.splits) { for (let k = 0; k < 2; k++) this.addEnemy('mini', e.x + (Math.random()-0.5)*30, e.y + (Math.random()-0.5)*30); } // 分裂怪
+    if (e.explodes) { // 自爆怪:死后预警 → 0.45s 范围爆炸(逼你别贴脸,近战/光球流要注意)
+      const ex = e.x, ey = e.y;
+      this.ring(ex, ey, 0xffa000, 40);
+      this.time.delayedCall(450, () => {
+        if (this.over) return;
+        this.ring(ex, ey, 0xff5a5a, 100); this.cameras.main.shake(160, 0.007);
+        if (Phaser.Math.Distance.Between(ex, ey, this.player.x, this.player.y) < 100 + this.player.r && this.hurtCd <= 0) {
+          this.player.hp -= 18 * (1 + this.elapsed / 300); this.hurtCd = 0.45;
+          this.player.obj.setTint(0xff6666); this.time.delayedCall(110, () => { if (this.player.obj.active) this.player.obj.clearTint(); });
+          if (this.player.hp <= 0) this.end();
+        }
+      });
+    }
     if (e.elite) { this.spawnChest(e.x, e.y); this.burst(e.x, e.y, 0xffd700, 14); } // 精英怪必爆宝箱
     if (this.kills === 100) this.tryAch('kill100');
     if (e === this.boss) {
@@ -881,6 +913,7 @@ class Game extends Phaser.Scene {
     const best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
     const isRecord = secs > best;
     if (isRecord) localStorage.setItem(BEST_KEY, String(secs));
+    if (secs > dailyBest()) localStorage.setItem('fm_daily_' + dayStr(), String(secs)); // 今日最佳
 
     this.add.rectangle(W/2, H/2, W, H, 0x000, 0.80).setDepth(30);
     mkText(this, W/2, H/2-150, isRecord ? '🏆 新纪录！' : '你倒下了', { fontSize: '40px', color: isRecord ? '#f5c84c' : '#ff7a7a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(31);
