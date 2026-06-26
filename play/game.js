@@ -293,7 +293,7 @@ class Game extends Phaser.Scene {
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     this.stars = []; // 动态星空背景(替代扁平网格)
     for (let i = 0; i < 56; i++) { const s = this.add.circle(Math.random()*W, Math.random()*H, Math.random() < 0.3 ? 1.7 : 1, 0x4a5a8a, 0.55).setDepth(-1); s.vy = 8 + Math.random()*24; this.stars.push(s); }
-    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 30; this.biome = 0; this.biomeT = 60; this.combo = 0; this.comboT = 0;
+    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60; this.combo = 0; this.comboT = 0;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
@@ -412,9 +412,9 @@ class Game extends Phaser.Scene {
     this.bossT -= dt;
     if (this.bossT <= 0 && !this.boss) { this.spawnEnemy('boss'); this.bossT = 50; }
     this.chestT -= dt;
-    if (this.chestT <= 0) { this.spawnChest(); this.chestT = 34; }
+    if (this.chestT <= 0) { this.spawnChest(); this.chestT = 26; }
     this.spawnT -= dt;
-    if (this.spawnT > 0 || this.enemies.length > 140) return;
+    if (this.spawnT > 0 || this.enemies.length > 110) return;
     this.spawnT = Math.max(0.34, 1.55 - this.elapsed * 0.011);
     const n = Math.min(6, 1 + Math.floor(this.elapsed / 34)); // 封顶波数:后期可玩 + 保帧率
     for (let i = 0; i < n; i++) {
@@ -435,7 +435,7 @@ class Game extends Phaser.Scene {
     this.addEnemy(type, x, y);
   }
   addEnemy(type, x, y) {
-    const hp0 = 14 + this.elapsed * 1.1 + this.elapsed * this.elapsed * 0.010; // 后期二次增长,保持挑战
+    const hp0 = 12 + this.elapsed * 0.9 + this.elapsed * this.elapsed * 0.004; // 再平衡:中期更易杀
     let e;
     if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 30, sprite: 'enemy_tank', col: 0xc060ff };
     else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
@@ -452,7 +452,7 @@ class Game extends Phaser.Scene {
       this.boss = e; e.abilityT = 5; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
       const t = mkText(this, W/2, H/2, '👹 BOSS 来袭!', { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(15);
       this.tweens.add({ targets: t, alpha: 0, y: H/2-50, duration: 1300, onComplete: () => t.destroy() });
-    } else if (type !== 'mini' && this.elapsed > 25 && Math.random() < 0.025) { // 精英怪:金色强化,必爆宝箱
+    } else if (type !== 'mini' && this.elapsed > 22 && Math.random() < 0.04) { // 精英怪:金色强化,必爆宝箱
       e.elite = true; e.hp *= 3; e.maxHp *= 3; e.xp *= 4; e.r *= 1.4;
       e.obj.setDisplaySize(e.r*2.8, e.r*2.8).setTint(0xffd700);
     }
@@ -497,7 +497,7 @@ class Game extends Phaser.Scene {
       }
       e.obj.x = e.x; e.obj.y = e.y;
       if (d < e.r + p.r) {
-        this.player.hp -= e.dmg * (1 + this.elapsed / 200) * dt;
+        this.player.hp -= e.dmg * (1 + this.elapsed / 300) * dt;
         if (this.hurtCd <= 0) { this.cameras.main.shake(120, 0.006); SFX.hurt(); this.player.obj.setTint(0xff6666); this.time.delayedCall(110, () => { if (this.player.obj.active) this.player.obj.clearTint(); }); this.hurtCd = 0.45; }
         if (this.player.hp <= 0) return this.end();
       }
