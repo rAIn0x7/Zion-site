@@ -534,7 +534,20 @@ class Game extends Phaser.Scene {
       }
       if (e === this.boss) {                       // Boss 技能:周期召唤
         e.abilityT -= dt;
-        if (e.abilityT <= 0) { e.abilityT = 6; this.ring(e.x, e.y, 0xc060ff, 80); for (let k = 0; k < 2; k++) this.addEnemy('basic', e.x + (Math.random()-0.5)*60, e.y + (Math.random()-0.5)*60); }
+        if (e.abilityT <= 0) {
+          e.abilityT = 6; e.abilityN = (e.abilityN || 0) + 1;
+          if (e.abilityN % 2 === 1) { // 召唤小怪
+            this.ring(e.x, e.y, 0xc060ff, 80);
+            for (let k = 0; k < 2; k++) this.addEnemy('basic', e.x + (Math.random()-0.5)*60, e.y + (Math.random()-0.5)*60);
+          } else { // 放射状弹幕(先红圈预警,再发射)
+            this.ring(e.x, e.y, 0xff5a5a, 130);
+            const bx = e.x, by = e.y;
+            this.time.delayedCall(560, () => {
+              if (this.over) return;
+              for (let k = 0; k < 10; k++) this.enemyShoot({ x: bx, y: by }, k / 10 * Math.PI * 2);
+            });
+          }
+        }
       }
       e.obj.x = e.x; e.obj.y = e.y;
       if (d < e.r + p.r) {
