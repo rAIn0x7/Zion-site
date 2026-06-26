@@ -621,9 +621,7 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) {
         if (e.dead || e.orbCd > 0) continue;
         if (Phaser.Math.Distance.Between(ox, oy, e.x, e.y) < e.r + 13) {
-          e.hp -= this.stats.dmg * (this.orbEvolved ? 1.0 : 0.6) * (1 + 0.12 * this.stats.orbit); e.orbCd = 0.35;
-          e.obj.setTintFill(0xffffff); this.time.delayedCall(50, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
-          if (e.hp <= 0) this.killEnemy(e);
+          this.dealDamage(e, this.stats.dmg * (this.orbEvolved ? 1.0 : 0.6) * (1 + 0.12 * this.stats.orbit), true, false); e.orbCd = 0.35;
         }
       }
     }
@@ -640,9 +638,8 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) {
         if (e.dead) continue;
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, e.x, e.y) < R + e.r) {
-          e.hp -= this.stats.dmg * 0.22 * this.stats.aura * (1 + 0.12 * this.stats.aura) * (this.auraEvolved ? 1.6 : 1);
-          if (this.auraEvolved) e.slowT = 0.25;
-          if (e.hp <= 0) this.killEnemy(e);
+          this.dealDamage(e, this.stats.dmg * 0.22 * this.stats.aura * (1 + 0.12 * this.stats.aura) * (this.auraEvolved ? 1.6 : 1), true, true);
+          if (this.auraEvolved && !e.dead) e.slowT = 0.25;
         }
       }
     }
@@ -665,11 +662,9 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) { if (e.dead || hit.has(e)) continue; const d = Phaser.Math.Distance.Between(last.x, last.y, e.x, e.y); if (d < bd) { bd = d; best = e; } }
       if (!best) break;
       hit.add(best);
-      best.hp -= this.stats.dmg * 0.8 * (1 + 0.12 * this.stats.chain) * (this.chainEvolved ? 1.5 : 1);
       this.zapLine(last.x, last.y, best.x, best.y);
-      best.obj.setTintFill(0xaaddff); this.time.delayedCall(70, () => { if (best.obj && best.obj.active && !best.dead) best.obj.clearTint(); });
       last = { x: best.x, y: best.y };
-      if (best.hp <= 0) this.killEnemy(best);
+      this.dealDamage(best, this.stats.dmg * 0.8 * (1 + 0.12 * this.stats.chain) * (this.chainEvolved ? 1.5 : 1), true, false);
     }
   }
   // ---------- 回旋镖(飞出再飞回,来回切割) ----------
@@ -698,9 +693,7 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) {
         if (e.dead || b.hit.has(e)) continue;
         if (Phaser.Math.Distance.Between(b.x, b.y, e.x, e.y) < e.r + 14) {
-          b.hit.add(e); e.hp -= b.dmg;
-          this.floatText(e.x, e.y - e.r, '' + Math.round(b.dmg), '#80ffd0');
-          if (e.hp <= 0) this.killEnemy(e);
+          b.hit.add(e); this.dealDamage(e, b.dmg, true, false);
         }
       }
     }
@@ -717,9 +710,8 @@ class Game extends Phaser.Scene {
     for (const e of this.enemies) {
       if (e.dead) continue;
       if (Phaser.Math.Distance.Between(this.player.x, this.player.y, e.x, e.y) < R + e.r) {
-        e.hp -= this.stats.dmg * 0.5 * this.stats.frost * (1 + 0.12 * this.stats.frost) * (this.frostEvolved ? 1.6 : 1);
-        e.slowT = this.frostEvolved ? 0.8 : 0.45;
-        if (e.hp <= 0) this.killEnemy(e);
+        this.dealDamage(e, this.stats.dmg * 0.5 * this.stats.frost * (1 + 0.12 * this.stats.frost) * (this.frostEvolved ? 1.6 : 1), true, true);
+        if (!e.dead) e.slowT = this.frostEvolved ? 0.8 : 0.45;
       }
     }
   }
@@ -753,21 +745,25 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) {
         if (e.dead) continue;
         if (Phaser.Math.Distance.Between(pr.x, pr.y, e.x, e.y) < e.r + 6) {
-          const crit = Math.random() < this.stats.crit;
-          const dmg = pr.dmg * (crit ? this.stats.critMul : 1);
-          e.hp -= dmg;
-          e.obj.setTintFill(0xffffff);
-          this.time.delayedCall(60, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
-          this.floatText(e.x, e.y - e.r, '' + Math.round(dmg), crit ? '#ffd23a' : (this.boltEvolved ? '#fff0a0' : '#ffffff'), crit);
           const ka = Phaser.Math.Angle.Between(this.player.x, this.player.y, e.x, e.y); // 受击击退,打击更实
           e.x += Math.cos(ka) * 6; e.y += Math.sin(ka) * 6;
-          if (e.hp <= 0) this.killEnemy(e);
+          this.dealDamage(e, pr.dmg, true, false);
           if (pr.pierce > 0) pr.pierce--; else { pr.dead = true; }
           break;
         }
       }
     }
     this.projs = this.projs.filter(pr => { if (pr.dead) pr.obj.destroy(); return !pr.dead; });
+  }
+  dealDamage(e, raw, canCrit, silent) { // 统一伤害:所有武器都能暴击(白闪+飘字+击杀);silent=AoE 不飘字防刷屏
+    if (e.dead) return;
+    let dmg = raw, crit = false;
+    if (canCrit && Math.random() < this.stats.crit) { dmg *= this.stats.critMul; crit = true; }
+    e.hp -= dmg;
+    e.obj.setTintFill(0xffffff);
+    this.time.delayedCall(55, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
+    if (!silent) this.floatText(e.x, e.y - e.r, '' + Math.round(dmg), crit ? '#ffd23a' : '#ffffff', crit);
+    if (e.hp <= 0) this.killEnemy(e);
   }
   dropGem(x, y, xp, big) {
     const g = this.add.image(x, y, 'gem').setDepth(2).setDisplaySize(big ? 28 : 18, big ? 28 : 18);
