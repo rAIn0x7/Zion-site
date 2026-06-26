@@ -51,6 +51,7 @@ const META = {
     { key: 'spd',  name: '🏃 初始移速', per: '+6%',  max: 6, cost: l => 40 + l*45 },
     { key: 'mag',  name: '🧲 初始拾取', per: '+15%', max: 6, cost: l => 30 + l*35 },
     { key: 'gold', name: '💰 金币加成', per: '+20%', max: 5, cost: l => 60 + l*90 },
+    { key: 'power', name: '✨ 全能强化(无上限)', per: '+3%全伤', max: 99, cost: l => 80 + l*l*14 },
   ],
   coins() { return parseInt(localStorage.getItem(COINS_KEY) || '0', 10); },
   setCoins(v) { localStorage.setItem(COINS_KEY, String(Math.max(0, Math.floor(v)))); },
@@ -64,8 +65,16 @@ const META = {
     stats.moveSpeed *= (1 + 0.06 * this.lvl('spd'));
     stats.pickup *= (1 + 0.15 * this.lvl('mag'));
     player.maxHp += 20 * this.lvl('hp'); player.hp = player.maxHp;
+    stats.dmg *= (1 + 0.03 * this.lvl('power')); // 无上限金币池:全伤加成
   },
   award(secs, kills) { const c = Math.floor((secs * 1.5 + kills) * (1 + 0.20 * this.lvl('gold'))); this.setCoins(this.coins() + c); return c; },
+  reset() { // 重置所有永久升级,返还全部已花金币(respec / 重练)
+    let refund = 0;
+    for (const u of this.upgrades) { const l = this.lvl(u.key); for (let i = 0; i < l; i++) refund += u.cost(i); }
+    for (const u of this.upgrades) this.setLvl(u.key, 0);
+    this.setCoins(this.coins() + refund);
+    return refund;
+  },
 };
 
 /* ── 分享成绩图(离屏 canvas 画战绩卡 → 微信分享 / 下载) ── */
@@ -248,22 +257,38 @@ class Shop extends Phaser.Scene {
     mkText(this, W/2, 132, '金币来自每局战绩(存活时间 + 击杀),死了也算', { fontSize: '12px', color: '#7a9' }).setOrigin(0.5);
     this.rows = [];
     META.upgrades.forEach((u, i) => {
-      const y = 192 + i * 96;
-      this.add.rectangle(W/2, y, W-44, 84, 0x141d33).setStrokeStyle(1, 0x2a3a55);
-      mkText(this, 38, y-17, u.name, { fontSize: '19px', color: '#fff' }).setOrigin(0, 0.5);
-      const lvT = mkText(this, 38, y+15, '', { fontSize: '13px', color: '#9fbed8' }).setOrigin(0, 0.5);
-      const btn = this.add.rectangle(W-98, y, 126, 54, 0x2f7fd0).setInteractive({ useHandCursor: true });
+      const y = 168 + i * 80;
+      this.add.rectangle(W/2, y, W-44, 70, 0x141d33).setStrokeStyle(1, 0x2a3a55);
+      mkText(this, 38, y-15, u.name, { fontSize: '18px', color: '#fff' }).setOrigin(0, 0.5);
+      const lvT = mkText(this, 38, y+15, '', { fontSize: '12px', color: '#9fbed8' }).setOrigin(0, 0.5);
+      const btn = this.add.rectangle(W-98, y, 126, 50, 0x2f7fd0).setInteractive({ useHandCursor: true });
       const btnT = mkText(this, W-98, y, '', { fontSize: '15px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
       btn.on('pointerover', () => btn.setScale(1.04)); btn.on('pointerout', () => btn.setScale(1));
       btn.on('pointerup', () => { if (META.buy(u)) SFX.level(); else this.cameras.main.shake(120, 0.004); this.refresh(); });
       this.rows.push({ u, lvT, btn, btnT });
     });
+    const reset = this.add.rectangle(W/2, H-132, 264, 48, 0x3a1a1a).setStrokeStyle(2, 0xff7a7a).setInteractive({ useHandCursor: true });
+    mkText(this, W/2, H-132, '🔄 重置升级(返还金币)', { fontSize: '16px', color: '#ffb0b0' }).setOrigin(0.5);
+    reset.on('pointerover', () => reset.setScale(1.04)); reset.on('pointerout', () => reset.setScale(1));
+    reset.on('pointerup', () => this.confirmReset());
     const back = this.add.rectangle(W/2, H-64, 200, 58, 0x244).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
     mkText(this, W/2, H-64, '← 返回', { fontSize: '22px', color: '#fff' }).setOrigin(0.5);
     back.on('pointerover', () => back.setScale(1.04)); back.on('pointerout', () => back.setScale(1));
     back.on('pointerup', () => this.scene.start('title'));
     this.input.keyboard.once('keydown-ESC', () => this.scene.start('title'));
     this.refresh();
+  }
+  confirmReset() {
+    const layer = [];
+    layer.push(this.add.rectangle(W/2, H/2, W, H, 0x000, 0.72).setDepth(40).setInteractive());
+    layer.push(mkText(this, W/2, H/2-70, '重置所有永久升级?', { fontSize: '24px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(41));
+    layer.push(mkText(this, W/2, H/2-32, '等级清零,已花金币全部返还', { fontSize: '14px', color: '#9fbed8' }).setOrigin(0.5).setDepth(41));
+    const yes = this.add.rectangle(W/2-72, H/2+42, 132, 54, 0xff5a5a).setStrokeStyle(2, 0xfff).setDepth(41).setInteractive({ useHandCursor: true });
+    layer.push(yes, mkText(this, W/2-72, H/2+42, '确认返还', { fontSize: '17px', color: '#fff' }).setOrigin(0.5).setDepth(42));
+    const no = this.add.rectangle(W/2+72, H/2+42, 132, 54, 0x244).setStrokeStyle(2, 0x6fd0ff).setDepth(41).setInteractive({ useHandCursor: true });
+    layer.push(no, mkText(this, W/2+72, H/2+42, '取消', { fontSize: '17px', color: '#cfe' }).setOrigin(0.5).setDepth(42));
+    yes.on('pointerup', () => { META.reset(); SFX.level(); this.scene.restart(); });
+    no.on('pointerup', () => layer.forEach(o => o.destroy()));
   }
   refresh() {
     this.coinText.setText('💰 ' + META.coins());
@@ -350,7 +375,7 @@ class Game extends Phaser.Scene {
   upgradePool() {
     return [
       { t: '⚔ 伤害 +25%', f: () => this.stats.dmg *= 1.25 },
-      { t: '🔥 攻速 +20%', f: () => this.stats.fireCd *= 0.82 },
+      { t: "🔥 攻速 +20%", f: () => this.stats.fireCd = Math.max(0.12, this.stats.fireCd * 0.82) },
       { t: '➕ 多一发子弹', f: () => this.stats.projCount += 1 },
       { t: '🏃 移速 +12%', f: () => this.stats.moveSpeed *= 1.12 },
       { t: '❤ 上限+25 并回满', f: () => { this.player.maxHp += 25; this.player.hp = this.player.maxHp; } },
@@ -435,7 +460,7 @@ class Game extends Phaser.Scene {
     this.addEnemy(type, x, y);
   }
   addEnemy(type, x, y) {
-    const hp0 = 12 + this.elapsed * 0.9 + this.elapsed * this.elapsed * 0.004; // 再平衡:中期更易杀
+    const hp0 = 12 + this.elapsed * 0.9 + Math.min(this.elapsed * this.elapsed * 0.004, 400);
     let e;
     if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 30, sprite: 'enemy_tank', col: 0xc060ff };
     else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
@@ -544,7 +569,7 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) {
         if (e.dead || e.orbCd > 0) continue;
         if (Phaser.Math.Distance.Between(ox, oy, e.x, e.y) < e.r + 13) {
-          e.hp -= this.stats.dmg * (this.orbEvolved ? 1.0 : 0.6); e.orbCd = 0.35;
+          e.hp -= this.stats.dmg * (this.orbEvolved ? 1.0 : 0.6) * (1 + 0.12 * this.stats.orbit); e.orbCd = 0.35;
           e.obj.setTintFill(0xffffff); this.time.delayedCall(50, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
           if (e.hp <= 0) this.killEnemy(e);
         }
@@ -563,7 +588,7 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) {
         if (e.dead) continue;
         if (Phaser.Math.Distance.Between(this.player.x, this.player.y, e.x, e.y) < R + e.r) {
-          e.hp -= this.stats.dmg * 0.35 * this.stats.aura * (this.auraEvolved ? 1.6 : 1);
+          e.hp -= this.stats.dmg * 0.35 * this.stats.aura * (1 + 0.12 * this.stats.aura) * (this.auraEvolved ? 1.6 : 1);
           if (this.auraEvolved) e.slowT = 0.25;
           if (e.hp <= 0) this.killEnemy(e);
         }
@@ -588,7 +613,7 @@ class Game extends Phaser.Scene {
       for (const e of this.enemies) { if (e.dead || hit.has(e)) continue; const d = Phaser.Math.Distance.Between(last.x, last.y, e.x, e.y); if (d < bd) { bd = d; best = e; } }
       if (!best) break;
       hit.add(best);
-      best.hp -= this.stats.dmg * 0.8 * (this.chainEvolved ? 1.5 : 1);
+      best.hp -= this.stats.dmg * 0.8 * (1 + 0.12 * this.stats.chain) * (this.chainEvolved ? 1.5 : 1);
       this.zapLine(last.x, last.y, best.x, best.y);
       best.obj.setTintFill(0xaaddff); this.time.delayedCall(70, () => { if (best.obj && best.obj.active && !best.dead) best.obj.clearTint(); });
       last = { x: best.x, y: best.y };
@@ -602,7 +627,7 @@ class Game extends Phaser.Scene {
     for (let i = 0; i < n; i++) {
       const a = base + (i - (n-1)/2) * 0.5;
       const obj = this.add.image(this.player.x, this.player.y, 'projectile').setDepth(4).setDisplaySize(this.boomEvolved ? 30 : 24, this.boomEvolved ? 30 : 24).setTint(0x80ffd0);
-      this.booms.push({ x: this.player.x, y: this.player.y, a, t: 0, phase: 0, hit: new Set(), obj, dmg: this.stats.dmg * (this.boomEvolved ? 1.5 : 0.9) });
+      this.booms.push({ x: this.player.x, y: this.player.y, a, t: 0, phase: 0, hit: new Set(), obj, dmg: this.stats.dmg * (this.boomEvolved ? 1.5 : 0.9) * (1 + 0.12 * this.stats.boom) });
     }
   }
   updateBooms(dt) {
@@ -640,7 +665,7 @@ class Game extends Phaser.Scene {
     for (const e of this.enemies) {
       if (e.dead) continue;
       if (Phaser.Math.Distance.Between(this.player.x, this.player.y, e.x, e.y) < R + e.r) {
-        e.hp -= this.stats.dmg * 0.5 * this.stats.frost * (this.frostEvolved ? 1.6 : 1);
+        e.hp -= this.stats.dmg * 0.5 * this.stats.frost * (1 + 0.12 * this.stats.frost) * (this.frostEvolved ? 1.6 : 1);
         e.slowT = this.frostEvolved ? 0.8 : 0.45;
         if (e.hp <= 0) this.killEnemy(e);
       }
@@ -737,7 +762,12 @@ class Game extends Phaser.Scene {
     if (this.level >= 15) this.tryAch('lv15');
     const pool = this.upgradePool();
     Phaser.Utils.Array.Shuffle(pool);
-    const pick = pool.slice(0, 3), layer = [];
+    const pick = pool.slice(0, 3);
+    if (this.level % 3 === 0) { // 每 3 级保底:至少给一个输出强化(避免歪到没伤害卡墙)
+      const dk = ['⚔ 伤害 +25%', '🔥 攻速 +20%', '➕ 多一发子弹'];
+      if (!pick.some(u => dk.includes(u.t))) { const d = pool.find(u => dk.includes(u.t)); if (d) pick[2] = d; }
+    }
+    const layer = [];
     layer.push(this.add.rectangle(W/2, H/2, W, H, 0x000, 0.72).setDepth(20));
     layer.push(mkText(this, W/2, H/2-200, `Lv.${this.level} 升级！三选一`, { fontSize: '24px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(21));
     pick.forEach((u, i) => {
@@ -755,6 +785,7 @@ class Game extends Phaser.Scene {
   makeHUD() {
     this.add.rectangle(W/2, 18, W-30, 16, 0x222).setDepth(10);
     this.hpFill = this.add.rectangle(16, 18, W-30, 16, 0xff5a5a).setOrigin(0,0.5).setDepth(11);
+    this.hpText = mkText(this, W/2, 18, '', { fontSize: '11px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(12);
     this.add.rectangle(W/2, 40, W-30, 10, 0x222).setDepth(10);
     this.xpFill = this.add.rectangle(16, 40, 0, 10, 0x8affc0).setOrigin(0,0.5).setDepth(11);
     this.info = mkText(this, W/2, 58, '', { fontSize: '15px', color: '#cde' }).setOrigin(0.5,0).setDepth(11);
@@ -773,6 +804,7 @@ class Game extends Phaser.Scene {
   }
   updateHUD() {
     this.hpFill.width = (W-30) * Math.max(0, this.player.hp / this.player.maxHp);
+    this.hpText.setText('❤ ' + Math.max(0, Math.ceil(this.player.hp)) + ' / ' + this.player.maxHp);
     this.xpFill.width = (W-30) * Math.max(0, this.xp / this.xpNeed);
     this.info.setText(`Lv.${this.level}   ⏱ ${Math.floor(this.elapsed)}s   💀 ${this.kills}`);
     this.comboText.setText(this.combo >= 5 ? `🔥 连杀 x${this.combo}` : '');
