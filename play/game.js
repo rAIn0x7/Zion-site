@@ -1,6 +1,8 @@
 /* FingerMOBA — 单手幸存者(Survivor 风)。Phaser + SVG 贴图,秒开。
    摇杆/WASD 走位 + 自动开火 + 怪潮 + 升级三选一 + 打击感 + 最高分 + 引流 CTA。 */
-const W = 540, H = 960;
+const W = 540;
+// 画布高度跟随设备比例(W 固定),让 FIT 刚好铺满、消除上下黑边;布局全按 H 相对定位,自动适配。
+const H = Math.round(Math.max(900, Math.min(1280, 540 * ((window.innerHeight || 960) / (window.innerWidth || 540)))));
 const DPR = Math.min(window.devicePixelRatio || 1, 3); // 跟随设备像素比(封顶 3,覆盖主流 3x 手机屏)
 const RASTER = 384;                                    // SVG 栅格化分辨率(够大标题大图也不糊)
 const SPRITES = ['hero', 'enemy_basic', 'enemy_fast', 'enemy_tank', 'gem', 'projectile'];
@@ -143,11 +145,12 @@ class VirtualJoystick {
     scene.input.on('pointermove', (p) => this._move(p));
     scene.input.on('pointerup', (p) => this._up(p));
     scene.input.on('pointerupoutside', (p) => this._up(p));
+    scene.input.on('pointercancel', (p) => this._up(p));
     scene.input.on('gameout', () => this._release());
   }
   canStart() { return !(this.scene.paused || this.scene.over); }
   _down(p) {
-    if (this.active || !this.canStart()) return;
+    if (!this.canStart()) return;   // last-touch-wins:总是抢占,避免丢失 pointerup 卡死("划不到")
     this.active = true; this.pointerId = p.id;
     this.baseX = this.curX = p.worldX; this.baseY = this.curY = p.worldY;
     this.base.setPosition(this.baseX, this.baseY).setVisible(true);
@@ -400,7 +403,7 @@ class Game extends Phaser.Scene {
       const l = Math.hypot(vx, vy), speed = Math.min(l, 1) * this.stats.moveSpeed;
       p.x += (vx/l)*speed*dt; p.y += (vy/l)*speed*dt; p.obj.setFlipX(vx < 0);
     }
-    p.x = Phaser.Math.Clamp(p.x, 16, W-16); p.y = Phaser.Math.Clamp(p.y, 54, H-26);
+    p.x = Phaser.Math.Clamp(p.x, 16, W-16); p.y = Phaser.Math.Clamp(p.y, 44, H-14);
     p.obj.x = p.x; p.obj.y = p.y;
   }
 
