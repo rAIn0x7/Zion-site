@@ -131,17 +131,20 @@ function makeScoreCard(secs, level, kills, best, endlessTier, heroKey) {
   // 标题 logo 化(渐变填充 + 描边)
   x.font = 'bold 62px sans-serif'; x.lineWidth = 8; x.strokeStyle = '#0a3014'; x.strokeText('FINGER MOBA', 360, 108);
   const tg = x.createLinearGradient(0, 64, 0, 116); tg.addColorStop(0, '#e6ffc0'); tg.addColorStop(1, '#46aa62'); x.fillStyle = tg; x.fillText('FINGER MOBA', 360, 108);
-  // 英雄立绘 + 柔光
-  const hg = x.createRadialGradient(360, 235, 10, 360, 235, 110); hg.addColorStop(0, Phaser.Display.Color.IntegerToColor((rk.col && false) || 0x2f7fd0).rgba); hg.addColorStop(0, 'rgba(120,170,255,0.30)'); hg.addColorStop(1, 'rgba(120,170,255,0)');
-  x.fillStyle = hg; x.beginPath(); x.arc(360, 235, 110, 0, 7); x.fill();
-  try { const src = window.game.textures.get('hero_' + (heroKey || 'mage')).getSourceImage(); x.drawImage(src, 270, 150, 180, 180); } catch (e) {}
+  // 英雄立绘 + 职业色柔光(立绘放大、加一道职业色描边光,卡面更"贵")
+  const heroC = (CHARS.find(c => c.key === (heroKey || 'mage')) || CHARS[0]); const hc = Phaser.Display.Color.IntegerToColor(heroC.tint);
+  const hg = x.createRadialGradient(360, 238, 12, 360, 238, 124); hg.addColorStop(0, `rgba(${hc.red},${hc.green},${hc.blue},0.34)`); hg.addColorStop(1, `rgba(${hc.red},${hc.green},${hc.blue},0)`);
+  x.fillStyle = hg; x.beginPath(); x.arc(360, 238, 124, 0, 7); x.fill();
+  x.strokeStyle = `rgba(${hc.red},${hc.green},${hc.blue},0.5)`; x.lineWidth = 3; x.beginPath(); x.arc(360, 238, 104, 0, 7); x.stroke();
+  try { const src = window.game.textures.get('hero_' + (heroKey || 'mage')).getSourceImage(); x.drawImage(src, 258, 138, 204, 204); } catch (e) {}
   // 大数字
   x.fillStyle = '#f5c84c'; x.font = 'bold 150px sans-serif'; x.fillText(secs + '″', 360, 470);
   x.fillStyle = '#9fbed8'; x.font = '28px sans-serif'; x.fillText('存活时间', 360, 512);
   x.fillStyle = '#fff'; x.font = 'bold 44px sans-serif'; x.fillText('Lv.' + level + '     💀 ' + kills + (endlessTier > 0 ? '     🔥' + endlessTier + '阶' : ''), 360, 580);
-  // 段位徽章(圆角胶囊 + 段位色)
-  x.fillStyle = 'rgba(0,0,0,0.35)'; rrect(x, 210, 612, 300, 60, 30); x.fill();
-  x.fillStyle = rk.col; x.lineWidth = 3; rrect(x, 210, 612, 300, 60, 30); x.stroke();
+  // 段位徽章(圆角胶囊 + 段位色填充底,低段位也看得清边)
+  const rc = Phaser.Display.Color.HexStringToColor(rk.col);
+  x.fillStyle = `rgba(${rc.red},${rc.green},${rc.blue},0.18)`; rrect(x, 210, 612, 300, 60, 30); x.fill();
+  x.fillStyle = rk.col; x.lineWidth = 4; rrect(x, 210, 612, 300, 60, 30); x.stroke();
   x.fillStyle = rk.col; x.font = 'bold 34px sans-serif'; x.fillText(rk.name, 360, 654);
   x.fillStyle = '#7a90ad'; x.font = '24px sans-serif'; x.fillText('🏆 历史最佳 ' + best + ' 秒', 360, 706);
   // CTA 圆角框
