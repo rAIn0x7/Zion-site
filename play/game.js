@@ -117,11 +117,11 @@ window._makeCard = makeScoreCard; // 便于测试
 
 /* ── 可选英雄(各有起手特性) ── */
 const CHARS = [
-  { key: 'mage',    name: '🧙 法师', role: '均衡', desc: '标准弹幕\n上手最稳', tint: 0xffe066, bg: 0x3a3416, apply: (s, p) => {} },
-  { key: 'warrior', name: '🛡 战士', role: '坦克', desc: '高血近战\n起手带光球', tint: 0xff6a6a, bg: 0x3a1616, apply: (s, p) => { p.maxHp += 50; p.hp = p.maxHp; s.moveSpeed *= 1.05; s.fireCd *= 1.15; s.orbit = 1; } },
-  { key: 'ranger',  name: '🏹 游侠', role: '敏捷', desc: '快但脆\n起手双发', tint: 0x5aff8a, bg: 0x16331f, apply: (s, p) => { p.maxHp -= 20; p.hp = p.maxHp; s.moveSpeed *= 1.18; s.projCount = 2; s.fireCd *= 0.9; } },
-  { key: 'assassin', name: '🥷 刺客', role: '爆发', desc: '极快极脆\n高伤起手', tint: 0xb060ff, bg: 0x2a1640, apply: (s, p) => { p.maxHp -= 35; p.hp = p.maxHp; s.moveSpeed *= 1.25; s.dmg *= 1.35; s.fireCd *= 0.85; } },
-  { key: 'cryo', name: '❄ 冰法', role: '控场', desc: '起手冰霜\n减速锁敌', tint: 0x60d0ff, bg: 0x16303a, apply: (s, p) => { s.frost = 1; s.pickup *= 1.2; p.maxHp += 10; p.hp = p.maxHp; } },
+  { key: 'mage',    name: '🧙 法师', role: '均衡', desc: '标准弹幕\n💠经验 +20%', tint: 0xffe066, bg: 0x3a3416, apply: (s, p) => {} },
+  { key: 'warrior', name: '🛡 战士', role: '坦克', desc: '高血光球\n💠接触伤 -25%', tint: 0xff6a6a, bg: 0x3a1616, apply: (s, p) => { p.maxHp += 50; p.hp = p.maxHp; s.moveSpeed *= 1.05; s.fireCd *= 1.15; s.orbit = 1; } },
+  { key: 'ranger',  name: '🏹 游侠', role: '敏捷', desc: '起手双发\n💠每4级 +1弹', tint: 0x5aff8a, bg: 0x16331f, apply: (s, p) => { p.maxHp -= 20; p.hp = p.maxHp; s.moveSpeed *= 1.18; s.projCount = 2; s.fireCd *= 0.9; } },
+  { key: 'assassin', name: '🥷 刺客', role: '爆发', desc: '高伤极脆\n💠暴击/级 +1.2%', tint: 0xb060ff, bg: 0x2a1640, apply: (s, p) => { p.maxHp -= 35; p.hp = p.maxHp; s.moveSpeed *= 1.25; s.dmg *= 1.35; s.fireCd *= 0.85; } },
+  { key: 'cryo', name: '❄ 冰法', role: '控场', desc: '起手冰霜\n💠命中即减速', tint: 0x60d0ff, bg: 0x16303a, apply: (s, p) => { s.frost = 1; s.pickup *= 1.2; p.maxHp += 10; p.hp = p.maxHp; } },
 ];
 
 /* ── 成就系统(localStorage) ── */
@@ -337,13 +337,14 @@ class Game extends Phaser.Scene {
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     this.stars = []; // 动态星空背景(替代扁平网格)
     for (let i = 0; i < 56; i++) { const s = this.add.circle(Math.random()*W, Math.random()*H, Math.random() < 0.3 ? 1.7 : 1, 0x4a5a8a, 0.55).setDepth(-1); s.vy = 8 + Math.random()*24; this.stars.push(s); }
-    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60; this.combo = 0; this.comboT = 0; this.won = false;
+    this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60; this.combo = 0; this.comboT = 0; this.won = false; this.endlessTier = 0; this.endlessNextT = 345;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     const ch = CHARS.find(c => c.key === ((this.scene.settings.data && this.scene.settings.data.char) || 'mage')) || CHARS[0];
     this.player.ring = this.add.circle(this.player.x, this.player.y, 26, ch.tint, 0.0).setStrokeStyle(2.5, ch.tint, 0.55).setDepth(4); // 脚下职业色光环:在场上一眼分得清开的哪个英雄
     this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
     ch.apply(this.stats, this.player); this.player.obj.setTint(ch.tint); // 英雄起手特性
+    this.heroPassive = ch.key; // 整局生效的英雄专属被动(非仅起手) → 让"选谁"影响全程
     META.applyTo(this.stats, this.player); // 局外永久强化
     this.syncOrbiters();                   // 战士起手光球
     this.dailyMod = todayMod(); this.dailyMod.apply(this); this.syncOrbiters(); // 每日修正
@@ -376,7 +377,8 @@ class Game extends Phaser.Scene {
     if (this.over || this.paused) return;
     const dt = Math.min(dms, 50) / 1000;
     this.elapsed += dt; this.hurtCd -= dt;
-    if (!this.won && this.elapsed >= 300) { this.won = true; this.banner('🏆 通关!存活 5 分钟,奖励 300 金币', '#f5c84c'); META.setCoins(META.coins() + 300); this.tryAch('win5'); } // 软通关:给目标与payoff,之后转无尽冲分
+    if (!this.won && this.elapsed >= 300) { this.won = true; this.banner('🏆 通关!存活 5 分钟,奖励 300 金币\n进入无尽阶段', '#f5c84c'); META.setCoins(META.coins() + 300); this.tryAch('win5'); } // 软通关:给目标与payoff,之后转无尽冲分
+    this.updateEndless(dt);
     this.comboT -= dt; if (this.comboT <= 0) this.combo = 0;
     this.musicT -= dt; if (this.musicT <= 0) { this.musicT = 0.28; SFX.beat(); }
     this.updateStars(dt);
@@ -471,6 +473,12 @@ class Game extends Phaser.Scene {
     if (p.ring) { p.ring.x = p.x; p.ring.y = p.y; }
   }
 
+  // 接触/爆炸伤害系数:前 ~36s 衰减(0.6→1.0,首通不再裸死);后期照常随时间涨;战士被动再减 25%
+  contactScale() {
+    const early = Math.min(1, 0.6 + this.elapsed * 0.011);
+    const hero = this.heroPassive === 'warrior' ? 0.75 : 1;
+    return early * (1 + this.elapsed / 300) * hero;
+  }
   // ---------- 敌人 ----------
   spawn(dt) {
     this.bossT -= dt;
@@ -577,7 +585,7 @@ class Game extends Phaser.Scene {
       }
       e.obj.x = e.x; e.obj.y = e.y;
       if (d < e.r + p.r && this.hurtCd <= 0) { // 离散接触伤害(每 0.45s 一下):站怪堆里会痛,逼你走位,根治"无敌"
-        this.player.hp -= e.dmg * (1 + this.elapsed / 300);
+        this.player.hp -= e.dmg * this.contactScale();
         this.cameras.main.shake(120, 0.006); SFX.hurt(); this.player.obj.setTint(0xff6666);
         this.time.delayedCall(110, () => { if (this.player.obj.active) this.player.obj.clearTint(); });
         this.hurtCd = 0.45;
@@ -731,14 +739,24 @@ class Game extends Phaser.Scene {
     this.banner('🌌 进入新区域', '#9fe0ff');
   }
   // ---------- 武器进化 ----------
+  // ---------- 无尽阶段(5 分钟通关后,每 45s 一阶:白送强化 + 金币,给硬核玩家"摸顶后还能爬"的天花板) ----------
+  updateEndless(dt) {
+    if (!this.won || this.elapsed < this.endlessNextT) return;
+    this.endlessTier++; this.endlessNextT += 45;
+    const pick = this.weightedPick(this.upgradePool(), 1)[0]; // 白送一个加权强化(顺着已有 build)
+    if (pick) { pick.f(); this.checkEvolutions(); }
+    META.setCoins(META.coins() + 60);
+    this.ring(this.player.x, this.player.y, 0xff9a40, 160);
+    this.banner(`🔥 无尽 ${this.endlessTier} 阶 · ${pick ? pick.t : ''} · +60💰`, '#ff9a40');
+  }
   checkEvolutions() {
-    // 进化门槛下调:配合加权三选一,普通一局 5 分钟内吃得到进化(原门槛基本够不着)
-    if (!this.boltEvolved && this.stats.projCount >= 4 && this.stats.pierce >= 1) { this.boltEvolved = true; this.evolveBanner('多重散射弹'); }
+    // 进化门槛差异化(每把武器自己的节奏,不再一刀切);bolt 去掉 pierce 双条件补足可达性(原仅~8%进化率)
+    if (!this.boltEvolved && this.stats.projCount >= 4) { this.boltEvolved = true; this.evolveBanner('多重散射弹'); }
     if (!this.orbEvolved && this.stats.orbit >= 3) { this.orbEvolved = true; this.orbiters.forEach(o => o.setDisplaySize(34, 34).setTint(0xfff0a0)); this.evolveBanner('光刃环'); }
     if (!this.auraEvolved && this.stats.aura >= 3) { this.auraEvolved = true; if (this.auraObj) this.auraObj.setFillStyle(0xc0a0ff, 0.16); this.evolveBanner('奥能风暴'); }
-    if (!this.chainEvolved && this.stats.chain >= 3) { this.chainEvolved = true; this.evolveBanner('连锁风暴'); }
+    if (!this.chainEvolved && this.stats.chain >= 2) { this.chainEvolved = true; this.evolveBanner('连锁风暴'); }   // 链最弱→最早进化,给"速成控场"身份
     if (!this.frostEvolved && this.stats.frost >= 3) { this.frostEvolved = true; this.evolveBanner('暴风雪'); }
-    if (!this.boomEvolved && this.stats.boom >= 3) { this.boomEvolved = true; this.evolveBanner('环切飞轮'); }
+    if (!this.boomEvolved && this.stats.boom >= 4) { this.boomEvolved = true; this.evolveBanner('环切飞轮'); }       // 镖最强→门槛最高,作为高投入回报
   }
   evolveBanner(name) {
     this.tryAch('evolve'); SFX.level();
@@ -789,7 +807,7 @@ class Game extends Phaser.Scene {
         if (this.over) return;
         this.ring(ex, ey, 0xff5a5a, 100); this.cameras.main.shake(160, 0.007);
         if (Phaser.Math.Distance.Between(ex, ey, this.player.x, this.player.y) < 100 + this.player.r && this.hurtCd <= 0) {
-          this.player.hp -= 18 * (1 + this.elapsed / 300); this.hurtCd = 0.45;
+          this.player.hp -= 18 * this.contactScale(); this.hurtCd = 0.45;
           this.player.obj.setTint(0xff6666); this.time.delayedCall(110, () => { if (this.player.obj.active) this.player.obj.clearTint(); });
           if (this.player.hp <= 0) this.end();
         }
@@ -811,13 +829,15 @@ class Game extends Phaser.Scene {
   // ---------- 经验 / 升级 ----------
   moveGems(dt) {
     const p = this.player;
+    if (this.gems.length > 42) for (const gm of this.gems) gm.magnet = true; // 硬保底:同屏>42 颗全吸,后期击杀爆炸不再漏一地
+    const drift = this.elapsed > 140;                                    // 后期所有宝石被动慢速自吸,补"吸不过来"的尾巴
     for (const gm of this.gems) {
       const d = Phaser.Math.Distance.Between(gm.x, gm.y, p.x, p.y);
-      if (gm.magnet || d < this.stats.pickup) {                          // magnet=升级时全屏吸附,根治"宝石烂在地上"
+      if (gm.magnet || drift || d < this.stats.pickup) {                 // magnet=升级时全屏吸附,根治"宝石烂在地上"
         const a = Phaser.Math.Angle.Between(gm.x, gm.y, p.x, p.y);
-        const sp = gm.magnet ? 700 : 420;
+        const sp = gm.magnet ? 700 : (d < this.stats.pickup ? 420 : 95);
         gm.x += Math.cos(a)*sp*dt; gm.y += Math.sin(a)*sp*dt; gm.obj.x = gm.x; gm.obj.y = gm.y;
-        if (d < p.r + 8) { gm.got = true; this.xp += gm.xp; gm.obj.destroy(); if (this.xp >= this.xpNeed) this.levelUp(); }
+        if (d < p.r + 8) { gm.got = true; this.xp += gm.xp * (this.heroPassive === 'mage' ? 1.2 : 1); gm.obj.destroy(); if (this.xp >= this.xpNeed) this.levelUp(); } // 法师被动:经验+20%
       }
     }
     this.gems = this.gems.filter(gm => !gm.got);
@@ -825,7 +845,7 @@ class Game extends Phaser.Scene {
   weightedPick(pool, n) { // 加权无放回抽样:让 build 可定向(已投资+接近进化的项更易出现)
     const s = this.stats;
     const inv = { proj: s.projCount - 1, pierce: s.pierce, orbit: s.orbit, aura: s.aura, chain: s.chain, frost: s.frost, boom: s.boom };
-    const evoNeed = { proj: 4, orbit: 3, aura: 3, chain: 3, frost: 3, boom: 3 }; // 差一步进化的项重点推
+    const evoNeed = { proj: 4, orbit: 3, aura: 3, chain: 2, frost: 3, boom: 4 }; // 差一步进化的项重点推(与 checkEvolutions 门槛同步)
     const wt = (u) => {
       let w = 1;
       if (u.k in inv && inv[u.k] > 0) w += 2 + inv[u.k];        // 已开的武器线滚起来
@@ -845,6 +865,8 @@ class Game extends Phaser.Scene {
     this.xp -= this.xpNeed; this.level++; this.xpNeed = Math.floor(this.xpNeed * 1.22 + 4); // 斜率 1.38→1.22:升级不再越来越遥不可及
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + 15);
     for (const gm of this.gems) gm.magnet = true;                       // 升级=全屏吸宝:把散落的成长一次性收回来
+    if (this.heroPassive === 'assassin') this.stats.crit += 0.012;      // 刺客被动:暴击率随等级滚雪球
+    if (this.heroPassive === 'ranger' && this.level % 4 === 0) this.stats.projCount += 1; // 游侠被动:每 4 级白嫖一发
     this.ring(this.player.x, this.player.y, 0x8affc0, 110); SFX.level();
     this.paused = true; this.leveling = true;
     if (this.level >= 15) this.tryAch('lv15');
@@ -938,7 +960,7 @@ class Game extends Phaser.Scene {
 
     this.add.rectangle(W/2, H/2, W, H, 0x000, 0.80).setDepth(30);
     mkText(this, W/2, H/2-150, isRecord ? '🏆 新纪录！' : '你倒下了', { fontSize: '40px', color: isRecord ? '#f5c84c' : '#ff7a7a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(31);
-    mkText(this, W/2, H/2-90, `存活 ${secs} 秒 · Lv.${this.level} · 击杀 ${this.kills}`, { fontSize: '18px', color: '#cde' }).setOrigin(0.5).setDepth(31);
+    mkText(this, W/2, H/2-90, `存活 ${secs} 秒 · Lv.${this.level} · 击杀 ${this.kills}${this.endlessTier > 0 ? ' · 🔥无尽' + this.endlessTier + '阶' : ''}`, { fontSize: '18px', color: '#cde' }).setOrigin(0.5).setDepth(31);
     mkText(this, W/2, H/2-58, isRecord ? '之前最佳 ' + best + ' 秒' : '最佳 ' + best + ' 秒', { fontSize: '13px', color: '#8aa' }).setOrigin(0.5).setDepth(31);
     const earned = META.award(secs, this.kills);
     mkText(this, W/2, H/2-30, `💰 +${earned}   (共 ${META.coins()})`, { fontSize: '16px', color: '#f5c84c' }).setOrigin(0.5).setDepth(31);
