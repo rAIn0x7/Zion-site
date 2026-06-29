@@ -784,6 +784,7 @@ class Game extends Phaser.Scene {
     let dmg = raw, crit = false;
     if (canCrit && Math.random() < this.stats.crit) { dmg *= this.stats.critMul; crit = true; }
     e.hp -= dmg;
+    if (this.heroPassive === 'cryo' && e.hp > 0 && e !== this.boss) e.slowT = Math.max(e.slowT || 0, 0.3); // 冰法被动:任意命中即减速 → 整局控场
     e.obj.setTintFill(0xffffff);
     this.time.delayedCall(55, () => { if (e.obj && e.obj.active && !e.dead) e.obj.clearTint(); });
     if (!silent) this.floatText(e.x, e.y - e.r, '' + Math.round(dmg), crit ? '#ffd23a' : '#ffffff', crit);
@@ -848,6 +849,8 @@ class Game extends Phaser.Scene {
     const evoNeed = { proj: 4, orbit: 3, aura: 3, chain: 2, frost: 3, boom: 4 }; // 差一步进化的项重点推(与 checkEvolutions 门槛同步)
     const wt = (u) => {
       let w = 1;
+      const subs = ['orbit', 'aura', 'chain', 'frost', 'boom'];
+      if (subs.includes(u.k) && (s[u.k] || 0) === 0) w += 0.9;  // 未开的副武器给点起步权重,别让某条线永远沉底(够得到回旋镖)
       if (u.k in inv && inv[u.k] > 0) w += 2 + inv[u.k];        // 已开的武器线滚起来
       if (u.k in evoNeed && (s[u.k] || (u.k === 'proj' ? s.projCount : 0)) === evoNeed[u.k] - 1) w += 5; // 临门一脚
       return w;
