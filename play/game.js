@@ -565,7 +565,7 @@ class Game extends Phaser.Scene {
       this.bossCount = (this.bossCount || 0) + 1; e.bossLevel = this.bossCount; // 第几只 Boss → 解锁更多技能形态
       const t = mkText(this, W/2, H/2, `👹 BOSS ${this.bossCount > 1 ? 'x' + this.bossCount + ' ' : ''}来袭!`, { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(15);
       this.tweens.add({ targets: t, alpha: 0, y: H/2-50, duration: 1300, onComplete: () => t.destroy() });
-    } else if (type !== 'mini' && this.elapsed > 22 && Math.random() < 0.04) { // 精英怪:金色强化,必爆宝箱
+    } else if (type !== 'mini' && this.elapsed > 22 && Math.random() < 0.04 + (this.won ? Math.min(0.14, this.endlessTier * 0.012) : 0)) { // 精英怪:金色强化,必爆宝箱;无尽阶段精英密度随阶数上升(敌情越来越凶)
       e.elite = true; e.hp *= 3; e.maxHp *= 3; e.xp *= 4; e.r *= 1.4;
       e.obj.setDisplaySize(e.r*2.8, e.r*2.8).setTint(0xffd700);
     }
@@ -789,7 +789,15 @@ class Game extends Phaser.Scene {
     if (!this.won || this.endlessChoosing || this.elapsed < this.endlessNextT) return;
     this.endlessTier++; this.endlessNextT += 45;
     this.ring(this.player.x, this.player.y, 0xff9a40, 160);
-    this.offerEndlessChoice(); // 从"白送强化"升级为"祝福/诅咒抉择":贪婪=更强但代价更大,给后期真正的取舍与 escalating stakes
+    if (this.endlessTier % 3 === 0) { // 高压阶同步来一波"精英潮":换敌情纹理,不只是同一批怪堆数值
+      this.banner('🌩 精英潮来袭!', '#ffd700');
+      for (let k = 0; k < 4; k++) {
+        this.spawnEnemy(k % 2 ? 'shooter' : 'tank');
+        const e = this.enemies[this.enemies.length - 1];
+        if (e && !e.elite) { e.elite = true; e.hp *= 3; e.maxHp *= 3; e.xp *= 4; e.r *= 1.4; e.obj.setDisplaySize(e.r*2.8, e.r*2.8).setTint(0xffd700); }
+      }
+    }
+    this.offerEndlessChoice(); // "白送强化"→"祝福/诅咒抉择":贪婪=更强但代价更大,后期真正的取舍 + escalating stakes
   }
   endlessBoons() {
     const safe = this.weightedPick(this.upgradePool(), 1)[0];
@@ -803,12 +811,15 @@ class Game extends Phaser.Scene {
   }
   offerEndlessChoice() {
     const boons = this.endlessBoons();
-    const pick = [boons[0], ...Phaser.Utils.Array.Shuffle(boons.slice(1)).slice(0, 2)]; // 1 安全 + 2 诅咒
+    // 安全卡不再保底必出:全池洗牌取 3(约 40% 阶你抽不到安全卡,被逼挑代价最小的诅咒)
+    // 每 3 阶一次"高压阶":只发诅咒,强制贪婪 → 立住"被逼取舍→翻车→不甘心重开"的成瘾闭环
+    const highPressure = this.endlessTier % 3 === 0;
+    const pick = Phaser.Utils.Array.Shuffle((highPressure ? boons.slice(1) : boons.slice())).slice(0, 3);
     this.paused = true; this.endlessChoosing = true;
     const layer = [];
     layer.push(this.add.rectangle(W/2, H/2, W, H, 0x1a0e00, 0.80).setDepth(20));
-    layer.push(mkText(this, W/2, H/2-200, `🔥 无尽 ${this.endlessTier} 阶 · 祝福与诅咒`, { fontSize: '23px', color: '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5).setDepth(21));
-    layer.push(mkText(this, W/2, H/2-166, '选一个 · 越贪越强,代价越大', { fontSize: '13px', color: '#cde' }).setOrigin(0.5).setDepth(21));
+    layer.push(mkText(this, W/2, H/2-200, highPressure ? `🔥 无尽 ${this.endlessTier} 阶 · 高压!` : `🔥 无尽 ${this.endlessTier} 阶 · 祝福与诅咒`, { fontSize: '23px', color: highPressure ? '#ff5a5a' : '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5).setDepth(21));
+    layer.push(mkText(this, W/2, H/2-166, highPressure ? '没有安全选项 · 挑代价最小的扛下去' : '选一个 · 越贪越强,代价越大', { fontSize: '13px', color: '#cde' }).setOrigin(0.5).setDepth(21));
     pick.forEach((u, i) => {
       const cy = H/2 - 80 + i*112;
       const card = this.add.rectangle(W/2, cy, 400, 96, u.safe ? 0x16331f : 0x33180e).setStrokeStyle(2, u.safe ? 0x7be86a : 0xff9a40).setDepth(21).setInteractive();
@@ -817,7 +828,7 @@ class Game extends Phaser.Scene {
       card.on('pointerout', () => card.setFillStyle(u.safe ? 0x16331f : 0x33180e));
       card.on('pointerup', () => {
         u.f(); this.checkEvolutions();
-        const gold = Math.round(60 * this.endlessGold); META.setCoins(META.coins() + gold);
+        const gold = Math.round((u.safe ? 50 : 100) * this.endlessGold); META.setCoins(META.coins() + gold); // 选诅咒给更多金币:奖励冒险,制造贪婪拉力
         layer.forEach(o => o.destroy()); card.destroy(); txt.destroy();
         this.paused = false; this.endlessChoosing = false;
         this.banner(`🔥 无尽 ${this.endlessTier} 阶 · +${gold}💰`, '#ff9a40');
