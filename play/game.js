@@ -51,7 +51,7 @@ const META = {
     { key: 'spd',  name: '🏃 初始移速', per: '+6%',  max: 6, cost: l => 40 + l*45 },
     { key: 'mag',  name: '🧲 初始拾取', per: '+15%', max: 6, cost: l => 30 + l*35 },
     { key: 'gold', name: '💰 金币加成', per: '+20%', max: 5, cost: l => 60 + l*90 },
-    { key: 'power', name: '✨ 全能强化(无上限)', per: '+3%全伤', max: 99, cost: l => 80 + l*l*14 },
+    { key: 'power', name: '✨ 全能强化', per: '+3%全伤', max: 15, cost: l => 80 + l*l*14 }, // 封顶+45%,根除"无限叠→后期报表无敌"
   ],
   coins() { return parseInt(localStorage.getItem(COINS_KEY) || '0', 10); },
   setCoins(v) { localStorage.setItem(COINS_KEY, String(Math.max(0, Math.floor(v)))); },
@@ -117,11 +117,11 @@ window._makeCard = makeScoreCard; // 便于测试
 
 /* ── 可选英雄(各有起手特性) ── */
 const CHARS = [
-  { key: 'mage',    name: '🧙 法师', desc: '均衡\n标准弹幕', tint: 0xffffff, apply: (s, p) => {} },
-  { key: 'warrior', name: '🛡 战士', desc: '高血近战\n起手带光球', tint: 0xff9a9a, apply: (s, p) => { p.maxHp += 50; p.hp = p.maxHp; s.moveSpeed *= 1.05; s.fireCd *= 1.15; s.orbit = 1; } },
-  { key: 'ranger',  name: '🏹 游侠', desc: '快但脆\n起手双发', tint: 0x9affc0, apply: (s, p) => { p.maxHp -= 20; p.hp = p.maxHp; s.moveSpeed *= 1.18; s.projCount = 2; s.fireCd *= 0.9; } },
-  { key: 'assassin', name: '🥷 刺客', desc: '极快极脆\n高伤起手', tint: 0xc090ff, apply: (s, p) => { p.maxHp -= 35; p.hp = p.maxHp; s.moveSpeed *= 1.25; s.dmg *= 1.35; s.fireCd *= 0.85; } },
-  { key: 'cryo', name: '❄ 冰法', desc: '起手冰霜\n控场流', tint: 0xa0e0ff, apply: (s, p) => { s.frost = 1; s.pickup *= 1.2; p.maxHp += 10; p.hp = p.maxHp; } },
+  { key: 'mage',    name: '🧙 法师', role: '均衡', desc: '标准弹幕\n上手最稳', tint: 0xffe066, bg: 0x3a3416, apply: (s, p) => {} },
+  { key: 'warrior', name: '🛡 战士', role: '坦克', desc: '高血近战\n起手带光球', tint: 0xff6a6a, bg: 0x3a1616, apply: (s, p) => { p.maxHp += 50; p.hp = p.maxHp; s.moveSpeed *= 1.05; s.fireCd *= 1.15; s.orbit = 1; } },
+  { key: 'ranger',  name: '🏹 游侠', role: '敏捷', desc: '快但脆\n起手双发', tint: 0x5aff8a, bg: 0x16331f, apply: (s, p) => { p.maxHp -= 20; p.hp = p.maxHp; s.moveSpeed *= 1.18; s.projCount = 2; s.fireCd *= 0.9; } },
+  { key: 'assassin', name: '🥷 刺客', role: '爆发', desc: '极快极脆\n高伤起手', tint: 0xb060ff, bg: 0x2a1640, apply: (s, p) => { p.maxHp -= 35; p.hp = p.maxHp; s.moveSpeed *= 1.25; s.dmg *= 1.35; s.fireCd *= 0.85; } },
+  { key: 'cryo', name: '❄ 冰法', role: '控场', desc: '起手冰霜\n减速锁敌', tint: 0x60d0ff, bg: 0x16303a, apply: (s, p) => { s.frost = 1; s.pickup *= 1.2; p.maxHp += 10; p.hp = p.maxHp; } },
 ];
 
 /* ── 成就系统(localStorage) ── */
@@ -248,10 +248,13 @@ class CharSelect extends Phaser.Scene {
     mkText(this, W/2, 70, '选择英雄', { fontSize: '34px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5);
     CHARS.forEach((c, i) => {
       const cx = W/2 + ((i % 2) ? 92 : -92), cy = 180 + Math.floor(i/2)*152;
-      const card = this.add.rectangle(cx, cy, 172, 130, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-      this.add.image(cx, cy-32, 'hero').setDisplaySize(46, 46).setTint(c.tint);
-      mkText(this, cx, cy+18, c.name, { fontSize: '19px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
-      mkText(this, cx, cy+46, c.desc, { fontSize: '11px', color: '#9fbed8', align: 'center' }).setOrigin(0.5);
+      const card = this.add.rectangle(cx, cy, 172, 130, c.bg).setStrokeStyle(2, c.tint).setInteractive({ useHandCursor: true });
+      this.add.circle(cx, cy-30, 30, c.tint, 0.16);                                  // 职业色光盘,5 个英雄一眼可辨
+      this.add.image(cx, cy-30, 'hero').setDisplaySize(52, 52).setTint(c.tint);
+      mkText(this, cx, cy+16, c.name, { fontSize: '18px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
+      this.add.rectangle(cx, cy+38, 46, 18, c.tint, 0.92);                            // 职业标签胶囊(先画底,再叠字)
+      mkText(this, cx, cy+38, c.role, { fontSize: '11px', color: '#0b1020', fontStyle: 'bold' }).setOrigin(0.5);
+      mkText(this, cx, cy+58, c.desc, { fontSize: '10px', color: '#cfe', align: 'center' }).setOrigin(0.5);
       card.on('pointerover', () => card.setScale(1.04)); card.on('pointerout', () => card.setScale(1));
       card.on('pointerup', () => { SFX.init(); this.scene.start('game', { char: c.key }); });
     });
@@ -329,7 +332,7 @@ class Game extends Phaser.Scene {
     this.boltEvolved = false; this.orbEvolved = false; this.auraEvolved = false; this.leveling = false;
     this.chainT = 0; this.chainEvolved = false; this.frostT = 0; this.frostEvolved = false;
     this.booms = []; this.boomT = 0; this.boomEvolved = false;
-    this.stats = { dmg: 16, fireCd: 0.55, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 78, orbit: 0, aura: 0, chain: 0, frost: 0, boom: 0, crit: 0.05, critMul: 2.0 };
+    this.stats = { dmg: 20, fireCd: 0.48, projSpeed: 540, projCount: 1, pierce: 0, moveSpeed: 235, pickup: 110, orbit: 0, aura: 0, chain: 0, frost: 0, boom: 0, crit: 0.05, critMul: 2.0 }; // 起手伤害/攻速上调+拾取范围扩大:前 60s 不再裸奔送死、宝石不漏
 
     this.add.rectangle(W/2, H/2, W, H, 0x0b1020).setDepth(-2);
     this.stars = []; // 动态星空背景(替代扁平网格)
@@ -337,8 +340,9 @@ class Game extends Phaser.Scene {
     this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60; this.combo = 0; this.comboT = 0; this.won = false;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
-    this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
     const ch = CHARS.find(c => c.key === ((this.scene.settings.data && this.scene.settings.data.char) || 'mage')) || CHARS[0];
+    this.player.ring = this.add.circle(this.player.x, this.player.y, 26, ch.tint, 0.0).setStrokeStyle(2.5, ch.tint, 0.55).setDepth(4); // 脚下职业色光环:在场上一眼分得清开的哪个英雄
+    this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
     ch.apply(this.stats, this.player); this.player.obj.setTint(ch.tint); // 英雄起手特性
     META.applyTo(this.stats, this.player); // 局外永久强化
     this.syncOrbiters();                   // 战士起手光球
@@ -398,7 +402,7 @@ class Game extends Phaser.Scene {
   floatText(x, y, txt, color, big) { // 漂浮伤害数字(并发上限,防刷屏;暴击更大)
     if (this.floatN >= 22) return;
     this.floatN++;
-    const t = mkText(this, x, y, txt, { fontSize: big ? '22px' : '15px', color: color || '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(7);
+    const t = mkText(this, x, y, txt, { fontSize: big ? '26px' : '17px', color: color || '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(7);
     this.tweens.add({ targets: t, y: y - 30, alpha: 0, duration: big ? 600 : 480, onComplete: () => { t.destroy(); this.floatN--; } });
   }
   banner(text, color) { // 居中横幅(进化/宝箱)
@@ -408,19 +412,19 @@ class Game extends Phaser.Scene {
   }
   upgradePool() {
     return [
-      { t: '⚔ 伤害 +25%', f: () => this.stats.dmg *= 1.25 },
-      { t: "🔥 攻速 +20%", f: () => this.stats.fireCd = Math.max(0.12, this.stats.fireCd * 0.82) },
-      { t: '➕ 多一发子弹', f: () => this.stats.projCount += 1 },
-      { t: '🏃 移速 +12%', f: () => this.stats.moveSpeed *= 1.12 },
-      { t: '❤ 上限+25 并回满', f: () => { this.player.maxHp += 25; this.player.hp = this.player.maxHp; } },
-      { t: '🧲 拾取范围 +40%', f: () => this.stats.pickup *= 1.4 },
-      { t: '🎯 子弹穿透 +1', f: () => this.stats.pierce += 1 },
-      { t: '💥 暴击率 +8%', f: () => this.stats.crit += 0.08 },
-      { t: '🛡 环绕光球 +1', f: () => { this.stats.orbit += 1; this.syncOrbiters(); } },
-      { t: '🌀 伤害光环 +1', f: () => { this.stats.aura += 1; } },
-      { t: '⚡ 闪电链 +1', f: () => { this.stats.chain += 1; } },
-      { t: '❄ 冰霜新星 +1', f: () => { this.stats.frost += 1; } },
-      { t: '🪃 回旋镖 +1', f: () => { this.stats.boom += 1; } },
+      { t: '⚔ 伤害 +25%', k: 'dmg', f: () => this.stats.dmg *= 1.25 },
+      { t: "🔥 攻速 +20%", k: 'fire', f: () => this.stats.fireCd = Math.max(0.12, this.stats.fireCd * 0.82) },
+      { t: '➕ 多一发子弹', k: 'proj', f: () => this.stats.projCount += 1 },
+      { t: '🏃 移速 +12%', k: 'spd', f: () => this.stats.moveSpeed *= 1.12 },
+      { t: '❤ 上限+25 并回满', k: 'hp', f: () => { this.player.maxHp += 25; this.player.hp = this.player.maxHp; } },
+      { t: '🧲 拾取范围 +40%', k: 'pickup', f: () => this.stats.pickup *= 1.4 },
+      { t: '🎯 子弹穿透 +1', k: 'pierce', f: () => this.stats.pierce += 1 },
+      { t: '💥 暴击率 +8%', k: 'crit', f: () => this.stats.crit += 0.08 },
+      { t: '🛡 环绕光球 +1', k: 'orbit', f: () => { this.stats.orbit += 1; this.syncOrbiters(); } },
+      { t: '🌀 伤害光环 +1', k: 'aura', f: () => { this.stats.aura += 1; } },
+      { t: '⚡ 闪电链 +1', k: 'chain', f: () => { this.stats.chain += 1; } },
+      { t: '❄ 冰霜新星 +1', k: 'frost', f: () => { this.stats.frost += 1; } },
+      { t: '🪃 回旋镖 +1', k: 'boom', f: () => { this.stats.boom += 1; } },
     ];
   }
   spawnChest(px, py) {
@@ -464,6 +468,7 @@ class Game extends Phaser.Scene {
     }
     p.x = Phaser.Math.Clamp(p.x, 16, W-16); p.y = Phaser.Math.Clamp(p.y, 44, H-14);
     p.obj.x = p.x; p.obj.y = p.y;
+    if (p.ring) { p.ring.x = p.x; p.ring.y = p.y; }
   }
 
   // ---------- 敌人 ----------
@@ -497,14 +502,14 @@ class Game extends Phaser.Scene {
   addEnemy(type, x, y) {
     const hp0 = 12 + this.elapsed * 0.9 + Math.min(this.elapsed * this.elapsed * 0.004, 400) + Math.max(0, this.elapsed - 316) * 2; // 5分钟后线性继续涨,不再封顶(破"无敌平台期")
     let e;
-    if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 30, sprite: 'enemy_tank', col: 0xc060ff };
-    else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 5, sprite: 'enemy_tank', col: 0x8fb0c0 };
-    else if (type === 'shooter') e = { type, r: 13, hp: hp0*1.4, maxHp: hp0*1.4, speed: 48 + this.elapsed*0.3, dmg: 8, xp: 2, sprite: 'enemy_fast', col: 0xffb060, fireT: 1.5 };
-    else if (type === 'splitter') e = { type, r: 16, hp: hp0*1.2, maxHp: hp0*1.2, speed: 50 + this.elapsed*0.4, dmg: 12, xp: 2, sprite: 'enemy_basic', col: 0xe0e060, splits: true };
-    else if (type === 'mini') e = { type, r: 8, hp: hp0*0.4, maxHp: hp0*0.4, speed: 80 + this.elapsed*0.4, dmg: 7, xp: 1, sprite: 'enemy_basic', col: 0x7be86a };
-    else if (type === 'exploder') e = { type, r: 16, hp: hp0*1.1, maxHp: hp0*1.1, speed: 52 + this.elapsed*0.35, dmg: 10, xp: 2, sprite: 'enemy_basic', col: 0xff8800, explodes: true };
-    else if (type === 'fast') e = { type, r: 11, hp: hp0*0.55, maxHp: hp0*0.55, speed: 95 + this.elapsed*0.5, dmg: 9, xp: 1, sprite: 'enemy_fast', col: 0xff7a9c };
-    else e = { type, r: 14, hp: hp0, maxHp: hp0, speed: 56 + this.elapsed*0.5, dmg: 12, xp: 1, sprite: 'enemy_basic', col: 0x7be86a };
+    if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 40, sprite: 'enemy_tank', col: 0xc060ff };
+    else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 8, sprite: 'enemy_tank', col: 0x8fb0c0 };
+    else if (type === 'shooter') e = { type, r: 13, hp: hp0*1.4, maxHp: hp0*1.4, speed: 48 + this.elapsed*0.3, dmg: 8, xp: 4, sprite: 'enemy_fast', col: 0xffb060, fireT: 1.5 };
+    else if (type === 'splitter') e = { type, r: 16, hp: hp0*1.2, maxHp: hp0*1.2, speed: 50 + this.elapsed*0.4, dmg: 12, xp: 3, sprite: 'enemy_basic', col: 0xe0e060, splits: true };
+    else if (type === 'mini') e = { type, r: 8, hp: hp0*0.4, maxHp: hp0*0.4, speed: 80 + this.elapsed*0.4, dmg: 7, xp: 2, sprite: 'enemy_basic', col: 0x7be86a };
+    else if (type === 'exploder') e = { type, r: 16, hp: hp0*1.1, maxHp: hp0*1.1, speed: 52 + this.elapsed*0.35, dmg: 10, xp: 4, sprite: 'enemy_basic', col: 0xff8800, explodes: true };
+    else if (type === 'fast') e = { type, r: 11, hp: hp0*0.55, maxHp: hp0*0.55, speed: 95 + this.elapsed*0.5, dmg: 9, xp: 2, sprite: 'enemy_fast', col: 0xff7a9c };
+    else e = { type, r: 14, hp: hp0, maxHp: hp0, speed: 56 + this.elapsed*0.5, dmg: 12, xp: 3, sprite: 'enemy_basic', col: 0x7be86a }; // XP 普调 ~3x:让升级雪球真正转起来(原 60s 才 Lv5)
     e.x = x; e.y = y; e.orbCd = 0; e.slowT = 0; e.speed = Math.min(e.speed, type === 'fast' ? 185 : 150);
     e.obj = this.add.image(x, y, e.sprite).setDepth(3).setDisplaySize(e.r*2.8, e.r*2.8);
     if (type === 'shooter') e.obj.setTint(0xffb060);
@@ -727,12 +732,13 @@ class Game extends Phaser.Scene {
   }
   // ---------- 武器进化 ----------
   checkEvolutions() {
-    if (!this.boltEvolved && this.stats.projCount >= 5 && this.stats.pierce >= 2) { this.boltEvolved = true; this.evolveBanner('多重散射弹'); }
-    if (!this.orbEvolved && this.stats.orbit >= 4) { this.orbEvolved = true; this.orbiters.forEach(o => o.setDisplaySize(34, 34).setTint(0xfff0a0)); this.evolveBanner('光刃环'); }
-    if (!this.auraEvolved && this.stats.aura >= 4) { this.auraEvolved = true; if (this.auraObj) this.auraObj.setFillStyle(0xc0a0ff, 0.16); this.evolveBanner('奥能风暴'); }
-    if (!this.chainEvolved && this.stats.chain >= 4) { this.chainEvolved = true; this.evolveBanner('连锁风暴'); }
-    if (!this.frostEvolved && this.stats.frost >= 4) { this.frostEvolved = true; this.evolveBanner('暴风雪'); }
-    if (!this.boomEvolved && this.stats.boom >= 4) { this.boomEvolved = true; this.evolveBanner('环切飞轮'); }
+    // 进化门槛下调:配合加权三选一,普通一局 5 分钟内吃得到进化(原门槛基本够不着)
+    if (!this.boltEvolved && this.stats.projCount >= 4 && this.stats.pierce >= 1) { this.boltEvolved = true; this.evolveBanner('多重散射弹'); }
+    if (!this.orbEvolved && this.stats.orbit >= 3) { this.orbEvolved = true; this.orbiters.forEach(o => o.setDisplaySize(34, 34).setTint(0xfff0a0)); this.evolveBanner('光刃环'); }
+    if (!this.auraEvolved && this.stats.aura >= 3) { this.auraEvolved = true; if (this.auraObj) this.auraObj.setFillStyle(0xc0a0ff, 0.16); this.evolveBanner('奥能风暴'); }
+    if (!this.chainEvolved && this.stats.chain >= 3) { this.chainEvolved = true; this.evolveBanner('连锁风暴'); }
+    if (!this.frostEvolved && this.stats.frost >= 3) { this.frostEvolved = true; this.evolveBanner('暴风雪'); }
+    if (!this.boomEvolved && this.stats.boom >= 3) { this.boomEvolved = true; this.evolveBanner('环切飞轮'); }
   }
   evolveBanner(name) {
     this.tryAch('evolve'); SFX.level();
@@ -807,26 +813,45 @@ class Game extends Phaser.Scene {
     const p = this.player;
     for (const gm of this.gems) {
       const d = Phaser.Math.Distance.Between(gm.x, gm.y, p.x, p.y);
-      if (d < this.stats.pickup) {
+      if (gm.magnet || d < this.stats.pickup) {                          // magnet=升级时全屏吸附,根治"宝石烂在地上"
         const a = Phaser.Math.Angle.Between(gm.x, gm.y, p.x, p.y);
-        gm.x += Math.cos(a)*420*dt; gm.y += Math.sin(a)*420*dt; gm.obj.x = gm.x; gm.obj.y = gm.y;
-        if (d < p.r + 6) { gm.got = true; this.xp += gm.xp; gm.obj.destroy(); if (this.xp >= this.xpNeed) this.levelUp(); }
+        const sp = gm.magnet ? 700 : 420;
+        gm.x += Math.cos(a)*sp*dt; gm.y += Math.sin(a)*sp*dt; gm.obj.x = gm.x; gm.obj.y = gm.y;
+        if (d < p.r + 8) { gm.got = true; this.xp += gm.xp; gm.obj.destroy(); if (this.xp >= this.xpNeed) this.levelUp(); }
       }
     }
     this.gems = this.gems.filter(gm => !gm.got);
   }
+  weightedPick(pool, n) { // 加权无放回抽样:让 build 可定向(已投资+接近进化的项更易出现)
+    const s = this.stats;
+    const inv = { proj: s.projCount - 1, pierce: s.pierce, orbit: s.orbit, aura: s.aura, chain: s.chain, frost: s.frost, boom: s.boom };
+    const evoNeed = { proj: 4, orbit: 3, aura: 3, chain: 3, frost: 3, boom: 3 }; // 差一步进化的项重点推
+    const wt = (u) => {
+      let w = 1;
+      if (u.k in inv && inv[u.k] > 0) w += 2 + inv[u.k];        // 已开的武器线滚起来
+      if (u.k in evoNeed && (s[u.k] || (u.k === 'proj' ? s.projCount : 0)) === evoNeed[u.k] - 1) w += 5; // 临门一脚
+      return w;
+    };
+    const avail = pool.slice(), picks = [];
+    while (picks.length < n && avail.length) {
+      const ws = avail.map(wt), total = ws.reduce((a, b) => a + b, 0);
+      let r = Math.random() * total, idx = 0;
+      for (; idx < avail.length - 1; idx++) { r -= ws[idx]; if (r <= 0) break; }
+      picks.push(avail.splice(idx, 1)[0]);
+    }
+    return picks;
+  }
   levelUp() {
-    this.xp -= this.xpNeed; this.level++; this.xpNeed = Math.floor(this.xpNeed * 1.38 + 3);
+    this.xp -= this.xpNeed; this.level++; this.xpNeed = Math.floor(this.xpNeed * 1.22 + 4); // 斜率 1.38→1.22:升级不再越来越遥不可及
     this.player.hp = Math.min(this.player.maxHp, this.player.hp + 15);
+    for (const gm of this.gems) gm.magnet = true;                       // 升级=全屏吸宝:把散落的成长一次性收回来
     this.ring(this.player.x, this.player.y, 0x8affc0, 110); SFX.level();
     this.paused = true; this.leveling = true;
     if (this.level >= 15) this.tryAch('lv15');
-    const pool = this.upgradePool();
-    Phaser.Utils.Array.Shuffle(pool);
-    const pick = pool.slice(0, 3);
+    const pick = this.weightedPick(this.upgradePool(), 3); // 加权:已投资/接近进化的武器更易出现 → 玩家能定向 build
     if (this.level % 3 === 0) { // 每 3 级保底:至少给一个输出强化(避免歪到没伤害卡墙)
       const dk = ['⚔ 伤害 +25%', '🔥 攻速 +20%', '➕ 多一发子弹'];
-      if (!pick.some(u => dk.includes(u.t))) { const d = pool.find(u => dk.includes(u.t)); if (d) pick[2] = d; }
+      if (!pick.some(u => dk.includes(u.t))) { const d = this.upgradePool().find(u => dk.includes(u.t)); if (d) pick[2] = d; }
     }
     const layer = [];
     layer.push(this.add.rectangle(W/2, H/2, W, H, 0x000, 0.72).setDepth(20));
