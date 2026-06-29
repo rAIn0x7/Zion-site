@@ -154,6 +154,24 @@ const MODIFIERS = [
 function todayMod() { return MODIFIERS[daySeed() % MODIFIERS.length]; }
 function dailyBest() { return parseInt(localStorage.getItem('fm_daily_' + dayStr()) || '0', 10); }
 
+/* ── 段位 + 本地排行榜(按最佳存活秒数,给身份感与"刷新纪录/晋级"的长期追逐目标) ── */
+const RANKS = [
+  { min: 0,   name: '🌱 新兵',     col: '#9fbed8' },
+  { min: 60,  name: '🥉 青铜',     col: '#cd9a5a' },
+  { min: 120, name: '🥈 白银',     col: '#c8d0d8' },
+  { min: 180, name: '🥇 黄金',     col: '#f5c84c' },
+  { min: 240, name: '💎 铂金',     col: '#5fe0d0' },
+  { min: 300, name: '👑 钻石·通关', col: '#6fd0ff' },
+  { min: 420, name: '🔥 大师',     col: '#ff9a40' }, // 通关 + 无尽 ~3 阶
+  { min: 570, name: '⚡ 宗师',     col: '#ff7ad0' }, // 无尽 ~6 阶
+  { min: 750, name: '🏆 传奇',     col: '#ff5a5a' }, // 无尽 ~10 阶
+];
+function rankOf(secs) { let r = RANKS[0]; for (const x of RANKS) if (secs >= x.min) r = x; return r; }
+function nextRank(secs) { for (const x of RANKS) if (x.min > secs) return x; return null; }
+const BOARD_KEY = 'fm_board';
+function getBoard() { try { return JSON.parse(localStorage.getItem(BOARD_KEY) || '[]'); } catch (e) { return []; } }
+function pushBoard(run) { const b = getBoard(); b.push(run); b.sort((a, c) => c.secs - a.secs); localStorage.setItem(BOARD_KEY, JSON.stringify(b.slice(0, 5))); }
+
 /* ── 浮动虚拟摇杆 ── */
 class VirtualJoystick {
   constructor(scene, opts = {}) {
@@ -217,9 +235,19 @@ class Title extends Phaser.Scene {
     mkText(this, W/2, H*0.31, 'FINGER MOBA', { fontSize: '50px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5);
     mkText(this, W/2, H*0.355, '单手幸存 · 怪潮中活到最后', { fontSize: '16px', color: '#cde' }).setOrigin(0.5);
     const best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
-    mkText(this, W/2, H*0.405, `💰 ${META.coins()}      🏅 成就 ${ACH.count()}/${ACH.defs.length}`, { fontSize: '15px', color: '#f5c84c' }).setOrigin(0.5);
-    if (best > 0) mkText(this, W/2, H*0.44, `🏆 最佳 ${best} 秒   ·   今日最佳 ${dailyBest()} 秒`, { fontSize: '13px', color: '#9fbed8' }).setOrigin(0.5);
-    mkText(this, W/2, H*0.475, `🎲 今日:${todayMod().name}`, { fontSize: '13px', color: '#f5c84c' }).setOrigin(0.5);
+    mkText(this, W/2, H*0.395, `💰 ${META.coins()}    🏅 ${ACH.count()}/${ACH.defs.length}    🏆 最佳 ${best}s`, { fontSize: '14px', color: '#f5c84c' }).setOrigin(0.5);
+    // 段位徽章 + 下一段进度条(身份与晋级追逐)
+    const rk = rankOf(best), nx = nextRank(best);
+    mkText(this, W/2, H*0.435, `段位  ${rk.name}`, { fontSize: '22px', color: rk.col, fontStyle: 'bold' }).setOrigin(0.5);
+    if (nx) {
+      const span = nx.min - rk.min, prog = Phaser.Math.Clamp((best - rk.min) / span, 0, 1);
+      this.add.rectangle(W/2, H*0.462, 230, 9, 0x223).setStrokeStyle(1, 0x2a3a55);
+      this.add.rectangle(W/2-115, H*0.462, 230*prog, 9, Phaser.Display.Color.HexStringToColor(rk.col).color).setOrigin(0, 0.5);
+      mkText(this, W/2, H*0.483, `距 ${nx.name} 还需 ${nx.min - best}s`, { fontSize: '11px', color: '#7a9' }).setOrigin(0.5);
+    } else {
+      mkText(this, W/2, H*0.483, '已达最高段位 · 冲无尽刷新纪录', { fontSize: '11px', color: '#ff9a40' }).setOrigin(0.5);
+    }
+    mkText(this, W/2, H*0.51, `🎲 今日:${todayMod().name} · 今日最佳 ${dailyBest()}s`, { fontSize: '12px', color: '#f5c84c' }).setOrigin(0.5);
 
     const playBtn = this.add.rectangle(W/2, H*0.585, 264, 76, 0x2f7fd0).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
     mkText(this, W/2, H*0.585, '▶  选择英雄开始', { fontSize: '26px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
@@ -233,7 +261,15 @@ class Title extends Phaser.Scene {
     shop.on('pointerover', () => shop.setScale(1.04)); shop.on('pointerout', () => shop.setScale(1));
     shop.on('pointerup', () => { SFX.init(); this.scene.start('shop'); });
 
-    mkText(this, W/2, H*0.84, '拖动屏幕任意处移动 · 桌面 WASD · 自动开火', { fontSize: '12px', color: '#7a9' }).setOrigin(0.5);
+    const board = getBoard();
+    if (board.length) {
+      mkText(this, W/2, H*0.755, '🏆 本地排行榜', { fontSize: '13px', color: '#9fbed8' }).setOrigin(0.5);
+      const medal = ['🥇', '🥈', '🥉'];
+      board.slice(0, 3).forEach((r, i) => {
+        mkText(this, W/2, H*(0.785 + i*0.027), `${medal[i]}  ${r.secs}s · Lv${r.lvl} · ${r.kills}杀`, { fontSize: '13px', color: i === 0 ? '#f5c84c' : '#cde' }).setOrigin(0.5);
+      });
+    }
+    mkText(this, W/2, H*0.885, '拖动屏幕任意处移动 · 桌面 WASD · 自动开火', { fontSize: '12px', color: '#7a9' }).setOrigin(0.5);
     const link = mkText(this, W/2, H-40, 'by Zion · qizh.space ↗', { fontSize: '13px', color: '#6fd0ff' }).setOrigin(0.5).setInteractive({ useHandCursor: true });
     link.on('pointerup', () => window.open(HUB_URL, '_blank'));
   }
@@ -247,14 +283,14 @@ class CharSelect extends Phaser.Scene {
     for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a);
     mkText(this, W/2, 70, '选择英雄', { fontSize: '34px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5);
     CHARS.forEach((c, i) => {
-      const cx = W/2 + ((i % 2) ? 92 : -92), cy = 180 + Math.floor(i/2)*152;
-      const card = this.add.rectangle(cx, cy, 172, 130, c.bg).setStrokeStyle(2, c.tint).setInteractive({ useHandCursor: true });
-      this.add.circle(cx, cy-30, 30, c.tint, 0.16);                                  // 职业色光盘,5 个英雄一眼可辨
-      this.add.image(cx, cy-30, 'hero').setDisplaySize(52, 52).setTint(c.tint);
-      mkText(this, cx, cy+16, c.name, { fontSize: '18px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
-      this.add.rectangle(cx, cy+38, 46, 18, c.tint, 0.92);                            // 职业标签胶囊(先画底,再叠字)
-      mkText(this, cx, cy+38, c.role, { fontSize: '11px', color: '#0b1020', fontStyle: 'bold' }).setOrigin(0.5);
-      mkText(this, cx, cy+58, c.desc, { fontSize: '10px', color: '#cfe', align: 'center' }).setOrigin(0.5);
+      const cx = W/2 + ((i % 2) ? 92 : -92), cy = 178 + Math.floor(i/2)*158;
+      const card = this.add.rectangle(cx, cy, 172, 144, c.bg).setStrokeStyle(2, c.tint).setInteractive({ useHandCursor: true });
+      this.add.circle(cx, cy-36, 28, c.tint, 0.16);                                  // 职业色光盘,5 个英雄一眼可辨
+      this.add.image(cx, cy-36, 'hero').setDisplaySize(48, 48).setTint(c.tint);
+      mkText(this, cx, cy+8, c.name, { fontSize: '18px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
+      this.add.rectangle(cx, cy+30, 48, 18, c.tint, 0.92);                            // 职业标签胶囊(先画底,再叠字)
+      mkText(this, cx, cy+30, c.role, { fontSize: '11px', color: '#0b1020', fontStyle: 'bold' }).setOrigin(0.5);
+      mkText(this, cx, cy+54, c.desc, { fontSize: '10px', color: '#cfe', align: 'center', lineSpacing: 2 }).setOrigin(0.5);
       card.on('pointerover', () => card.setScale(1.04)); card.on('pointerout', () => card.setScale(1));
       card.on('pointerup', () => { SFX.init(); this.scene.start('game', { char: c.key }); });
     });
@@ -338,6 +374,7 @@ class Game extends Phaser.Scene {
     this.stars = []; // 动态星空背景(替代扁平网格)
     for (let i = 0; i < 56; i++) { const s = this.add.circle(Math.random()*W, Math.random()*H, Math.random() < 0.3 ? 1.7 : 1, 0x4a5a8a, 0.55).setDepth(-1); s.vy = 8 + Math.random()*24; this.stars.push(s); }
     this.floatN = 0; this.musicT = 0; this._toastN = 0; this.chests = []; this.chestT = 22; this.biome = 0; this.biomeT = 60; this.combo = 0; this.comboT = 0; this.won = false; this.endlessTier = 0; this.endlessNextT = 345;
+    this.endlessChoosing = false; this.endlessEnemySpd = 1; this.endlessSpawnBonus = 0; this.endlessGold = 1;
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     const ch = CHARS.find(c => c.key === ((this.scene.settings.data && this.scene.settings.data.char) || 'mage')) || CHARS[0];
@@ -488,7 +525,7 @@ class Game extends Phaser.Scene {
     this.spawnT -= dt;
     if (this.spawnT > 0 || this.enemies.length > 85) return; // 同屏上限 110→85,减拥挤
     this.spawnT = Math.max(0.4, 1.9 - this.elapsed * 0.010); // 前期更慢(1min≈1.3s/波,原 0.89)
-    const n = Math.min(6, 1 + Math.floor(this.elapsed / 42)); // 波数升得更慢
+    const n = Math.min(6, 1 + Math.floor(this.elapsed / 42)) + this.endlessSpawnBonus; // 波数升得更慢;+无尽"增殖"诅咒
     for (let i = 0; i < n; i++) {
       const r = Math.random(); let type = 'basic';
       if (this.elapsed > 30 && r < 0.10) type = 'tank';
@@ -525,7 +562,8 @@ class Game extends Phaser.Scene {
     if (type === 'exploder') e.obj.setTint(0xff8800);
     if (type === 'boss') {
       this.boss = e; e.abilityT = 5; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
-      const t = mkText(this, W/2, H/2, '👹 BOSS 来袭!', { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(15);
+      this.bossCount = (this.bossCount || 0) + 1; e.bossLevel = this.bossCount; // 第几只 Boss → 解锁更多技能形态
+      const t = mkText(this, W/2, H/2, `👹 BOSS ${this.bossCount > 1 ? 'x' + this.bossCount + ' ' : ''}来袭!`, { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(15);
       this.tweens.add({ targets: t, alpha: 0, y: H/2-50, duration: 1300, onComplete: () => t.destroy() });
     } else if (type !== 'mini' && this.elapsed > 22 && Math.random() < 0.04) { // 精英怪:金色强化,必爆宝箱
       e.elite = true; e.hp *= 3; e.maxHp *= 3; e.xp *= 4; e.r *= 1.4;
@@ -556,7 +594,7 @@ class Game extends Phaser.Scene {
     const p = this.player;
     for (const e of this.enemies) {
       if (e.orbCd > 0) e.orbCd -= dt;
-      let sp = e.speed; if (e.slowT > 0) { e.slowT -= dt; sp *= 0.5; } // 奥能风暴减速
+      let sp = e.speed * this.endlessEnemySpd; if (e.slowT > 0) { e.slowT -= dt; sp *= 0.5; } // 奥能风暴减速;endlessEnemySpd=无尽"狂化"诅咒
       const d = Phaser.Math.Distance.Between(e.x, e.y, p.x, p.y);
       const a = Phaser.Math.Angle.Between(e.x, e.y, p.x, p.y);
       if (e.type === 'shooter') {                 // 远程射手:拉开距离 + 射击
@@ -570,16 +608,23 @@ class Game extends Phaser.Scene {
         e.abilityT -= dt;
         if (e.abilityT <= 0) {
           e.abilityT = 6; e.abilityN = (e.abilityN || 0) + 1;
-          if (e.abilityN % 2 === 1) { // 召唤小怪
+          const modes = 2 + (e.bossLevel >= 2 ? 1 : 0) + (e.bossLevel >= 3 ? 1 : 0); // Boss 越往后,技能形态越多
+          const mode = e.abilityN % modes;
+          const bx = e.x, by = e.y;
+          if (mode === 0) { // 召唤小怪(后期 Boss 召更多)
             this.ring(e.x, e.y, 0xc060ff, 80);
-            for (let k = 0; k < 2; k++) this.addEnemy('basic', e.x + (Math.random()-0.5)*60, e.y + (Math.random()-0.5)*60);
-          } else { // 放射状弹幕(先红圈预警,再发射)
+            const cnt = 2 + Math.min(2, e.bossLevel - 1);
+            for (let k = 0; k < cnt; k++) this.addEnemy(e.bossLevel >= 3 ? 'fast' : 'basic', e.x + (Math.random()-0.5)*60, e.y + (Math.random()-0.5)*60);
+          } else if (mode === 1) { // 放射状弹幕(红圈预警 → 发射)
             this.ring(e.x, e.y, 0xff5a5a, 130);
-            const bx = e.x, by = e.y;
-            this.time.delayedCall(560, () => {
-              if (this.over) return;
-              for (let k = 0; k < 10; k++) this.enemyShoot({ x: bx, y: by }, k / 10 * Math.PI * 2);
-            });
+            this.time.delayedCall(560, () => { if (this.over) return; for (let k = 0; k < 10; k++) this.enemyShoot({ x: bx, y: by }, k / 10 * Math.PI * 2); });
+          } else if (mode === 2) { // 螺旋弹幕(随技能次数旋转,需走位绕)
+            this.ring(e.x, e.y, 0xffa040, 120);
+            this.time.delayedCall(500, () => { if (this.over) return; const off = e.abilityN * 0.5; for (let k = 0; k < 12; k++) this.enemyShoot({ x: bx, y: by }, off + k / 12 * Math.PI * 2); });
+          } else { // 锁定散射(瞄准玩家的扇形齐射,逼你横向拉开)
+            this.ring(e.x, e.y, 0xff5ad0, 110);
+            const aim = Phaser.Math.Angle.Between(e.x, e.y, this.player.x, this.player.y);
+            this.time.delayedCall(500, () => { if (this.over) return; for (let k = -2; k <= 2; k++) this.enemyShoot({ x: bx, y: by }, aim + k * 0.22); });
           }
         }
       }
@@ -741,13 +786,44 @@ class Game extends Phaser.Scene {
   // ---------- 武器进化 ----------
   // ---------- 无尽阶段(5 分钟通关后,每 45s 一阶:白送强化 + 金币,给硬核玩家"摸顶后还能爬"的天花板) ----------
   updateEndless(dt) {
-    if (!this.won || this.elapsed < this.endlessNextT) return;
+    if (!this.won || this.endlessChoosing || this.elapsed < this.endlessNextT) return;
     this.endlessTier++; this.endlessNextT += 45;
-    const pick = this.weightedPick(this.upgradePool(), 1)[0]; // 白送一个加权强化(顺着已有 build)
-    if (pick) { pick.f(); this.checkEvolutions(); }
-    META.setCoins(META.coins() + 60);
     this.ring(this.player.x, this.player.y, 0xff9a40, 160);
-    this.banner(`🔥 无尽 ${this.endlessTier} 阶 · ${pick ? pick.t : ''} · +60💰`, '#ff9a40');
+    this.offerEndlessChoice(); // 从"白送强化"升级为"祝福/诅咒抉择":贪婪=更强但代价更大,给后期真正的取舍与 escalating stakes
+  }
+  endlessBoons() {
+    const safe = this.weightedPick(this.upgradePool(), 1)[0];
+    return [
+      { t: '💪 强化(无代价)\n' + (safe ? safe.t : '随机强化'), safe: true, f: () => { if (safe) safe.f(); } },
+      { t: '🔥 狂化\n全伤 +30% · 敌速 +12%', f: () => { this.stats.dmg *= 1.3; this.endlessEnemySpd *= 1.12; } },
+      { t: '⚡ 超载\n攻速 +25% · 生命上限 -12%', f: () => { this.stats.fireCd = Math.max(0.12, this.stats.fireCd * 0.8); this.player.maxHp = Math.round(this.player.maxHp * 0.88); this.player.hp = Math.min(this.player.hp, this.player.maxHp); } },
+      { t: '🌀 增殖\n金币 ×1.6 · 每波多刷 1 怪', f: () => { this.endlessSpawnBonus += 1; this.endlessGold *= 1.6; } },
+      { t: '🩸 献祭\n全伤 +50% · 失去 25% 当前血', f: () => { this.stats.dmg *= 1.5; this.player.hp = Math.max(1, Math.floor(this.player.hp * 0.75)); } },
+    ];
+  }
+  offerEndlessChoice() {
+    const boons = this.endlessBoons();
+    const pick = [boons[0], ...Phaser.Utils.Array.Shuffle(boons.slice(1)).slice(0, 2)]; // 1 安全 + 2 诅咒
+    this.paused = true; this.endlessChoosing = true;
+    const layer = [];
+    layer.push(this.add.rectangle(W/2, H/2, W, H, 0x1a0e00, 0.80).setDepth(20));
+    layer.push(mkText(this, W/2, H/2-200, `🔥 无尽 ${this.endlessTier} 阶 · 祝福与诅咒`, { fontSize: '23px', color: '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5).setDepth(21));
+    layer.push(mkText(this, W/2, H/2-166, '选一个 · 越贪越强,代价越大', { fontSize: '13px', color: '#cde' }).setOrigin(0.5).setDepth(21));
+    pick.forEach((u, i) => {
+      const cy = H/2 - 80 + i*112;
+      const card = this.add.rectangle(W/2, cy, 400, 96, u.safe ? 0x16331f : 0x33180e).setStrokeStyle(2, u.safe ? 0x7be86a : 0xff9a40).setDepth(21).setInteractive();
+      const txt = mkText(this, W/2, cy, u.t, { fontSize: '17px', color: '#fff', align: 'center' }).setOrigin(0.5).setDepth(22);
+      card.on('pointerover', () => card.setFillStyle(u.safe ? 0x1f4a2c : 0x4a2414));
+      card.on('pointerout', () => card.setFillStyle(u.safe ? 0x16331f : 0x33180e));
+      card.on('pointerup', () => {
+        u.f(); this.checkEvolutions();
+        const gold = Math.round(60 * this.endlessGold); META.setCoins(META.coins() + gold);
+        layer.forEach(o => o.destroy()); card.destroy(); txt.destroy();
+        this.paused = false; this.endlessChoosing = false;
+        this.banner(`🔥 无尽 ${this.endlessTier} 阶 · +${gold}💰`, '#ff9a40');
+      });
+      layer.push(card, txt);
+    });
   }
   checkEvolutions() {
     // 进化门槛差异化(每把武器自己的节奏,不再一刀切);bolt 去掉 pierce 双条件补足可达性(原仅~8%进化率)
@@ -958,13 +1034,17 @@ class Game extends Phaser.Scene {
     const secs = Math.floor(this.elapsed);
     const best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
     const isRecord = secs > best;
+    const rankedUp = rankOf(secs).name !== rankOf(best).name && secs > best; // 晋级判定(在写入 best 之前)
     if (isRecord) localStorage.setItem(BEST_KEY, String(secs));
     if (secs > dailyBest()) localStorage.setItem('fm_daily_' + dayStr(), String(secs)); // 今日最佳
+    pushBoard({ secs, lvl: this.level, kills: this.kills, d: dayStr() });                // 进本地排行榜
 
     this.add.rectangle(W/2, H/2, W, H, 0x000, 0.80).setDepth(30);
     mkText(this, W/2, H/2-150, isRecord ? '🏆 新纪录！' : '你倒下了', { fontSize: '40px', color: isRecord ? '#f5c84c' : '#ff7a7a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(31);
     mkText(this, W/2, H/2-90, `存活 ${secs} 秒 · Lv.${this.level} · 击杀 ${this.kills}${this.endlessTier > 0 ? ' · 🔥无尽' + this.endlessTier + '阶' : ''}`, { fontSize: '18px', color: '#cde' }).setOrigin(0.5).setDepth(31);
-    mkText(this, W/2, H/2-58, isRecord ? '之前最佳 ' + best + ' 秒' : '最佳 ' + best + ' 秒', { fontSize: '13px', color: '#8aa' }).setOrigin(0.5).setDepth(31);
+    const rkNow = rankOf(secs);
+    mkText(this, W/2, H/2-58, rankedUp ? `🎖 晋级 ${rkNow.name}！` : `段位 ${rkNow.name} · 最佳 ${Math.max(secs, best)}s`, { fontSize: rankedUp ? '17px' : '13px', color: rankedUp ? rkNow.col : '#8aa', fontStyle: rankedUp ? 'bold' : 'normal' }).setOrigin(0.5).setDepth(31);
+    if (rankedUp) this.cameras.main.flash(400, 90, 60, 20);
     const earned = META.award(secs, this.kills);
     mkText(this, W/2, H/2-30, `💰 +${earned}   (共 ${META.coins()})`, { fontSize: '16px', color: '#f5c84c' }).setOrigin(0.5).setDepth(31);
     let newAch = 0; const tryEnd = (k) => { if (ACH.unlock(k)) newAch++; };
