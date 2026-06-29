@@ -1,0 +1,18 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="shBody" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc070"/><stop offset="1" stop-color="#d4762a"/></linearGradient>
+    <radialGradient id="shEye" cx="0.5" cy="0.45" r="0.6"><stop offset="0" stop-color="#fff3c0"/><stop offset="0.5" stop-color="#ff8a2a"/><stop offset="1" stop-color="#a83c12"/></radialGradient>
+  </defs>
+  <ellipse cx="50" cy="91" rx="22" ry="5" fill="#000" opacity="0.18"/>
+  <path d="M28 36 L24 18 L40 30 Z" fill="#c4621f" stroke="#7a3a10" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M72 36 L76 18 L60 30 Z" fill="#c4621f" stroke="#7a3a10" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M22 52 Q20 28 50 26 Q80 28 78 52 Q80 74 64 74 Q60 84 50 78 Q40 84 36 74 Q20 74 22 52 Z" fill="url(#shBody)" stroke="#9c4f12" stroke-width="3.5" stroke-linejoin="round"/>
+  <ellipse cx="40" cy="40" rx="9" ry="6" fill="#fff" opacity="0.35" transform="rotate(-20 40 40)"/>
+  <circle cx="50" cy="50" r="15" fill="#fff" stroke="#9c4f12" stroke-width="3"/>
+  <circle cx="50" cy="50" r="11" fill="url(#shEye)"/>
+  <circle cx="50" cy="50" r="5" fill="#3a1606"/>
+  <circle cx="47" cy="47" r="2" fill="#fff"/>
+  <path d="M30 38 Q40 34 46 40 M70 38 Q60 34 54 40" fill="none" stroke="#9c4f12" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="50" cy="74" r="6" fill="#3a1606" stroke="#9c4f12" stroke-width="2.5"/>
+  <circle cx="50" cy="74" r="2.5" fill="#ff5a2a"/>
+</svg>

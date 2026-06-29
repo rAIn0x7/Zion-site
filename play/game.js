@@ -5,7 +5,7 @@ const W = 540;
 const H = Math.round(Math.max(900, Math.min(1280, 540 * ((window.innerHeight || 960) / (window.innerWidth || 540)))));
 const DPR = Math.min(window.devicePixelRatio || 1, 3); // 跟随设备像素比(封顶 3,覆盖主流 3x 手机屏)
 const RASTER = 384;                                    // SVG 栅格化分辨率(够大标题大图也不糊)
-const SPRITES = ['hero', 'hero_mage', 'hero_warrior', 'hero_ranger', 'hero_assassin', 'hero_cryo', 'enemy_basic', 'enemy_fast', 'enemy_tank', 'gem', 'projectile'];
+const SPRITES = ['hero', 'hero_mage', 'hero_warrior', 'hero_ranger', 'hero_assassin', 'hero_cryo', 'enemy_basic', 'enemy_fast', 'enemy_tank', 'enemy_shooter', 'enemy_exploder', 'enemy_boss', 'gem', 'projectile'];
 const heroSprite = (k) => ('hero_' + k); // 每个英雄独立贴图(法师/战士/游侠/刺客/冰法各不相同)
 
 // 全局文字工厂:resolution 提清晰度(高分屏不糊),padding 防顶部裁剪
@@ -119,29 +119,40 @@ const META = {
 };
 
 /* ── 分享成绩图(离屏 canvas 画战绩卡 → 微信分享 / 下载) ── */
-function makeScoreCard(secs, level, kills, best, endlessTier) {
+function rrect(x, rx, ry, w, h, r) { if (x.roundRect) { x.beginPath(); x.roundRect(rx, ry, w, h, r); } else { x.beginPath(); x.moveTo(rx+r, ry); x.arcTo(rx+w, ry, rx+w, ry+h, r); x.arcTo(rx+w, ry+h, rx, ry+h, r); x.arcTo(rx, ry+h, rx, ry, r); x.arcTo(rx, ry, rx+w, ry, r); x.closePath(); } }
+function makeScoreCard(secs, level, kills, best, endlessTier, heroKey) {
   const c = document.createElement('canvas'); c.width = 720; c.height = 900;
-  const x = c.getContext('2d');
-  x.fillStyle = '#0b1020'; x.fillRect(0, 0, 720, 900);
-  x.strokeStyle = 'rgba(40,60,100,0.4)'; x.lineWidth = 1;
-  for (let i = 60; i < 900; i += 60) { x.beginPath(); x.moveTo(0, i); x.lineTo(720, i); x.stroke(); }
-  for (let i = 60; i < 720; i += 60) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 900); x.stroke(); }
-  x.textAlign = 'center';
-  x.fillStyle = '#9fe07a'; x.font = 'bold 64px sans-serif'; x.fillText('FINGER MOBA', 360, 120);
-  const rk = rankOf(secs);                                    // 段位徽章上卡 → 炫耀钩子
-  x.fillStyle = rk.col; x.font = 'bold 40px sans-serif'; x.fillText('段位 ' + rk.name, 360, 188);
-  x.fillStyle = '#f5c84c'; x.font = 'bold 150px sans-serif'; x.fillText(secs + '″', 360, 392);
-  x.fillStyle = '#9fbed8'; x.font = '30px sans-serif'; x.fillText('存活时间', 360, 444);
-  x.fillStyle = '#fff'; x.font = 'bold 46px sans-serif'; x.fillText('Lv.' + level + '        💀 ' + kills, 360, 528);
-  if (endlessTier > 0) { x.fillStyle = '#ff9a40'; x.font = 'bold 36px sans-serif'; x.fillText('🔥 无尽 ' + endlessTier + ' 阶', 360, 588); }
-  x.fillStyle = '#8aa'; x.font = '26px sans-serif'; x.fillText('🏆 历史最佳 ' + best + ' 秒', 360, 638);
-  x.fillStyle = '#1c2b4a'; x.fillRect(110, 700, 500, 92); x.strokeStyle = '#6fd0ff'; x.lineWidth = 3; x.strokeRect(110, 700, 500, 92);
-  x.fillStyle = '#6fd0ff'; x.font = 'bold 34px sans-serif'; x.fillText('来 qizh.space/play 挑战我', 360, 758);
-  x.fillStyle = '#7a9'; x.font = '23px sans-serif'; x.fillText('微信搜「Zion降噪」· by Zion', 360, 846);
+  const x = c.getContext('2d'); x.textAlign = 'center';
+  const bg = x.createLinearGradient(0, 0, 0, 900); bg.addColorStop(0, '#1a2c4a'); bg.addColorStop(0.5, '#0d1426'); bg.addColorStop(1, '#070b14');
+  x.fillStyle = bg; x.fillRect(0, 0, 720, 900);
+  x.strokeStyle = 'rgba(50,72,116,0.25)'; x.lineWidth = 1;
+  for (let i = 80; i < 900; i += 80) { x.beginPath(); x.moveTo(0, i); x.lineTo(720, i); x.stroke(); }
+  const rk = rankOf(secs);
+  // 标题 logo 化(渐变填充 + 描边)
+  x.font = 'bold 62px sans-serif'; x.lineWidth = 8; x.strokeStyle = '#0a3014'; x.strokeText('FINGER MOBA', 360, 108);
+  const tg = x.createLinearGradient(0, 64, 0, 116); tg.addColorStop(0, '#e6ffc0'); tg.addColorStop(1, '#46aa62'); x.fillStyle = tg; x.fillText('FINGER MOBA', 360, 108);
+  // 英雄立绘 + 柔光
+  const hg = x.createRadialGradient(360, 235, 10, 360, 235, 110); hg.addColorStop(0, Phaser.Display.Color.IntegerToColor((rk.col && false) || 0x2f7fd0).rgba); hg.addColorStop(0, 'rgba(120,170,255,0.30)'); hg.addColorStop(1, 'rgba(120,170,255,0)');
+  x.fillStyle = hg; x.beginPath(); x.arc(360, 235, 110, 0, 7); x.fill();
+  try { const src = window.game.textures.get('hero_' + (heroKey || 'mage')).getSourceImage(); x.drawImage(src, 270, 150, 180, 180); } catch (e) {}
+  // 大数字
+  x.fillStyle = '#f5c84c'; x.font = 'bold 150px sans-serif'; x.fillText(secs + '″', 360, 470);
+  x.fillStyle = '#9fbed8'; x.font = '28px sans-serif'; x.fillText('存活时间', 360, 512);
+  x.fillStyle = '#fff'; x.font = 'bold 44px sans-serif'; x.fillText('Lv.' + level + '     💀 ' + kills + (endlessTier > 0 ? '     🔥' + endlessTier + '阶' : ''), 360, 580);
+  // 段位徽章(圆角胶囊 + 段位色)
+  x.fillStyle = 'rgba(0,0,0,0.35)'; rrect(x, 210, 612, 300, 60, 30); x.fill();
+  x.fillStyle = rk.col; x.lineWidth = 3; rrect(x, 210, 612, 300, 60, 30); x.stroke();
+  x.fillStyle = rk.col; x.font = 'bold 34px sans-serif'; x.fillText(rk.name, 360, 654);
+  x.fillStyle = '#7a90ad'; x.font = '24px sans-serif'; x.fillText('🏆 历史最佳 ' + best + ' 秒', 360, 706);
+  // CTA 圆角框
+  const cg = x.createLinearGradient(0, 740, 0, 826); cg.addColorStop(0, '#2f7fd0'); cg.addColorStop(1, '#1f5aa0');
+  x.fillStyle = cg; rrect(x, 110, 740, 500, 86, 20); x.fill(); x.strokeStyle = '#8fc4ff'; x.lineWidth = 3; rrect(x, 110, 740, 500, 86, 20); x.stroke();
+  x.fillStyle = '#fff'; x.font = 'bold 34px sans-serif'; x.fillText('来 qizh.space/play 挑战我', 360, 794);
+  x.fillStyle = '#7a90ad'; x.font = '23px sans-serif'; x.fillText('微信搜「Zion降噪」· by Zion', 360, 862);
   return c;
 }
-function shareScore(secs, level, kills, best, endlessTier) {
-  const card = makeScoreCard(secs, level, kills, best, endlessTier);
+function shareScore(secs, level, kills, best, endlessTier, heroKey) {
+  const card = makeScoreCard(secs, level, kills, best, endlessTier, heroKey);
   card.toBlob(async (blob) => {
     if (!blob) return;
     const file = new File([blob], 'fingermoba.png', { type: 'image/png' });
@@ -277,7 +288,11 @@ class Title extends Phaser.Scene {
     for (let gy = 80; gy < H; gy += 80) this.add.rectangle(W/2, gy, W, 1, 0x16203a, 0.6);
     this.add.circle(W/2, H*0.20, 92, UI.primary, 0.12); // 英雄背后柔光
     this.add.image(W/2, H*0.20, 'hero').setDisplaySize(104, 104);
-    mkText(this, W/2, H*0.305, 'FINGER MOBA', { fontSize: UI.fs.h1, color: UI.cAccent, fontStyle: 'bold' }).setOrigin(0.5).setShadow(0, 3, '#0a3a1a', 8);
+    const titleT = mkText(this, W/2, H*0.305, 'FINGER MOBA', { fontSize: '52px', fontStyle: 'bold' }).setOrigin(0.5);
+    titleT.setStroke('#0a3014', 9);                                                    // logo 化:粗深描边 + 纵向渐变填充 + 投影,破"系统字"廉价感(零加载成本)
+    const tGrad = titleT.context.createLinearGradient(0, 0, 0, titleT.height || 60);
+    tGrad.addColorStop(0, '#e6ffc0'); tGrad.addColorStop(0.55, '#9fe07a'); tGrad.addColorStop(1, '#42aa62');
+    titleT.setFill(tGrad); titleT.setShadow(0, 5, '#000000', 10, true, true);
     mkText(this, W/2, H*0.35, '单手幸存 · 怪潮中活到最后', { fontSize: UI.fs.sm, color: UI.cDim }).setOrigin(0.5);
     const best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
     // 战绩 + 段位归到一个圆角面板里,建立"信息卡"层级(原来 8 行小字平铺无主次)
@@ -597,21 +612,19 @@ class Game extends Phaser.Scene {
   addEnemy(type, x, y) {
     const hp0 = 12 + this.elapsed * 0.9 + Math.min(this.elapsed * this.elapsed * 0.004, 400) + Math.max(0, this.elapsed - 316) * 2; // 5分钟后线性继续涨,不再封顶(破"无敌平台期")
     let e;
-    if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 40, sprite: 'enemy_tank', col: 0xc060ff };
+    if (type === 'boss') e = { type, r: 46, hp: hp0*36, maxHp: hp0*36, speed: 34 + this.elapsed*0.12, dmg: 30, xp: 40, sprite: 'enemy_boss', col: 0xc060ff };
     else if (type === 'tank') e = { type, r: 24, hp: hp0*6, maxHp: hp0*6, speed: 42 + this.elapsed*0.25, dmg: 22, xp: 8, sprite: 'enemy_tank', col: 0x8fb0c0 };
-    else if (type === 'shooter') e = { type, r: 13, hp: hp0*1.4, maxHp: hp0*1.4, speed: 48 + this.elapsed*0.3, dmg: 8, xp: 4, sprite: 'enemy_fast', col: 0xffb060, fireT: 1.5 };
+    else if (type === 'shooter') e = { type, r: 13, hp: hp0*1.4, maxHp: hp0*1.4, speed: 48 + this.elapsed*0.3, dmg: 8, xp: 4, sprite: 'enemy_shooter', col: 0xffb060, fireT: 1.5 };
     else if (type === 'splitter') e = { type, r: 16, hp: hp0*1.2, maxHp: hp0*1.2, speed: 50 + this.elapsed*0.4, dmg: 12, xp: 3, sprite: 'enemy_basic', col: 0xe0e060, splits: true };
     else if (type === 'mini') e = { type, r: 8, hp: hp0*0.4, maxHp: hp0*0.4, speed: 80 + this.elapsed*0.4, dmg: 7, xp: 2, sprite: 'enemy_basic', col: 0x7be86a };
-    else if (type === 'exploder') e = { type, r: 16, hp: hp0*1.1, maxHp: hp0*1.1, speed: 52 + this.elapsed*0.35, dmg: 10, xp: 4, sprite: 'enemy_basic', col: 0xff8800, explodes: true };
+    else if (type === 'exploder') e = { type, r: 16, hp: hp0*1.1, maxHp: hp0*1.1, speed: 52 + this.elapsed*0.35, dmg: 10, xp: 4, sprite: 'enemy_exploder', col: 0xff8800, explodes: true };
     else if (type === 'fast') e = { type, r: 11, hp: hp0*0.55, maxHp: hp0*0.55, speed: 95 + this.elapsed*0.5, dmg: 9, xp: 2, sprite: 'enemy_fast', col: 0xff7a9c };
     else e = { type, r: 14, hp: hp0, maxHp: hp0, speed: 56 + this.elapsed*0.5, dmg: 12, xp: 3, sprite: 'enemy_basic', col: 0x7be86a }; // XP 普调 ~3x:让升级雪球真正转起来(原 60s 才 Lv5)
     e.x = x; e.y = y; e.orbCd = 0; e.slowT = 0; e.speed = Math.min(e.speed, type === 'fast' ? 185 : 150);
     e.obj = this.add.image(x, y, e.sprite).setDepth(3).setDisplaySize(e.r*2.8, e.r*2.8);
-    if (type === 'shooter') e.obj.setTint(0xffb060);
-    if (type === 'splitter') e.obj.setTint(0xe0e060);
-    if (type === 'exploder') e.obj.setTint(0xff8800);
+    if (type === 'splitter') e.obj.setTint(0xe0e060); // splitter 仍复用 basic 贴图染色;shooter/exploder/boss 已有专属 SVG,不再染色
     if (type === 'boss') {
-      this.boss = e; e.abilityT = 5; e.obj.setTint(0xc060ff); this.cameras.main.shake(220, 0.008);
+      this.boss = e; e.abilityT = 5; this.cameras.main.shake(220, 0.008);
       this.bossCount = (this.bossCount || 0) + 1; e.bossLevel = this.bossCount; // 第几只 Boss → 解锁更多技能形态
       const t = mkText(this, W/2, H/2, `👹 BOSS ${this.bossCount > 1 ? 'x' + this.bossCount + ' ' : ''}来袭!`, { fontSize: '30px', color: '#e0a0ff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(15);
       this.tweens.add({ targets: t, alpha: 0, y: H/2-50, duration: 1300, onComplete: () => t.destroy() });
@@ -1080,7 +1093,7 @@ class Game extends Phaser.Scene {
     // Boss 血条(默认隐藏)
     this.bossLabel = mkText(this, W/2, H-66, '👹 BOSS', { fontSize: UI.fs.cap, color: '#e0a0ff' }).setOrigin(0.5).setDepth(11).setVisible(false);
     this.bossBarG = this.add.graphics().setDepth(11).setVisible(false); // 圆角 boss 血条(与玩家血条同语言)
-    this.hudEls = [hpt, this.hpBar, this.hpText, xpt, this.xpBar, this.info, this.comboText, pg, pauseLabel, this.pauseHit, this.muteBtn, this.buildText]; // 结算/浮层时整体隐藏,防"血条/暂停透出"
+    this.hudEls = [hpt, this.hpBar, this.hpText, xpt, this.xpBar, this.info, this.comboText, pg, pauseLabel, this.pauseHit, this.muteBtn, this.buildText, this.bossBarG, this.bossLabel]; // 结算/浮层时整体隐藏,防"血条/暂停/Boss条透出"
   }
   setHudVisible(v) { if (this.hudEls) this.hudEls.forEach(o => o && o.setVisible(v)); } // 浮层打开时藏 HUD,关闭时显回
   updateHUD() {
@@ -1145,7 +1158,7 @@ class Game extends Phaser.Scene {
     const cy = H/2 - 40;                                                                // 整组上移,给底部按钮留足间距
     this.add.circle(W/2, cy-186, 52, isRecord ? UI.gold : UI.primary, 0.16).setDepth(31);
     this.add.image(W/2, cy-186, heroSprite(this.heroKey || 'mage')).setDisplaySize(82, 82).setDepth(31); // 结算页放你这局英雄的专属立绘
-    mkText(this, W/2, cy-128, isRecord ? '🏆 新纪录!' : '你倒下了', { fontSize: UI.fs.h1, color: isRecord ? UI.cGold : '#ff7a7a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(31).setShadow(0, 3, '#000', 8);
+    mkText(this, W/2, cy-118, isRecord ? '🏆 新纪录!' : '你倒下了', { fontSize: UI.fs.h1, color: isRecord ? UI.cGold : '#ff7a7a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(31).setShadow(0, 3, '#000', 8);
     // 战绩面板
     mkPanel(this, W/2, cy-30, W-56, 150, { fill: UI.panel, alpha: 0.94, stroke: UI.line, radius: 16, depth: 30 });
     mkText(this, W/2, cy-78, `存活 ${secs} 秒 · Lv.${this.level} · 击杀 ${this.kills}${this.endlessTier > 0 ? ' · 🔥无尽' + this.endlessTier + '阶' : ''}`, { fontSize: UI.fs.body, color: UI.cText }).setOrigin(0.5).setDepth(31);
@@ -1166,7 +1179,7 @@ class Game extends Phaser.Scene {
 
     const curBest = Math.max(secs, best);
     mkBtn(this, W/2, cy+78, 228, 60, '🔄 再来一局', 'primary', { fs: UI.fs.h3, depth: 31 }).hit.on('pointerup', () => this.scene.restart());
-    mkBtn(this, W/2, cy+148, 228, 52, '📤 分享成绩', 'gold', { fs: UI.fs.body, depth: 31 }).hit.on('pointerup', () => shareScore(secs, this.level, this.kills, curBest, this.endlessTier));
+    mkBtn(this, W/2, cy+148, 228, 52, '📤 分享成绩', 'gold', { fs: UI.fs.body, depth: 31 }).hit.on('pointerup', () => shareScore(secs, this.level, this.kills, curBest, this.endlessTier, this.heroKey));
     const home = mkText(this, W/2-64, cy+212, '← 标题', { fontSize: UI.fs.sm, color: UI.cDim }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
     home.on('pointerup', () => this.scene.start('title'));
     const hub = mkText(this, W/2+66, cy+212, '更多作品 qizh.space ↗', { fontSize: UI.fs.sm, color: '#6fd0ff' }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
