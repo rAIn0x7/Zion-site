@@ -11,6 +11,46 @@ const SPRITES = ['hero', 'enemy_basic', 'enemy_fast', 'enemy_tank', 'gem', 'proj
 function mkText(scene, x, y, str, style) {
   return scene.add.text(x, y, str, Object.assign({ resolution: Math.min(DPR, 2), padding: { y: 5 } }, style || {}));
 }
+
+/* ── 统一设计系统(配色 token + 字号阶梯 + 圆角组件工厂)——根治"东一块西一块手搓矩形" ── */
+const UI = {
+  bg: 0x0b1020, bgDeep: 0x070b16, panel: 0x141d2e, panelHi: 0x1d2a44, line: 0x2a3a55,
+  primary: 0x2f7fd0, primaryHi: 0x4a97e8, accent: 0x9fe07a, gold: 0xf5c84c, danger: 0xff5a5a, dangerHi: 0xff7a7a,
+  cText: '#e8eef7', cDim: '#8aa0bd', cAccent: '#9fe07a', cGold: '#f5c84c',
+  radius: 14, gap: 16,
+  fs: { h1: '46px', h2: '30px', h3: '22px', body: '18px', sm: '14px', cap: '12px' },
+};
+// 圆角面板(纯视觉,可选描边/阴影)
+function mkPanel(scene, x, y, w, h, opt = {}) {
+  const r = opt.radius != null ? opt.radius : UI.radius;
+  const g = scene.add.graphics();
+  if (opt.shadow !== false) { g.fillStyle(0x000000, 0.28); g.fillRoundedRect(x - w/2, y - h/2 + 3, w, h, r); }
+  g.fillStyle(opt.fill != null ? opt.fill : UI.panel, opt.alpha != null ? opt.alpha : 1);
+  g.fillRoundedRect(x - w/2, y - h/2, w, h, r);
+  if (opt.stroke != null) { g.lineStyle(opt.strokeW || 2, opt.stroke, 1); g.strokeRoundedRect(x - w/2, y - h/2, w, h, r); }
+  if (opt.depth != null) g.setDepth(opt.depth);
+  return g;
+}
+const BTN = {
+  primary: { fill: 0x2f7fd0, fillHi: 0x4a97e8, stroke: 0x8fc4ff, text: '#ffffff' },
+  ghost:   { fill: 0x182236, fillHi: 0x243450, stroke: 0x6fd0ff, text: '#cfe6ff' },
+  accent:  { fill: 0x2a6f3a, fillHi: 0x37904c, stroke: 0x9fe07a, text: '#eaffea' },
+  danger:  { fill: 0x6a2030, fillHi: 0x8a2a3e, stroke: 0xff7a7a, text: '#ffd9d9' },
+  gold:    { fill: 0x6a5418, fillHi: 0x8a6e22, stroke: 0xf5c84c, text: '#fff4cf' },
+};
+// 圆角交互按钮:返回 {g, label, hit}。在 hit 上挂 pointerup。统一悬停高亮+缩放反馈。
+function mkBtn(scene, x, y, w, h, label, kind = 'primary', opt = {}) {
+  const c = BTN[kind] || BTN.primary, r = opt.radius != null ? opt.radius : Math.min(UI.radius, h / 2), dep = opt.depth || 0;
+  const g = scene.add.graphics().setDepth(dep);
+  const draw = (fill) => { g.clear(); g.fillStyle(0x000000, 0.3); g.fillRoundedRect(x - w/2, y - h/2 + 3, w, h, r); g.fillStyle(fill, 1); g.fillRoundedRect(x - w/2, y - h/2, w, h, r); g.lineStyle(2, c.stroke, 0.9); g.strokeRoundedRect(x - w/2, y - h/2, w, h, r); };
+  draw(c.fill);
+  const t = mkText(scene, x, y, label, { fontSize: opt.fs || UI.fs.body, color: c.text, fontStyle: 'bold', align: 'center' }).setOrigin(0.5).setDepth(dep + 1);
+  const hit = scene.add.rectangle(x, y, w, h, 0xffffff, 0).setDepth(dep + 1).setInteractive({ useHandCursor: true });
+  if (opt.scroll === false) { g.setScrollFactor(0); t.setScrollFactor(0); hit.setScrollFactor(0); }
+  hit.on('pointerover', () => { draw(c.fillHi); t.setScale(1.03); });
+  hit.on('pointerout', () => { draw(c.fill); t.setScale(1); });
+  return { g, label: t, hit, draw, colors: c };
+}
 const BEST_KEY = 'fm_best_secs';
 const HUB_URL = 'https://qizh.space';
 
@@ -231,37 +271,34 @@ class Boot extends Phaser.Scene {
 class Title extends Phaser.Scene {
   constructor() { super('title'); }
   create() {
-    this.add.rectangle(W/2, H/2, W, H, 0x0b1020);
-    for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a);
-    this.add.image(W/2, H*0.20, 'hero').setDisplaySize(100, 100);
-    mkText(this, W/2, H*0.31, 'FINGER MOBA', { fontSize: '50px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5);
-    mkText(this, W/2, H*0.355, '单手幸存 · 怪潮中活到最后', { fontSize: '16px', color: '#cde' }).setOrigin(0.5);
+    const bgG = this.add.graphics();
+    bgG.fillGradientStyle(0x15233f, 0x15233f, UI.bg, UI.bgDeep, 1); bgG.fillRect(0, 0, W, H); // 顶亮底深的纵向渐变,消除死气
+    for (let gy = 80; gy < H; gy += 80) this.add.rectangle(W/2, gy, W, 1, 0x16203a, 0.6);
+    this.add.circle(W/2, H*0.20, 92, UI.primary, 0.12); // 英雄背后柔光
+    this.add.image(W/2, H*0.20, 'hero').setDisplaySize(104, 104);
+    mkText(this, W/2, H*0.305, 'FINGER MOBA', { fontSize: UI.fs.h1, color: UI.cAccent, fontStyle: 'bold' }).setOrigin(0.5).setShadow(0, 3, '#0a3a1a', 8);
+    mkText(this, W/2, H*0.35, '单手幸存 · 怪潮中活到最后', { fontSize: UI.fs.sm, color: UI.cDim }).setOrigin(0.5);
     const best = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
-    mkText(this, W/2, H*0.395, `💰 ${META.coins()}    🏅 ${ACH.count()}/${ACH.defs.length}    🏆 最佳 ${best}s`, { fontSize: '14px', color: '#f5c84c' }).setOrigin(0.5);
-    // 段位徽章 + 下一段进度条(身份与晋级追逐)
+    // 战绩 + 段位归到一个圆角面板里,建立"信息卡"层级(原来 8 行小字平铺无主次)
     const rk = rankOf(best), nx = nextRank(best);
-    mkText(this, W/2, H*0.435, `段位  ${rk.name}`, { fontSize: '22px', color: rk.col, fontStyle: 'bold' }).setOrigin(0.5);
+    mkPanel(this, W/2, H*0.445, W-56, 132, { fill: UI.panel, alpha: 0.9, stroke: UI.line, radius: 16 });
+    mkText(this, W/2, H*0.40, `💰 ${META.coins()}    🏅 ${ACH.count()}/${ACH.defs.length}    🏆 ${best}s`, { fontSize: UI.fs.sm, color: UI.cGold }).setOrigin(0.5);
+    mkText(this, W/2, H*0.438, `段位  ${rk.name}`, { fontSize: UI.fs.h3, color: rk.col, fontStyle: 'bold' }).setOrigin(0.5);
     if (nx) {
       const span = nx.min - rk.min, prog = Phaser.Math.Clamp((best - rk.min) / span, 0, 1);
-      this.add.rectangle(W/2, H*0.462, 230, 9, 0x223).setStrokeStyle(1, 0x2a3a55);
-      this.add.rectangle(W/2-115, H*0.462, 230*prog, 9, Phaser.Display.Color.HexStringToColor(rk.col).color).setOrigin(0, 0.5);
-      mkText(this, W/2, H*0.483, `距 ${nx.name} 还需 ${nx.min - best}s`, { fontSize: '11px', color: '#7a9' }).setOrigin(0.5);
+      const pg = this.add.graphics();
+      pg.fillStyle(0x223049, 1); pg.fillRoundedRect(W/2-115, H*0.468, 230, 10, 5);
+      pg.fillStyle(Phaser.Display.Color.HexStringToColor(rk.col).color, 1); pg.fillRoundedRect(W/2-115, H*0.468, Math.max(10, 230*prog), 10, 5);
+      mkText(this, W/2, H*0.49, `距 ${nx.name} 还需 ${nx.min - best}s`, { fontSize: UI.fs.cap, color: UI.cDim }).setOrigin(0.5);
     } else {
-      mkText(this, W/2, H*0.483, '已达最高段位 · 冲无尽刷新纪录', { fontSize: '11px', color: '#ff9a40' }).setOrigin(0.5);
+      mkText(this, W/2, H*0.475, '👑 已达最高段位 · 冲无尽刷新纪录', { fontSize: UI.fs.cap, color: '#ff9a40' }).setOrigin(0.5);
     }
-    mkText(this, W/2, H*0.51, `🎲 今日:${todayMod().name} · 今日最佳 ${dailyBest()}s`, { fontSize: '12px', color: '#f5c84c' }).setOrigin(0.5);
+    mkText(this, W/2, H*0.53, `🎲 今日 ${todayMod().name} · 今日最佳 ${dailyBest()}s`, { fontSize: UI.fs.cap, color: UI.cGold }).setOrigin(0.5);
 
-    const playBtn = this.add.rectangle(W/2, H*0.585, 264, 76, 0x2f7fd0).setStrokeStyle(3, 0xffffff).setInteractive({ useHandCursor: true });
-    mkText(this, W/2, H*0.585, '▶  选择英雄开始', { fontSize: '26px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
-    playBtn.on('pointerover', () => playBtn.setScale(1.05)); playBtn.on('pointerout', () => playBtn.setScale(1));
     const toSelect = () => { SFX.init(); this.scene.start('select'); };
-    playBtn.on('pointerup', toSelect);
+    mkBtn(this, W/2, H*0.60, 272, 74, '▶  选择英雄开始', 'primary', { fs: UI.fs.h3 }).hit.on('pointerup', toSelect);
     this.input.keyboard.once('keydown', toSelect);
-
-    const shop = this.add.rectangle(W/2, H*0.69, 240, 50, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-    mkText(this, W/2, H*0.69, '🛒 永久升级商店', { fontSize: '19px', color: '#cfe' }).setOrigin(0.5);
-    shop.on('pointerover', () => shop.setScale(1.04)); shop.on('pointerout', () => shop.setScale(1));
-    shop.on('pointerup', () => { SFX.init(); this.scene.start('shop'); });
+    mkBtn(this, W/2, H*0.685, 248, 52, '🛒 永久升级商店', 'ghost', { fs: UI.fs.body }).hit.on('pointerup', () => { SFX.init(); this.scene.start('shop'); });
 
     const board = getBoard();
     if (board.length) {
@@ -281,24 +318,32 @@ class Title extends Phaser.Scene {
 class CharSelect extends Phaser.Scene {
   constructor() { super('select'); }
   create() {
-    this.add.rectangle(W/2, H/2, W, H, 0x0b1020);
-    for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a);
-    mkText(this, W/2, 70, '选择英雄', { fontSize: '34px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5);
-    CHARS.forEach((c, i) => {
-      const cx = W/2 + ((i % 2) ? 92 : -92), cy = 178 + Math.floor(i/2)*158;
-      const card = this.add.rectangle(cx, cy, 172, 144, c.bg).setStrokeStyle(2, c.tint).setInteractive({ useHandCursor: true });
-      this.add.circle(cx, cy-36, 28, c.tint, 0.16);                                  // 职业色光盘,5 个英雄一眼可辨
-      this.add.image(cx, cy-36, 'hero').setDisplaySize(48, 48).setTint(c.tint);
-      mkText(this, cx, cy+8, c.name, { fontSize: '18px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
-      this.add.rectangle(cx, cy+30, 48, 18, c.tint, 0.92);                            // 职业标签胶囊(先画底,再叠字)
-      mkText(this, cx, cy+30, c.role, { fontSize: '11px', color: '#0b1020', fontStyle: 'bold' }).setOrigin(0.5);
-      mkText(this, cx, cy+54, c.desc, { fontSize: '10px', color: '#cfe', align: 'center', lineSpacing: 2 }).setOrigin(0.5);
-      card.on('pointerover', () => card.setScale(1.04)); card.on('pointerout', () => card.setScale(1));
-      card.on('pointerup', () => { SFX.init(); this.scene.start('game', { char: c.key }); });
+    const bgG = this.add.graphics(); bgG.fillGradientStyle(0x15233f, 0x15233f, UI.bg, UI.bgDeep, 1); bgG.fillRect(0, 0, W, H);
+    for (let gy = 80; gy < H; gy += 80) this.add.rectangle(W/2, gy, W, 1, 0x16203a, 0.6);
+    mkText(this, W/2, H*0.075, '选择英雄', { fontSize: UI.fs.h2, color: UI.cAccent, fontStyle: 'bold' }).setOrigin(0.5);
+    const cw = 190, ch = 150;
+    CHARS.forEach((c, i) => {                                  // 2-2-1 居中铺满,统一卡片语言:同底色 + 左侧职业色条(替代原来 5 色描边事故 + 下半屏空白)
+      const cx = (i === 4) ? W/2 : W/2 + ((i % 2) ? 98 : -98);
+      const cy = H*0.20 + Math.floor(i/2) * H*0.205;
+      const cont = this.add.container(cx, cy);
+      const g = this.add.graphics();
+      g.fillStyle(0x000000, 0.28); g.fillRoundedRect(-cw/2, -ch/2 + 3, cw, ch, 16);
+      g.fillStyle(UI.panel, 1); g.fillRoundedRect(-cw/2, -ch/2, cw, ch, 16);
+      g.lineStyle(2, UI.line, 1); g.strokeRoundedRect(-cw/2, -ch/2, cw, ch, 16);
+      g.fillStyle(c.tint, 1); g.fillRoundedRect(-cw/2, -ch/2, 7, ch, { tl: 16, bl: 16, tr: 0, br: 0 }); // 左侧职业色条
+      const disc = this.add.circle(0, -44, 30, c.tint, 0.16);
+      const hero = this.add.image(0, -44, 'hero').setDisplaySize(54, 54).setTint(c.tint);
+      const name = mkText(this, 0, 6, c.name, { fontSize: UI.fs.h3, color: UI.cText, fontStyle: 'bold' }).setOrigin(0.5);
+      const pill = this.add.graphics(); pill.fillStyle(c.tint, 0.95); pill.fillRoundedRect(-28, 28, 56, 20, 10);
+      const role = mkText(this, 0, 38, c.role, { fontSize: UI.fs.cap, color: '#0b1020', fontStyle: 'bold' }).setOrigin(0.5);
+      const desc = mkText(this, 0, 62, c.desc, { fontSize: '11px', color: UI.cDim, align: 'center', lineSpacing: 3 }).setOrigin(0.5);
+      cont.add([g, disc, hero, name, pill, role, desc]);
+      cont.setSize(cw, ch).setInteractive({ useHandCursor: true });
+      cont.on('pointerover', () => cont.setScale(1.05));
+      cont.on('pointerout', () => cont.setScale(1));
+      cont.on('pointerup', () => { SFX.init(); this.scene.start('game', { char: c.key }); });
     });
-    const back = this.add.rectangle(W/2, H-60, 200, 54, 0x244).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-    mkText(this, W/2, H-60, '← 返回', { fontSize: '22px', color: '#fff' }).setOrigin(0.5);
-    back.on('pointerup', () => this.scene.start('title'));
+    mkBtn(this, W/2, H-58, 200, 52, '← 返回', 'ghost', { fs: UI.fs.h3 }).hit.on('pointerup', () => this.scene.start('title'));
     this.input.keyboard.once('keydown-ESC', () => this.scene.start('title'));
   }
 }
@@ -307,31 +352,28 @@ class CharSelect extends Phaser.Scene {
 class Shop extends Phaser.Scene {
   constructor() { super('shop'); }
   create() {
-    this.add.rectangle(W/2, H/2, W, H, 0x0b1020);
-    for (let gy = 60; gy < H; gy += 60) this.add.rectangle(W/2, gy, W, 1, 0x16203a);
-    mkText(this, W/2, 54, '🛒 永久升级', { fontSize: '32px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5);
-    this.coinText = mkText(this, W/2, 100, '', { fontSize: '22px', color: '#f5c84c' }).setOrigin(0.5);
-    mkText(this, W/2, 132, '金币来自每局战绩(存活时间 + 击杀),死了也算', { fontSize: '12px', color: '#7a9' }).setOrigin(0.5);
+    const bgG = this.add.graphics(); bgG.fillGradientStyle(0x15233f, 0x15233f, UI.bg, UI.bgDeep, 1); bgG.fillRect(0, 0, W, H);
+    for (let gy = 80; gy < H; gy += 80) this.add.rectangle(W/2, gy, W, 1, 0x16203a, 0.6);
+    mkText(this, W/2, 50, '🛒 永久升级', { fontSize: UI.fs.h2, color: UI.cAccent, fontStyle: 'bold' }).setOrigin(0.5);
+    this.coinText = mkText(this, W/2, 94, '', { fontSize: UI.fs.h3, color: UI.cGold, fontStyle: 'bold' }).setOrigin(0.5);
+    mkText(this, W/2, 124, '金币来自每局战绩(存活+击杀),死了也算', { fontSize: UI.fs.cap, color: UI.cDim }).setOrigin(0.5);
     this.rows = [];
     META.upgrades.forEach((u, i) => {
-      const y = 168 + i * 80;
-      this.add.rectangle(W/2, y, W-44, 70, 0x141d33).setStrokeStyle(1, 0x2a3a55);
-      mkText(this, 38, y-15, u.name, { fontSize: '18px', color: '#fff' }).setOrigin(0, 0.5);
-      const lvT = mkText(this, 38, y+15, '', { fontSize: '12px', color: '#9fbed8' }).setOrigin(0, 0.5);
-      const btn = this.add.rectangle(W-98, y, 126, 50, 0x2f7fd0).setInteractive({ useHandCursor: true });
-      const btnT = mkText(this, W-98, y, '', { fontSize: '15px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
-      btn.on('pointerover', () => btn.setScale(1.04)); btn.on('pointerout', () => btn.setScale(1));
-      btn.on('pointerup', () => { if (META.buy(u)) SFX.level(); else this.cameras.main.shake(120, 0.004); this.refresh(); });
-      this.rows.push({ u, lvT, btn, btnT });
+      const y = 162 + i * 80;
+      mkPanel(this, W/2, y, W-40, 72, { fill: UI.panel, stroke: UI.line, radius: 12, shadow: false });
+      mkText(this, 36, y-14, u.name, { fontSize: UI.fs.body, color: UI.cText }).setOrigin(0, 0.5);
+      const lvT = mkText(this, 36, y+16, '', { fontSize: UI.fs.cap, color: UI.cDim }).setOrigin(0, 0.5);
+      const bx = W-90, bw = 130, bh = 52;
+      const bg = this.add.graphics();
+      const bt = mkText(this, bx, y, '', { fontSize: UI.fs.sm, color: '#fff', fontStyle: 'bold' }).setOrigin(0.5);
+      const drawBtn = (fill, stroke) => { bg.clear(); bg.fillStyle(0x000000, 0.25); bg.fillRoundedRect(bx-bw/2, y-bh/2+2, bw, bh, 11); bg.fillStyle(fill, 1); bg.fillRoundedRect(bx-bw/2, y-bh/2, bw, bh, 11); bg.lineStyle(2, stroke, 0.9); bg.strokeRoundedRect(bx-bw/2, y-bh/2, bw, bh, 11); };
+      const hit = this.add.rectangle(bx, y, bw, bh, 0xffffff, 0).setInteractive({ useHandCursor: true });
+      hit.on('pointerover', () => bt.setScale(1.05)); hit.on('pointerout', () => bt.setScale(1));
+      hit.on('pointerup', () => { if (META.buy(u)) SFX.level(); else this.cameras.main.shake(120, 0.004); this.refresh(); });
+      this.rows.push({ u, lvT, bt, drawBtn });
     });
-    const reset = this.add.rectangle(W/2, H-132, 264, 48, 0x3a1a1a).setStrokeStyle(2, 0xff7a7a).setInteractive({ useHandCursor: true });
-    mkText(this, W/2, H-132, '🔄 重置升级(返还金币)', { fontSize: '16px', color: '#ffb0b0' }).setOrigin(0.5);
-    reset.on('pointerover', () => reset.setScale(1.04)); reset.on('pointerout', () => reset.setScale(1));
-    reset.on('pointerup', () => this.confirmReset());
-    const back = this.add.rectangle(W/2, H-64, 200, 58, 0x244).setStrokeStyle(2, 0x6fd0ff).setInteractive({ useHandCursor: true });
-    mkText(this, W/2, H-64, '← 返回', { fontSize: '22px', color: '#fff' }).setOrigin(0.5);
-    back.on('pointerover', () => back.setScale(1.04)); back.on('pointerout', () => back.setScale(1));
-    back.on('pointerup', () => this.scene.start('title'));
+    mkBtn(this, W/2, H-128, 268, 48, '🔄 重置升级(返还金币)', 'danger', { fs: UI.fs.body }).hit.on('pointerup', () => this.confirmReset());
+    mkBtn(this, W/2, H-62, 200, 56, '← 返回', 'ghost', { fs: UI.fs.h3 }).hit.on('pointerup', () => this.scene.start('title'));
     this.input.keyboard.once('keydown-ESC', () => this.scene.start('title'));
     this.refresh();
   }
@@ -352,8 +394,8 @@ class Shop extends Phaser.Scene {
     for (const r of this.rows) {
       const lv = META.lvl(r.u.key), maxed = lv >= r.u.max;
       r.lvT.setText(`Lv.${lv}/${r.u.max}   每级 ${r.u.per}`);
-      if (maxed) { r.btnT.setText('已满级'); r.btn.setFillStyle(0x3a3a3a); }
-      else { const c = r.u.cost(lv); const can = META.coins() >= c; r.btnT.setText((can ? '💰 ' : '🔒 ') + c); r.btn.setFillStyle(can ? 0x2f7fd0 : 0x2a2a2a); r.btnT.setColor(can ? '#fff' : '#888'); }
+      if (maxed) { r.bt.setText('已满级').setColor('#9fe07a'); r.drawBtn(0x2a3a2a, 0x7be86a); }
+      else { const c = r.u.cost(lv); const can = META.coins() >= c; r.bt.setText((can ? '💰 ' : '🔒 ') + c).setColor(can ? '#fff' : '#7a8aa0'); r.drawBtn(can ? UI.primary : 0x222d40, can ? 0x8fc4ff : UI.line); }
     }
   }
 }
@@ -835,23 +877,27 @@ class Game extends Phaser.Scene {
     else pick = S(curses).slice(0, 3);
     this.paused = true; this.endlessChoosing = true;
     const layer = [];
-    layer.push(this.add.rectangle(W/2, H/2, W, H, 0x1a0e00, 0.80).setDepth(20));
-    layer.push(mkText(this, W/2, H/2-200, highPressure ? `🔥 无尽 ${this.endlessTier} 阶 · 高压!` : `🔥 无尽 ${this.endlessTier} 阶 · 祝福与诅咒`, { fontSize: '23px', color: highPressure ? '#ff5a5a' : '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5).setDepth(21));
-    layer.push(mkText(this, W/2, H/2-166, highPressure ? '没有安全选项 · 挑代价最小的扛下去' : '选一个 · 越贪越强,代价越大', { fontSize: '13px', color: '#cde' }).setOrigin(0.5).setDepth(21));
+    const ovg = this.add.graphics().setDepth(20); ovg.fillGradientStyle(0x241200, 0x241200, 0x120800, 0x0a0500, 1); ovg.fillRect(0, 0, W, H); layer.push(ovg);
+    layer.push(mkText(this, W/2, H/2-200, highPressure ? `🔥 无尽 ${this.endlessTier} 阶 · 高压!` : `🔥 无尽 ${this.endlessTier} 阶 · 祝福与诅咒`, { fontSize: UI.fs.h2, color: highPressure ? '#ff5a5a' : '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5).setDepth(21).setShadow(0, 2, '#000', 6));
+    layer.push(mkText(this, W/2, H/2-164, highPressure ? '没有安全选项 · 挑代价最小的扛下去' : '选一个 · 越贪越强,代价越大', { fontSize: UI.fs.sm, color: UI.cDim }).setOrigin(0.5).setDepth(21));
     pick.forEach((u, i) => {
-      const cy = H/2 - 80 + i*112;
-      const card = this.add.rectangle(W/2, cy, 400, 96, u.safe ? 0x16331f : 0x33180e).setStrokeStyle(2, u.safe ? 0x7be86a : 0xff9a40).setDepth(21).setInteractive();
-      const txt = mkText(this, W/2, cy, u.t, { fontSize: '17px', color: '#fff', align: 'center' }).setOrigin(0.5).setDepth(22);
-      card.on('pointerover', () => card.setFillStyle(u.safe ? 0x1f4a2c : 0x4a2414));
-      card.on('pointerout', () => card.setFillStyle(u.safe ? 0x16331f : 0x33180e));
-      card.on('pointerup', () => {
+      const cy = H/2 - 76 + i*108, cw = 404, ch = 94;
+      const stroke = u.safe ? 0x7be86a : 0xff9a40, base = u.safe ? 0x16331f : 0x33180e, hi = u.safe ? 0x1f4a2c : 0x4a2414;
+      const g = this.add.graphics().setDepth(21);
+      const draw = (fill) => { g.clear(); g.fillStyle(0x000000, 0.3); g.fillRoundedRect(W/2-cw/2, cy-ch/2+3, cw, ch, 14); g.fillStyle(fill, 1); g.fillRoundedRect(W/2-cw/2, cy-ch/2, cw, ch, 14); g.lineStyle(2, stroke, 0.95); g.strokeRoundedRect(W/2-cw/2, cy-ch/2, cw, ch, 14); };
+      draw(base);
+      const txt = mkText(this, W/2, cy, u.t, { fontSize: UI.fs.body, color: '#fff', align: 'center', fontStyle: 'bold' }).setOrigin(0.5).setDepth(22);
+      const hit = this.add.rectangle(W/2, cy, cw, ch, 0xffffff, 0).setDepth(22).setInteractive({ useHandCursor: true });
+      hit.on('pointerover', () => { draw(hi); txt.setScale(1.02); });
+      hit.on('pointerout', () => { draw(base); txt.setScale(1); });
+      hit.on('pointerup', () => {
         u.f(); this.checkEvolutions();
         const gold = Math.round((u.safe ? 50 : 100) * this.endlessGold); META.setCoins(META.coins() + gold); // 选诅咒给更多金币:奖励冒险,制造贪婪拉力
-        layer.forEach(o => o.destroy()); card.destroy(); txt.destroy();
+        layer.forEach(o => o.destroy());
         this.paused = false; this.endlessChoosing = false;
         this.banner(`🔥 无尽 ${this.endlessTier} 阶 · +${gold}💰`, '#ff9a40');
       });
-      layer.push(card, txt);
+      layer.push(g, txt, hit);
     });
   }
   checkEvolutions() {
@@ -991,47 +1037,57 @@ class Game extends Phaser.Scene {
       if (!pick.some(u => dk.includes(u.t))) { const d = this.upgradePool().find(u => dk.includes(u.t)); if (d) pick[2] = d; }
     }
     const layer = [];
-    layer.push(this.add.rectangle(W/2, H/2, W, H, 0x000, 0.72).setDepth(20));
-    layer.push(mkText(this, W/2, H/2-200, `Lv.${this.level} 升级！三选一`, { fontSize: '24px', color: '#9fe07a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(21));
+    layer.push(this.add.rectangle(W/2, H/2, W, H, 0x000, 0.78).setDepth(20));
+    layer.push(mkText(this, W/2, H/2-180, `Lv.${this.level} 升级!`, { fontSize: UI.fs.h2, color: UI.cAccent, fontStyle: 'bold' }).setOrigin(0.5).setDepth(21));
+    layer.push(mkText(this, W/2, H/2-146, '三选一', { fontSize: UI.fs.sm, color: UI.cDim }).setOrigin(0.5).setDepth(21));
     pick.forEach((u, i) => {
-      const cy = H/2 - 90 + i*110;
-      const card = this.add.rectangle(W/2, cy, 380, 90, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setDepth(21).setInteractive();
-      const txt = mkText(this, W/2, cy, u.t, { fontSize: '22px', color: '#fff' }).setOrigin(0.5).setDepth(22);
-      card.on('pointerover', () => card.setFillStyle(0x274066));
-      card.on('pointerout', () => card.setFillStyle(0x1c2b4a));
-      card.on('pointerup', () => { u.f(); layer.forEach(o => o.destroy()); card.destroy(); txt.destroy(); this.paused = false; this.leveling = false; this.checkEvolutions(); });
-      layer.push(card, txt);
+      const cy = H/2 - 76 + i*104, cw = 388, ch = 88;
+      const g = this.add.graphics().setDepth(21);
+      const draw = (fill) => { g.clear(); g.fillStyle(0x000000, 0.3); g.fillRoundedRect(W/2-cw/2, cy-ch/2+3, cw, ch, 14); g.fillStyle(fill, 1); g.fillRoundedRect(W/2-cw/2, cy-ch/2, cw, ch, 14); g.lineStyle(2, 0x6fd0ff, 0.9); g.strokeRoundedRect(W/2-cw/2, cy-ch/2, cw, ch, 14); };
+      draw(UI.panelHi);
+      const txt = mkText(this, W/2, cy, u.t, { fontSize: UI.fs.h3, color: UI.cText, fontStyle: 'bold' }).setOrigin(0.5).setDepth(22);
+      const hit = this.add.rectangle(W/2, cy, cw, ch, 0xffffff, 0).setDepth(22).setInteractive({ useHandCursor: true });
+      hit.on('pointerover', () => { draw(0x274066); txt.setScale(1.03); });
+      hit.on('pointerout', () => { draw(UI.panelHi); txt.setScale(1); });
+      hit.on('pointerup', () => { u.f(); layer.forEach(o => o.destroy()); this.paused = false; this.leveling = false; this.checkEvolutions(); });
+      layer.push(g, txt, hit);
     });
   }
 
   // ---------- HUD / 结算 ----------
   makeHUD() {
-    this.add.rectangle(W/2, 18, W-30, 16, 0x222).setDepth(10);
-    this.hpFill = this.add.rectangle(16, 18, W-30, 16, 0xff5a5a).setOrigin(0,0.5).setDepth(11);
-    this.hpText = mkText(this, W/2, 18, '', { fontSize: '11px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(12);
-    this.add.rectangle(W/2, 40, W-30, 10, 0x222).setDepth(10);
-    this.xpFill = this.add.rectangle(16, 40, 0, 10, 0x8affc0).setOrigin(0,0.5).setDepth(11);
-    this.info = mkText(this, W/2, 58, '', { fontSize: '15px', color: '#cde' }).setOrigin(0.5,0).setDepth(11);
-    this.comboText = mkText(this, W/2, 80, '', { fontSize: '16px', color: '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5,0).setDepth(11);
-    mkText(this, W/2, H-24, '拖动摇杆 / WASD 移动 · 自动开火 · 活得越久越强', { fontSize: '11px', color: '#7a9' }).setOrigin(0.5,0).setDepth(10);
-    this.buildText = mkText(this, 10, H-44, '', { fontSize: '13px', color: '#cde' }).setOrigin(0, 1).setDepth(11); // 当前武器/build
-    // 静音开关
-    this.muteBtn = mkText(this, W-14, 76, SFX.muted ? '🔇' : '🔊', { fontSize: '20px' }).setOrigin(1, 0).setDepth(12).setInteractive({ useHandCursor: true });
+    const PAD = 16, barW = W - 2*PAD, hpY = 38, xpY = 60;
+    this._hud = { PAD, barW, hpY, xpY };
+    const hpt = this.add.graphics().setDepth(10); hpt.fillStyle(0x16101a, 1); hpt.fillRoundedRect(PAD, hpY-10, barW, 20, 10); hpt.lineStyle(1.5, 0x3a2530, 1); hpt.strokeRoundedRect(PAD, hpY-10, barW, 20, 10);
+    this.hpBar = this.add.graphics().setDepth(11);
+    this.hpText = mkText(this, W/2, hpY, '', { fontSize: UI.fs.cap, color: '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(13);
+    const xpt = this.add.graphics().setDepth(10); xpt.fillStyle(0x0f211a, 1); xpt.fillRoundedRect(PAD, xpY-5, barW, 10, 5);
+    this.xpBar = this.add.graphics().setDepth(11);
+    // 信息行 + 暂停/静音同处一行,不再各自贴边裁切
+    this.info = mkText(this, W/2, 80, '', { fontSize: UI.fs.sm, color: UI.cText, fontStyle: 'bold' }).setOrigin(0.5, 0).setDepth(11);
+    this.comboText = mkText(this, W/2, 106, '', { fontSize: UI.fs.body, color: '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5, 0).setDepth(11);
+    const pg = this.add.graphics().setDepth(12); pg.fillStyle(UI.panelHi, 0.92); pg.fillRoundedRect(PAD, 73, 78, 30, 15); pg.lineStyle(1.5, 0x6fd0ff, 1); pg.strokeRoundedRect(PAD, 73, 78, 30, 15);
+    const pauseLabel = mkText(this, PAD+39, 88, '⏸ 暂停', { fontSize: UI.fs.cap, color: '#cfe' }).setOrigin(0.5).setDepth(13);
+    this.pauseHit = this.add.rectangle(PAD+39, 88, 78, 30, 0xffffff, 0).setDepth(13).setInteractive({ useHandCursor: true });
+    this.pauseHit.on('pointerup', () => this.togglePause());
+    this.muteBtn = mkText(this, W-PAD-2, 88, SFX.muted ? '🔇' : '🔊', { fontSize: '22px' }).setOrigin(1, 0.5).setDepth(13).setInteractive({ useHandCursor: true });
     this.muteBtn.on('pointerup', () => this.muteBtn.setText(SFX.toggle() ? '🔇' : '🔊'));
-    // 暂停/退出按钮:做成带底的胶囊 + 文字,够大够明显(原来只有一个 20px 的 ⏸ 字符,手机上几乎找不到 → "没法退出")
-    this.pauseBg = this.add.rectangle(46, 86, 74, 30, 0x1c2b4a, 0.92).setStrokeStyle(1.5, 0x6fd0ff).setDepth(12).setInteractive({ useHandCursor: true });
-    this.pauseBtn = mkText(this, 46, 86, '⏸ 暂停', { fontSize: '15px', color: '#cfe' }).setOrigin(0.5).setDepth(13);
-    this.pauseBg.on('pointerup', () => this.togglePause());
+    this.buildText = mkText(this, 12, H-42, '', { fontSize: UI.fs.sm, color: UI.cText }).setOrigin(0, 1).setDepth(11).setShadow(0, 2, '#000000', 4);
+    mkText(this, W/2, H-22, '拖动摇杆 / WASD 移动 · 自动开火 · 活得越久越强', { fontSize: UI.fs.cap, color: UI.cDim }).setOrigin(0.5, 0).setDepth(10);
     this.vignette = this.add.rectangle(W/2, H/2, W, H, 0xff2200, 0).setDepth(9); // 低血红光预警
-    // Boss 血条(默认隐藏,Boss 出现时显示)
-    this.bossLabel = mkText(this, W/2, H-66, '👹 BOSS', { fontSize: '12px', color: '#e0a0ff' }).setOrigin(0.5).setDepth(11).setVisible(false);
+    // Boss 血条(默认隐藏)
+    this.bossLabel = mkText(this, W/2, H-66, '👹 BOSS', { fontSize: UI.fs.cap, color: '#e0a0ff' }).setOrigin(0.5).setDepth(11).setVisible(false);
     this.bossBarBg = this.add.rectangle(W/2, H-50, W-40, 12, 0x331033).setDepth(10).setVisible(false);
-    this.bossBarFill = this.add.rectangle(16, H-50, W-40, 12, 0xc060ff).setOrigin(0, 0.5).setDepth(11).setVisible(false);
+    this.bossBarFill = this.add.rectangle(PAD, H-50, barW, 12, 0xc060ff).setOrigin(0, 0.5).setDepth(11).setVisible(false);
+    this.hudEls = [hpt, this.hpBar, this.hpText, xpt, this.xpBar, this.info, this.comboText, pg, pauseLabel, this.pauseHit, this.muteBtn, this.buildText]; // 结算时整体隐藏,防"血条/暂停透出"
   }
   updateHUD() {
-    this.hpFill.width = (W-30) * Math.max(0, this.player.hp / this.player.maxHp);
+    const u = this._hud, hpF = Math.max(0, Math.min(1, this.player.hp / this.player.maxHp)), xpF = Math.max(0, Math.min(1, this.xp / this.xpNeed));
+    this.hpBar.clear();
+    if (hpF > 0) { const w = u.barW * hpF, r = Math.min(10, w/2); this.hpBar.fillStyle(0xff4d63, 1); this.hpBar.fillRoundedRect(u.PAD, u.hpY-10, w, 20, r); this.hpBar.fillStyle(0xffffff, 0.22); this.hpBar.fillRoundedRect(u.PAD, u.hpY-10, w, 8, { tl: r, tr: r, bl: 0, br: 0 }); } // 顶部高光=玻璃质感
     this.hpText.setText('❤ ' + Math.max(0, Math.ceil(this.player.hp)) + ' / ' + this.player.maxHp);
-    this.xpFill.width = (W-30) * Math.max(0, this.xp / this.xpNeed);
+    this.xpBar.clear();
+    if (xpF > 0) { const w = Math.max(6, u.barW * xpF), r = Math.min(5, w/2); this.xpBar.fillStyle(0x8affc0, 1); this.xpBar.fillRoundedRect(u.PAD, u.xpY-5, w, 10, r); }
     this.info.setText(`Lv.${this.level}   ⏱ ${Math.floor(this.elapsed)}s   💀 ${this.kills}`);
     let b = '🔫' + this.stats.projCount + (this.boltEvolved ? '★' : '');
     const s = this.stats;
@@ -1052,21 +1108,18 @@ class Game extends Phaser.Scene {
     if (this.over || this.leveling) return;
     if (!this.paused) {
       this.paused = true;
-      const dim = this.add.rectangle(W/2, H/2, W, H, 0x000, 0.62).setDepth(25);
-      const t = mkText(this, W/2, H/2-70, '已暂停', { fontSize: '40px', color: '#cde', fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
-      const btn = this.add.rectangle(W/2, H/2+10, 220, 56, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(26).setInteractive({ useHandCursor: true });
-      const bt = mkText(this, W/2, H/2+10, '▶ 继续', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setDepth(27);
-      btn.on('pointerover', () => btn.setScale(1.04)); btn.on('pointerout', () => btn.setScale(1));
-      btn.on('pointerup', () => this.togglePause());
+      const dim = this.add.rectangle(W/2, H/2, W, H, 0x000, 0.74).setDepth(25);
+      const panel = mkPanel(this, W/2, H/2+34, W-64, 320, { fill: UI.panel, alpha: 0.96, stroke: UI.line, radius: 18, depth: 25 });
+      const t = mkText(this, W/2, H/2-78, '已暂停', { fontSize: UI.fs.h1, color: UI.cText, fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
+      const close = () => { this.paused = false; if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; } };
+      const b1 = mkBtn(this, W/2, H/2-4, 224, 58, '▶ 继续', 'primary', { fs: UI.fs.h3, depth: 26 });
+      b1.hit.on('pointerup', () => this.togglePause());
       // 结束本局:直接进结算(金币/段位/战绩都结算保留)——给"太强/不想玩了"的玩家一个体面的收场出口
-      const fin = this.add.rectangle(W/2, H/2+78, 220, 52, 0x2a4a2a).setStrokeStyle(2, 0x7be86a).setDepth(26).setInteractive({ useHandCursor: true });
-      const ft = mkText(this, W/2, H/2+78, '🏳️ 结束本局(结算)', { fontSize: '18px', color: '#cfe' }).setOrigin(0.5).setDepth(27);
-      fin.on('pointerover', () => fin.setScale(1.04)); fin.on('pointerout', () => fin.setScale(1));
-      fin.on('pointerup', () => { this.paused = false; if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; } this.end(); });
-      const home = this.add.rectangle(W/2, H/2+142, 220, 46, 0x244).setStrokeStyle(2, 0x6fd0ff).setDepth(26).setInteractive({ useHandCursor: true });
-      const ht = mkText(this, W/2, H/2+142, '← 放弃 · 返回标题', { fontSize: '16px', color: '#9fbed8' }).setOrigin(0.5).setDepth(27);
-      home.on('pointerup', () => { this.paused = false; if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; } this.scene.start('title'); });
-      this.pauseLayer = [dim, t, btn, bt, fin, ft, home, ht];
+      const b2 = mkBtn(this, W/2, H/2+64, 224, 54, '🏳️ 结束本局(结算)', 'accent', { fs: UI.fs.body, depth: 26 });
+      b2.hit.on('pointerup', () => { close(); this.end(); });
+      const b3 = mkBtn(this, W/2, H/2+130, 224, 48, '← 放弃 · 返回标题', 'ghost', { fs: UI.fs.sm, depth: 26 });
+      b3.hit.on('pointerup', () => { close(); this.scene.start('title'); });
+      this.pauseLayer = [dim, panel, t, b1.g, b1.label, b1.hit, b2.g, b2.label, b2.hit, b3.g, b3.label, b3.hit];
     } else {
       this.paused = false;
       if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; }
@@ -1083,14 +1136,22 @@ class Game extends Phaser.Scene {
     if (secs > dailyBest()) localStorage.setItem('fm_daily_' + dayStr(), String(secs)); // 今日最佳
     pushBoard({ secs, lvl: this.level, kills: this.kills, d: dayStr() });                // 进本地排行榜
 
-    this.add.rectangle(W/2, H/2, W, H, 0x000, 0.80).setDepth(30);
-    mkText(this, W/2, H/2-150, isRecord ? '🏆 新纪录！' : '你倒下了', { fontSize: '40px', color: isRecord ? '#f5c84c' : '#ff7a7a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(31);
-    mkText(this, W/2, H/2-90, `存活 ${secs} 秒 · Lv.${this.level} · 击杀 ${this.kills}${this.endlessTier > 0 ? ' · 🔥无尽' + this.endlessTier + '阶' : ''}`, { fontSize: '18px', color: '#cde' }).setOrigin(0.5).setDepth(31);
+    if (this.hudEls) this.hudEls.forEach(o => o && o.setVisible(false));               // 隐藏 HUD,杜绝"血条/暂停/静音透出结算页"
+    if (this.bossLabel) { this.bossLabel.setVisible(false); this.bossBarBg.setVisible(false); this.bossBarFill.setVisible(false); }
+    if (this.vignette) this.vignette.setAlpha(0);
+    const bgG = this.add.graphics().setDepth(30); bgG.fillGradientStyle(0x121d33, 0x121d33, UI.bgDeep, 0x05080f, 1); bgG.fillRect(0, 0, W, H); // 不透明渐变,彻底盖住战场
+    const cy = H/2 - 40;                                                                // 整组上移,给底部按钮留足间距
+    this.add.circle(W/2, cy-186, 52, isRecord ? UI.gold : UI.primary, 0.16).setDepth(31);
+    this.add.image(W/2, cy-186, 'hero').setDisplaySize(78, 78).setDepth(31);            // 结算页放英雄立绘(原来一个都没有)
+    mkText(this, W/2, cy-128, isRecord ? '🏆 新纪录!' : '你倒下了', { fontSize: UI.fs.h1, color: isRecord ? UI.cGold : '#ff7a7a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(31).setShadow(0, 3, '#000', 8);
+    // 战绩面板
+    mkPanel(this, W/2, cy-30, W-56, 150, { fill: UI.panel, alpha: 0.94, stroke: UI.line, radius: 16, depth: 30 });
+    mkText(this, W/2, cy-78, `存活 ${secs} 秒 · Lv.${this.level} · 击杀 ${this.kills}${this.endlessTier > 0 ? ' · 🔥无尽' + this.endlessTier + '阶' : ''}`, { fontSize: UI.fs.body, color: UI.cText }).setOrigin(0.5).setDepth(31);
     const rkNow = rankOf(secs);
-    mkText(this, W/2, H/2-58, rankedUp ? `🎖 晋级 ${rkNow.name}！` : `段位 ${rkNow.name} · 最佳 ${Math.max(secs, best)}s`, { fontSize: rankedUp ? '17px' : '13px', color: rankedUp ? rkNow.col : '#8aa', fontStyle: rankedUp ? 'bold' : 'normal' }).setOrigin(0.5).setDepth(31);
+    mkText(this, W/2, cy-46, rankedUp ? `🎖 晋级 ${rkNow.name}!` : `段位 ${rkNow.name} · 最佳 ${Math.max(secs, best)}s`, { fontSize: rankedUp ? UI.fs.h3 : UI.fs.sm, color: rankedUp ? rkNow.col : UI.cDim, fontStyle: rankedUp ? 'bold' : 'normal' }).setOrigin(0.5).setDepth(31);
     if (rankedUp) this.cameras.main.flash(400, 90, 60, 20);
     const earned = META.award(secs, this.kills);
-    mkText(this, W/2, H/2-30, `💰 +${earned}   (共 ${META.coins()})`, { fontSize: '16px', color: '#f5c84c' }).setOrigin(0.5).setDepth(31);
+    mkText(this, W/2, cy-14, `💰 +${earned}    共 ${META.coins()}`, { fontSize: UI.fs.body, color: UI.cGold, fontStyle: 'bold' }).setOrigin(0.5).setDepth(31);
     let newAch = 0; const tryEnd = (k) => { if (ACH.unlock(k)) newAch++; };
     if (secs >= 120) tryEnd('survive120');
     if (secs >= 300) tryEnd('survive300');
@@ -1099,23 +1160,14 @@ class Game extends Phaser.Scene {
     localStorage.setItem('fm_total_kills', String(tk));
     if (tk >= 2000) tryEnd('kill2000');
     if (META.coins() >= 1000) tryEnd('rich1000');
-    if (newAch > 0) mkText(this, W/2, H/2-6, `🏅 解锁 ${newAch} 个新成就`, { fontSize: '14px', color: '#f5c84c' }).setOrigin(0.5).setDepth(31);
+    if (newAch > 0) mkText(this, W/2, cy+16, `🏅 解锁 ${newAch} 个新成就`, { fontSize: UI.fs.sm, color: UI.cGold }).setOrigin(0.5).setDepth(31);
 
     const curBest = Math.max(secs, best);
-    const again = this.add.rectangle(W/2, H/2+6, 220, 60, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(31).setInteractive({ useHandCursor: true });
-    mkText(this, W/2, H/2+6, '再来一局', { fontSize: '24px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(32);
-    again.on('pointerover', () => again.setScale(1.05)); again.on('pointerout', () => again.setScale(1));
-    again.on('pointerup', () => this.scene.restart());
-
-    const share = this.add.rectangle(W/2, H/2+74, 220, 54, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setDepth(31).setInteractive({ useHandCursor: true });
-    mkText(this, W/2, H/2+74, '📤 分享成绩', { fontSize: '20px', color: '#cfe' }).setOrigin(0.5).setDepth(32);
-    share.on('pointerover', () => share.setScale(1.04)); share.on('pointerout', () => share.setScale(1));
-    share.on('pointerup', () => shareScore(secs, this.level, this.kills, curBest, this.endlessTier));
-
-    // 引流 CTA:回标题 + 去作者主页
-    const home = mkText(this, W/2-60, H/2+140, '← 标题', { fontSize: '16px', color: '#9fbed8' }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
+    mkBtn(this, W/2, cy+78, 228, 60, '🔄 再来一局', 'primary', { fs: UI.fs.h3, depth: 31 }).hit.on('pointerup', () => this.scene.restart());
+    mkBtn(this, W/2, cy+148, 228, 52, '📤 分享成绩', 'gold', { fs: UI.fs.body, depth: 31 }).hit.on('pointerup', () => shareScore(secs, this.level, this.kills, curBest, this.endlessTier));
+    const home = mkText(this, W/2-64, cy+212, '← 标题', { fontSize: UI.fs.sm, color: UI.cDim }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
     home.on('pointerup', () => this.scene.start('title'));
-    const hub = mkText(this, W/2+70, H/2+140, '更多作品 qizh.space ↗', { fontSize: '16px', color: '#6fd0ff' }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
+    const hub = mkText(this, W/2+66, cy+212, '更多作品 qizh.space ↗', { fontSize: UI.fs.sm, color: '#6fd0ff' }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
     hub.on('pointerup', () => window.open(HUB_URL, '_blank'));
   }
 }
