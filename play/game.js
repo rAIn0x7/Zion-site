@@ -78,7 +78,7 @@ const META = {
 };
 
 /* ── 分享成绩图(离屏 canvas 画战绩卡 → 微信分享 / 下载) ── */
-function makeScoreCard(secs, level, kills, best) {
+function makeScoreCard(secs, level, kills, best, endlessTier) {
   const c = document.createElement('canvas'); c.width = 720; c.height = 900;
   const x = c.getContext('2d');
   x.fillStyle = '#0b1020'; x.fillRect(0, 0, 720, 900);
@@ -86,19 +86,21 @@ function makeScoreCard(secs, level, kills, best) {
   for (let i = 60; i < 900; i += 60) { x.beginPath(); x.moveTo(0, i); x.lineTo(720, i); x.stroke(); }
   for (let i = 60; i < 720; i += 60) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, 900); x.stroke(); }
   x.textAlign = 'center';
-  x.fillStyle = '#9fe07a'; x.font = 'bold 66px sans-serif'; x.fillText('FINGER MOBA', 360, 130);
-  x.fillStyle = '#cde'; x.font = '28px sans-serif'; x.fillText('单手幸存 · 我的战绩', 360, 184);
-  x.fillStyle = '#f5c84c'; x.font = 'bold 150px sans-serif'; x.fillText(secs + '″', 360, 400);
-  x.fillStyle = '#9fbed8'; x.font = '30px sans-serif'; x.fillText('存活时间', 360, 452);
-  x.fillStyle = '#fff'; x.font = 'bold 46px sans-serif'; x.fillText('Lv.' + level + '        💀 ' + kills, 360, 552);
-  x.fillStyle = '#8aa'; x.font = '26px sans-serif'; x.fillText('🏆 历史最佳 ' + best + ' 秒', 360, 614);
+  x.fillStyle = '#9fe07a'; x.font = 'bold 64px sans-serif'; x.fillText('FINGER MOBA', 360, 120);
+  const rk = rankOf(secs);                                    // 段位徽章上卡 → 炫耀钩子
+  x.fillStyle = rk.col; x.font = 'bold 40px sans-serif'; x.fillText('段位 ' + rk.name, 360, 188);
+  x.fillStyle = '#f5c84c'; x.font = 'bold 150px sans-serif'; x.fillText(secs + '″', 360, 392);
+  x.fillStyle = '#9fbed8'; x.font = '30px sans-serif'; x.fillText('存活时间', 360, 444);
+  x.fillStyle = '#fff'; x.font = 'bold 46px sans-serif'; x.fillText('Lv.' + level + '        💀 ' + kills, 360, 528);
+  if (endlessTier > 0) { x.fillStyle = '#ff9a40'; x.font = 'bold 36px sans-serif'; x.fillText('🔥 无尽 ' + endlessTier + ' 阶', 360, 588); }
+  x.fillStyle = '#8aa'; x.font = '26px sans-serif'; x.fillText('🏆 历史最佳 ' + best + ' 秒', 360, 638);
   x.fillStyle = '#1c2b4a'; x.fillRect(110, 700, 500, 92); x.strokeStyle = '#6fd0ff'; x.lineWidth = 3; x.strokeRect(110, 700, 500, 92);
   x.fillStyle = '#6fd0ff'; x.font = 'bold 34px sans-serif'; x.fillText('来 qizh.space/play 挑战我', 360, 758);
   x.fillStyle = '#7a9'; x.font = '23px sans-serif'; x.fillText('微信搜「Zion降噪」· by Zion', 360, 846);
   return c;
 }
-function shareScore(secs, level, kills, best) {
-  const card = makeScoreCard(secs, level, kills, best);
+function shareScore(secs, level, kills, best, endlessTier) {
+  const card = makeScoreCard(secs, level, kills, best, endlessTier);
   card.toBlob(async (blob) => {
     if (!blob) return;
     const file = new File([blob], 'fingermoba.png', { type: 'image/png' });
@@ -363,6 +365,7 @@ class Game extends Phaser.Scene {
     this.over = false; this.paused = false;
     this.enemies = []; this.projs = []; this.gems = []; this.orbiters = []; this.ebullets = [];
     this.elapsed = 0; this.kills = 0; this.level = 1; this.xp = 0; this.xpNeed = 5;
+    this._kWin = 0; this._kWinT = 1; this._slayBest = 0; // 1 秒内多杀检测(歼灭高光)
     this.fireT = 0; this.spawnT = 0.5; this.hurtCd = 0;
     this.bossT = 50; this.boss = null; this.auraObj = null; this.auraT = 0;
     this.boltEvolved = false; this.orbEvolved = false; this.auraEvolved = false; this.leveling = false;
@@ -417,6 +420,7 @@ class Game extends Phaser.Scene {
     if (!this.won && this.elapsed >= 300) { this.won = true; this.banner('🏆 通关!存活 5 分钟,奖励 300 金币\n进入无尽阶段', '#f5c84c'); META.setCoins(META.coins() + 300); this.tryAch('win5'); } // 软通关:给目标与payoff,之后转无尽冲分
     this.updateEndless(dt);
     this.comboT -= dt; if (this.comboT <= 0) this.combo = 0;
+    this._kWinT -= dt; if (this._kWinT <= 0) { if (this._kWin >= 12) this.slayFlash(this._kWin); this._kWin = 0; this._kWinT = 1; } // 1 秒多杀 → 歼灭高光
     this.musicT -= dt; if (this.musicT <= 0) { this.musicT = 0.28; SFX.beat(); }
     this.updateStars(dt);
     this.moverPlayer(dt); this.spawn(dt); this.moveEnemies(dt); this.updateOrbiters(dt); this.updateAura(dt); this.updateChain(dt); this.updateFrost(dt); this.updateBooms(dt); this.updateBiome(dt);
@@ -459,6 +463,8 @@ class Game extends Phaser.Scene {
       { t: '🧲 拾取范围 +40%', k: 'pickup', f: () => this.stats.pickup *= 1.4 },
       { t: '🎯 子弹穿透 +1', k: 'pierce', f: () => this.stats.pierce += 1 },
       { t: '💥 暴击率 +8%', k: 'crit', f: () => this.stats.crit += 0.08 },
+      { t: '💢 暴击伤害 +40%', k: 'critMul', f: () => this.stats.critMul += 0.4 },
+      { t: '🚀 弹速 +25% · 射程更远', k: 'projSpeed', f: () => this.stats.projSpeed *= 1.25 },
       { t: '🛡 环绕光球 +1', k: 'orbit', f: () => { this.stats.orbit += 1; this.syncOrbiters(); } },
       { t: '🌀 伤害光环 +1', k: 'aura', f: () => { this.stats.aura += 1; } },
       { t: '⚡ 闪电链 +1', k: 'chain', f: () => { this.stats.chain += 1; } },
@@ -801,20 +807,32 @@ class Game extends Phaser.Scene {
   }
   endlessBoons() {
     const safe = this.weightedPick(this.upgradePool(), 1)[0];
+    // 诅咒池扩到 10 张(攻/防/经济/机动/暴击/穿透各路线),长线不重复;含防御向,给"苟活流"在高压阶也有解
     return [
       { t: '💪 强化(无代价)\n' + (safe ? safe.t : '随机强化'), safe: true, f: () => { if (safe) safe.f(); } },
       { t: '🔥 狂化\n全伤 +30% · 敌速 +12%', f: () => { this.stats.dmg *= 1.3; this.endlessEnemySpd *= 1.12; } },
       { t: '⚡ 超载\n攻速 +25% · 生命上限 -12%', f: () => { this.stats.fireCd = Math.max(0.12, this.stats.fireCd * 0.8); this.player.maxHp = Math.round(this.player.maxHp * 0.88); this.player.hp = Math.min(this.player.hp, this.player.maxHp); } },
       { t: '🌀 增殖\n金币 ×1.6 · 每波多刷 1 怪', f: () => { this.endlessSpawnBonus += 1; this.endlessGold *= 1.6; } },
       { t: '🩸 献祭\n全伤 +50% · 失去 25% 当前血', f: () => { this.stats.dmg *= 1.5; this.player.hp = Math.max(1, Math.floor(this.player.hp * 0.75)); } },
+      { t: '🛡 铁壁\n生命上限 +30% 并回血 · 移速 -10%', f: () => { const g = Math.round(this.player.maxHp * 0.3); this.player.maxHp += g; this.player.hp += g; this.stats.moveSpeed *= 0.9; } },
+      { t: '💎 暴富\n金币 ×2 · 敌速 +8%', f: () => { this.endlessGold *= 2; this.endlessEnemySpd *= 1.08; } },
+      { t: '☄ 弹幕\n多一发子弹 · 攻速 -10%', f: () => { this.stats.projCount += 1; this.stats.fireCd *= 1.1; } },
+      { t: '💢 锐锋\n暴击率 +12% 暴伤 +0.5x · 生命上限 -10%', f: () => { this.stats.crit += 0.12; this.stats.critMul += 0.5; this.player.maxHp = Math.round(this.player.maxHp * 0.9); this.player.hp = Math.min(this.player.hp, this.player.maxHp); } },
+      { t: '🌪 疾风\n移速 +25% · 全伤 -12%', f: () => { this.stats.moveSpeed *= 1.25; this.stats.dmg *= 0.88; } },
+      { t: '🗡 贯穿\n穿透 +2 全伤 +15% · 敌速 +6%', f: () => { this.stats.pierce += 2; this.stats.dmg *= 1.15; this.endlessEnemySpd *= 1.06; } },
     ];
   }
   offerEndlessChoice() {
     const boons = this.endlessBoons();
-    // 安全卡不再保底必出:全池洗牌取 3(约 40% 阶你抽不到安全卡,被逼挑代价最小的诅咒)
-    // 每 3 阶一次"高压阶":只发诅咒,强制贪婪 → 立住"被逼取舍→翻车→不甘心重开"的成瘾闭环
+    const safe = boons[0], curses = boons.slice(1);
+    // 维持验证过的 ~60% 强制挑诅咒:高压阶(每3阶)纯诅咒;普通阶 60% 含安全卡(且随机位,不再保底首位)、40% 纯诅咒。
+    // 诅咒从扩容后的 10 张池里抽,长线不重复。
     const highPressure = this.endlessTier % 3 === 0;
-    const pick = Phaser.Utils.Array.Shuffle((highPressure ? boons.slice(1) : boons.slice())).slice(0, 3);
+    const S = (a) => Phaser.Utils.Array.Shuffle(a.slice());
+    let pick;
+    if (highPressure) pick = S(curses).slice(0, 3);
+    else if (Math.random() < 0.6) pick = S([safe, ...S(curses).slice(0, 2)]);
+    else pick = S(curses).slice(0, 3);
     this.paused = true; this.endlessChoosing = true;
     const layer = [];
     layer.push(this.add.rectangle(W/2, H/2, W, H, 0x1a0e00, 0.80).setDepth(20));
@@ -881,9 +899,16 @@ class Game extends Phaser.Scene {
     const g = this.add.image(x, y, 'gem').setDepth(2).setDisplaySize(big ? 28 : 18, big ? 28 : 18);
     this.gems.push({ x, y, xp, obj: g });
   }
+  slayFlash(n) { // 1 秒内多杀 → 屏幕金闪 + "歼灭 xN" 高光,制造爽点与截图欲
+    this.cameras.main.flash(160, 255, 220, 120);
+    const tier = n >= 30 ? '屠戮' : n >= 20 ? '血洗' : '歼灭';
+    const t = mkText(this, W/2, H*0.42, `⚔ ${tier} x${n}!`, { fontSize: '30px', color: '#ffd23a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(17);
+    this.tweens.add({ targets: t, scale: 1.3, alpha: 0, duration: 900, onComplete: () => t.destroy() });
+    if (n > this._slayBest) this._slayBest = n;
+  }
   killEnemy(e) {
     if (e.dead) return;
-    e.dead = true; this.kills++;
+    e.dead = true; this.kills++; this._kWin++;
     this.combo++; this.comboT = 2.0;
     if (this.combo === 25 || this.combo === 50 || this.combo === 100 || this.combo === 200) { this.banner('🔥 连杀 x' + this.combo + '!', '#ff9a40'); } // 去掉回血(原来连杀=不死=无敌源)
     this.burst(e.x, e.y, e.col, (e.type === 'tank' || e.type === 'boss') ? 12 : 6); SFX.kill();
@@ -1077,7 +1102,7 @@ class Game extends Phaser.Scene {
     const share = this.add.rectangle(W/2, H/2+74, 220, 54, 0x1c2b4a).setStrokeStyle(2, 0x6fd0ff).setDepth(31).setInteractive({ useHandCursor: true });
     mkText(this, W/2, H/2+74, '📤 分享成绩', { fontSize: '20px', color: '#cfe' }).setOrigin(0.5).setDepth(32);
     share.on('pointerover', () => share.setScale(1.04)); share.on('pointerout', () => share.setScale(1));
-    share.on('pointerup', () => shareScore(secs, this.level, this.kills, curBest));
+    share.on('pointerup', () => shareScore(secs, this.level, this.kills, curBest, this.endlessTier));
 
     // 引流 CTA:回标题 + 去作者主页
     const home = mkText(this, W/2-60, H/2+140, '← 标题', { fontSize: '16px', color: '#9fbed8' }).setOrigin(0.5).setDepth(32).setInteractive({ useHandCursor: true });
