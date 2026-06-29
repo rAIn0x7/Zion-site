@@ -5,7 +5,8 @@ const W = 540;
 const H = Math.round(Math.max(900, Math.min(1280, 540 * ((window.innerHeight || 960) / (window.innerWidth || 540)))));
 const DPR = Math.min(window.devicePixelRatio || 1, 3); // 跟随设备像素比(封顶 3,覆盖主流 3x 手机屏)
 const RASTER = 384;                                    // SVG 栅格化分辨率(够大标题大图也不糊)
-const SPRITES = ['hero', 'enemy_basic', 'enemy_fast', 'enemy_tank', 'gem', 'projectile'];
+const SPRITES = ['hero', 'hero_mage', 'hero_warrior', 'hero_ranger', 'hero_assassin', 'hero_cryo', 'enemy_basic', 'enemy_fast', 'enemy_tank', 'gem', 'projectile'];
+const heroSprite = (k) => ('hero_' + k); // 每个英雄独立贴图(法师/战士/游侠/刺客/冰法各不相同)
 
 // 全局文字工厂:resolution 提清晰度(高分屏不糊),padding 防顶部裁剪
 function mkText(scene, x, y, str, style) {
@@ -321,7 +322,7 @@ class CharSelect extends Phaser.Scene {
     const bgG = this.add.graphics(); bgG.fillGradientStyle(0x15233f, 0x15233f, UI.bg, UI.bgDeep, 1); bgG.fillRect(0, 0, W, H);
     for (let gy = 80; gy < H; gy += 80) this.add.rectangle(W/2, gy, W, 1, 0x16203a, 0.6);
     mkText(this, W/2, H*0.075, '选择英雄', { fontSize: UI.fs.h2, color: UI.cAccent, fontStyle: 'bold' }).setOrigin(0.5);
-    const cw = 190, ch = 150;
+    const cw = 192, ch = 160;
     CHARS.forEach((c, i) => {                                  // 2-2-1 居中铺满,统一卡片语言:同底色 + 左侧职业色条(替代原来 5 色描边事故 + 下半屏空白)
       const cx = (i === 4) ? W/2 : W/2 + ((i % 2) ? 98 : -98);
       const cy = H*0.20 + Math.floor(i/2) * H*0.205;
@@ -331,12 +332,12 @@ class CharSelect extends Phaser.Scene {
       g.fillStyle(UI.panel, 1); g.fillRoundedRect(-cw/2, -ch/2, cw, ch, 16);
       g.lineStyle(2, UI.line, 1); g.strokeRoundedRect(-cw/2, -ch/2, cw, ch, 16);
       g.fillStyle(c.tint, 1); g.fillRoundedRect(-cw/2, -ch/2, 7, ch, { tl: 16, bl: 16, tr: 0, br: 0 }); // 左侧职业色条
-      const disc = this.add.circle(0, -44, 30, c.tint, 0.16);
-      const hero = this.add.image(0, -44, 'hero').setDisplaySize(54, 54).setTint(c.tint);
+      const disc = this.add.circle(0, -44, 30, c.tint, 0.18);
+      const hero = this.add.image(0, -44, heroSprite(c.key)).setDisplaySize(58, 58); // 各职业专属贴图,不再染色复用
       const name = mkText(this, 0, 6, c.name, { fontSize: UI.fs.h3, color: UI.cText, fontStyle: 'bold' }).setOrigin(0.5);
       const pill = this.add.graphics(); pill.fillStyle(c.tint, 0.95); pill.fillRoundedRect(-28, 28, 56, 20, 10);
       const role = mkText(this, 0, 38, c.role, { fontSize: UI.fs.cap, color: '#0b1020', fontStyle: 'bold' }).setOrigin(0.5);
-      const desc = mkText(this, 0, 62, c.desc, { fontSize: '11px', color: UI.cDim, align: 'center', lineSpacing: 3 }).setOrigin(0.5);
+      const desc = mkText(this, 0, 60, c.desc, { fontSize: '11px', color: UI.cDim, align: 'center', lineSpacing: 3 }).setOrigin(0.5);
       cont.add([g, disc, hero, name, pill, role, desc]);
       cont.setSize(cw, ch).setInteractive({ useHandCursor: true });
       cont.on('pointerover', () => cont.setScale(1.05));
@@ -359,7 +360,7 @@ class Shop extends Phaser.Scene {
     mkText(this, W/2, 124, '金币来自每局战绩(存活+击杀),死了也算', { fontSize: UI.fs.cap, color: UI.cDim }).setOrigin(0.5);
     this.rows = [];
     META.upgrades.forEach((u, i) => {
-      const y = 162 + i * 80;
+      const y = 174 + i * 80;
       mkPanel(this, W/2, y, W-40, 72, { fill: UI.panel, stroke: UI.line, radius: 12, shadow: false });
       mkText(this, 36, y-14, u.name, { fontSize: UI.fs.body, color: UI.cText }).setOrigin(0, 0.5);
       const lvT = mkText(this, 36, y+16, '', { fontSize: UI.fs.cap, color: UI.cDim }).setOrigin(0, 0.5);
@@ -379,15 +380,15 @@ class Shop extends Phaser.Scene {
   }
   confirmReset() {
     const layer = [];
-    layer.push(this.add.rectangle(W/2, H/2, W, H, 0x000, 0.72).setDepth(40).setInteractive());
-    layer.push(mkText(this, W/2, H/2-70, '重置所有永久升级?', { fontSize: '24px', color: '#fff', fontStyle: 'bold' }).setOrigin(0.5).setDepth(41));
-    layer.push(mkText(this, W/2, H/2-32, '等级清零,已花金币全部返还', { fontSize: '14px', color: '#9fbed8' }).setOrigin(0.5).setDepth(41));
-    const yes = this.add.rectangle(W/2-72, H/2+42, 132, 54, 0xff5a5a).setStrokeStyle(2, 0xfff).setDepth(41).setInteractive({ useHandCursor: true });
-    layer.push(yes, mkText(this, W/2-72, H/2+42, '确认返还', { fontSize: '17px', color: '#fff' }).setOrigin(0.5).setDepth(42));
-    const no = this.add.rectangle(W/2+72, H/2+42, 132, 54, 0x244).setStrokeStyle(2, 0x6fd0ff).setDepth(41).setInteractive({ useHandCursor: true });
-    layer.push(no, mkText(this, W/2+72, H/2+42, '取消', { fontSize: '17px', color: '#cfe' }).setOrigin(0.5).setDepth(42));
-    yes.on('pointerup', () => { META.reset(); SFX.level(); this.scene.restart(); });
-    no.on('pointerup', () => layer.forEach(o => o.destroy()));
+    layer.push(this.add.rectangle(W/2, H/2, W, H, 0x000, 0.78).setDepth(40).setInteractive());
+    layer.push(mkPanel(this, W/2, H/2, 360, 240, { fill: UI.panel, alpha: 0.98, stroke: UI.line, radius: 18, depth: 40 }));
+    layer.push(mkText(this, W/2, H/2-72, '重置所有永久升级?', { fontSize: UI.fs.h3, color: UI.cText, fontStyle: 'bold' }).setOrigin(0.5).setDepth(41));
+    layer.push(mkText(this, W/2, H/2-38, '等级清零,已花金币全部返还', { fontSize: UI.fs.sm, color: UI.cDim }).setOrigin(0.5).setDepth(41));
+    const yes = mkBtn(this, W/2-78, H/2+46, 136, 56, '确认返还', 'danger', { fs: UI.fs.body, depth: 41 });
+    const no = mkBtn(this, W/2+78, H/2+46, 136, 56, '取消', 'ghost', { fs: UI.fs.body, depth: 41 });
+    layer.push(yes.g, yes.label, yes.hit, no.g, no.label, no.hit);
+    yes.hit.on('pointerup', () => { META.reset(); SFX.level(); this.scene.restart(); });
+    no.hit.on('pointerup', () => layer.forEach(o => o.destroy()));
   }
   refresh() {
     this.coinText.setText('💰 ' + META.coins());
@@ -423,9 +424,10 @@ class Game extends Phaser.Scene {
 
     this.player = { x: W/2, y: H/2, r: 17, hp: 100, maxHp: 100 };
     const ch = CHARS.find(c => c.key === ((this.scene.settings.data && this.scene.settings.data.char) || 'mage')) || CHARS[0];
+    this.heroKey = ch.key;
     this.player.ring = this.add.circle(this.player.x, this.player.y, 26, ch.tint, 0.0).setStrokeStyle(2.5, ch.tint, 0.55).setDepth(4); // 脚下职业色光环:在场上一眼分得清开的哪个英雄
-    this.player.obj = this.add.image(this.player.x, this.player.y, 'hero').setDepth(5).setDisplaySize(48, 48);
-    ch.apply(this.stats, this.player); this.player.obj.setTint(ch.tint); // 英雄起手特性
+    this.player.obj = this.add.image(this.player.x, this.player.y, heroSprite(ch.key)).setDepth(5).setDisplaySize(50, 50); // 专属贴图,不再染色
+    ch.apply(this.stats, this.player); // 英雄起手特性
     this.heroPassive = ch.key; // 整局生效的英雄专属被动(非仅起手) → 让"选谁"影响全程
     META.applyTo(this.stats, this.player); // 局外永久强化
     this.syncOrbiters();                   // 战士起手光球
@@ -875,7 +877,7 @@ class Game extends Phaser.Scene {
     if (highPressure) pick = S(curses).slice(0, 3);
     else if (Math.random() < 0.6) pick = S([safe, ...S(curses).slice(0, 2)]);
     else pick = S(curses).slice(0, 3);
-    this.paused = true; this.endlessChoosing = true;
+    this.paused = true; this.endlessChoosing = true; this.setHudVisible(false);
     const layer = [];
     const ovg = this.add.graphics().setDepth(20); ovg.fillGradientStyle(0x241200, 0x241200, 0x120800, 0x0a0500, 1); ovg.fillRect(0, 0, W, H); layer.push(ovg);
     layer.push(mkText(this, W/2, H/2-200, highPressure ? `🔥 无尽 ${this.endlessTier} 阶 · 高压!` : `🔥 无尽 ${this.endlessTier} 阶 · 祝福与诅咒`, { fontSize: UI.fs.h2, color: highPressure ? '#ff5a5a' : '#ff9a40', fontStyle: 'bold' }).setOrigin(0.5).setDepth(21).setShadow(0, 2, '#000', 6));
@@ -894,7 +896,7 @@ class Game extends Phaser.Scene {
         u.f(); this.checkEvolutions();
         const gold = Math.round((u.safe ? 50 : 100) * this.endlessGold); META.setCoins(META.coins() + gold); // 选诅咒给更多金币:奖励冒险,制造贪婪拉力
         layer.forEach(o => o.destroy());
-        this.paused = false; this.endlessChoosing = false;
+        this.paused = false; this.endlessChoosing = false; this.setHudVisible(true);
         this.banner(`🔥 无尽 ${this.endlessTier} 阶 · +${gold}💰`, '#ff9a40');
       });
       layer.push(g, txt, hit);
@@ -1029,7 +1031,7 @@ class Game extends Phaser.Scene {
     if (this.heroPassive === 'assassin') this.stats.crit += 0.012;      // 刺客被动:暴击率随等级滚雪球
     if (this.heroPassive === 'ranger' && this.level % 4 === 0) this.stats.projCount += 1; // 游侠被动:每 4 级白嫖一发
     this.ring(this.player.x, this.player.y, 0x8affc0, 110); SFX.level();
-    this.paused = true; this.leveling = true;
+    this.paused = true; this.leveling = true; this.setHudVisible(false);
     if (this.level >= 15) this.tryAch('lv15');
     const pick = this.weightedPick(this.upgradePool(), 3); // 加权:已投资/接近进化的武器更易出现 → 玩家能定向 build
     if (this.level % 3 === 0) { // 每 3 级保底:至少给一个输出强化(避免歪到没伤害卡墙)
@@ -1049,7 +1051,7 @@ class Game extends Phaser.Scene {
       const hit = this.add.rectangle(W/2, cy, cw, ch, 0xffffff, 0).setDepth(22).setInteractive({ useHandCursor: true });
       hit.on('pointerover', () => { draw(0x274066); txt.setScale(1.03); });
       hit.on('pointerout', () => { draw(UI.panelHi); txt.setScale(1); });
-      hit.on('pointerup', () => { u.f(); layer.forEach(o => o.destroy()); this.paused = false; this.leveling = false; this.checkEvolutions(); });
+      hit.on('pointerup', () => { u.f(); layer.forEach(o => o.destroy()); this.paused = false; this.leveling = false; this.setHudVisible(true); this.checkEvolutions(); });
       layer.push(g, txt, hit);
     });
   }
@@ -1077,10 +1079,10 @@ class Game extends Phaser.Scene {
     this.vignette = this.add.rectangle(W/2, H/2, W, H, 0xff2200, 0).setDepth(9); // 低血红光预警
     // Boss 血条(默认隐藏)
     this.bossLabel = mkText(this, W/2, H-66, '👹 BOSS', { fontSize: UI.fs.cap, color: '#e0a0ff' }).setOrigin(0.5).setDepth(11).setVisible(false);
-    this.bossBarBg = this.add.rectangle(W/2, H-50, W-40, 12, 0x331033).setDepth(10).setVisible(false);
-    this.bossBarFill = this.add.rectangle(PAD, H-50, barW, 12, 0xc060ff).setOrigin(0, 0.5).setDepth(11).setVisible(false);
-    this.hudEls = [hpt, this.hpBar, this.hpText, xpt, this.xpBar, this.info, this.comboText, pg, pauseLabel, this.pauseHit, this.muteBtn, this.buildText]; // 结算时整体隐藏,防"血条/暂停透出"
+    this.bossBarG = this.add.graphics().setDepth(11).setVisible(false); // 圆角 boss 血条(与玩家血条同语言)
+    this.hudEls = [hpt, this.hpBar, this.hpText, xpt, this.xpBar, this.info, this.comboText, pg, pauseLabel, this.pauseHit, this.muteBtn, this.buildText]; // 结算/浮层时整体隐藏,防"血条/暂停透出"
   }
+  setHudVisible(v) { if (this.hudEls) this.hudEls.forEach(o => o && o.setVisible(v)); } // 浮层打开时藏 HUD,关闭时显回
   updateHUD() {
     const u = this._hud, hpF = Math.max(0, Math.min(1, this.player.hp / this.player.maxHp)), xpF = Math.max(0, Math.min(1, this.xp / this.xpNeed));
     this.hpBar.clear();
@@ -1099,15 +1101,15 @@ class Game extends Phaser.Scene {
     this.buildText.setText(b);
     this.comboText.setText(this.combo >= 5 ? `🔥 连杀 x${this.combo}` : '');
     const bossAlive = this.boss && !this.boss.dead;
-    this.bossLabel.setVisible(bossAlive); this.bossBarBg.setVisible(bossAlive); this.bossBarFill.setVisible(bossAlive);
-    if (bossAlive) this.bossBarFill.width = (W-40) * Math.max(0, this.boss.hp / this.boss.maxHp);
+    this.bossLabel.setVisible(bossAlive); this.bossBarG.setVisible(bossAlive);
+    if (bossAlive) { const bw = W-40, frac = Math.max(0, this.boss.hp / this.boss.maxHp), x = 20, y = H-50; this.bossBarG.clear(); this.bossBarG.fillStyle(0x331033, 1); this.bossBarG.fillRoundedRect(x, y-6, bw, 12, 6); if (frac > 0) { const w = Math.max(8, bw*frac); this.bossBarG.fillStyle(0xc060ff, 1); this.bossBarG.fillRoundedRect(x, y-6, w, 12, Math.min(6, w/2)); } }
     const f = this.player.hp / this.player.maxHp; // 低血红光
     this.vignette.setAlpha(f < 0.35 ? (0.35 - f) / 0.35 * 0.22 : 0);
   }
   togglePause() {
     if (this.over || this.leveling) return;
     if (!this.paused) {
-      this.paused = true;
+      this.paused = true; this.setHudVisible(false);
       const dim = this.add.rectangle(W/2, H/2, W, H, 0x000, 0.74).setDepth(25);
       const panel = mkPanel(this, W/2, H/2+34, W-64, 320, { fill: UI.panel, alpha: 0.96, stroke: UI.line, radius: 18, depth: 25 });
       const t = mkText(this, W/2, H/2-78, '已暂停', { fontSize: UI.fs.h1, color: UI.cText, fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
@@ -1121,7 +1123,7 @@ class Game extends Phaser.Scene {
       b3.hit.on('pointerup', () => { close(); this.scene.start('title'); });
       this.pauseLayer = [dim, panel, t, b1.g, b1.label, b1.hit, b2.g, b2.label, b2.hit, b3.g, b3.label, b3.hit];
     } else {
-      this.paused = false;
+      this.paused = false; this.setHudVisible(true);
       if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; }
     }
   }
@@ -1137,12 +1139,12 @@ class Game extends Phaser.Scene {
     pushBoard({ secs, lvl: this.level, kills: this.kills, d: dayStr() });                // 进本地排行榜
 
     if (this.hudEls) this.hudEls.forEach(o => o && o.setVisible(false));               // 隐藏 HUD,杜绝"血条/暂停/静音透出结算页"
-    if (this.bossLabel) { this.bossLabel.setVisible(false); this.bossBarBg.setVisible(false); this.bossBarFill.setVisible(false); }
+    if (this.bossLabel) { this.bossLabel.setVisible(false); this.bossBarG.setVisible(false); }
     if (this.vignette) this.vignette.setAlpha(0);
     const bgG = this.add.graphics().setDepth(30); bgG.fillGradientStyle(0x121d33, 0x121d33, UI.bgDeep, 0x05080f, 1); bgG.fillRect(0, 0, W, H); // 不透明渐变,彻底盖住战场
     const cy = H/2 - 40;                                                                // 整组上移,给底部按钮留足间距
     this.add.circle(W/2, cy-186, 52, isRecord ? UI.gold : UI.primary, 0.16).setDepth(31);
-    this.add.image(W/2, cy-186, 'hero').setDisplaySize(78, 78).setDepth(31);            // 结算页放英雄立绘(原来一个都没有)
+    this.add.image(W/2, cy-186, heroSprite(this.heroKey || 'mage')).setDisplaySize(82, 82).setDepth(31); // 结算页放你这局英雄的专属立绘
     mkText(this, W/2, cy-128, isRecord ? '🏆 新纪录!' : '你倒下了', { fontSize: UI.fs.h1, color: isRecord ? UI.cGold : '#ff7a7a', fontStyle: 'bold' }).setOrigin(0.5).setDepth(31).setShadow(0, 3, '#000', 8);
     // 战绩面板
     mkPanel(this, W/2, cy-30, W-56, 150, { fill: UI.panel, alpha: 0.94, stroke: UI.line, radius: 16, depth: 30 });
