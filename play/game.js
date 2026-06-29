@@ -473,16 +473,16 @@ class Game extends Phaser.Scene {
     this.chestT -= dt;
     if (this.chestT <= 0) { this.spawnChest(); this.chestT = 26; }
     this.spawnT -= dt;
-    if (this.spawnT > 0 || this.enemies.length > 110) return;
-    this.spawnT = Math.max(0.34, 1.55 - this.elapsed * 0.011);
-    const n = Math.min(6, 1 + Math.floor(this.elapsed / 34)); // 封顶波数:后期可玩 + 保帧率
+    if (this.spawnT > 0 || this.enemies.length > 85) return; // 同屏上限 110→85,减拥挤
+    this.spawnT = Math.max(0.4, 1.9 - this.elapsed * 0.010); // 前期更慢(1min≈1.3s/波,原 0.89)
+    const n = Math.min(6, 1 + Math.floor(this.elapsed / 42)); // 波数升得更慢
     for (let i = 0; i < n; i++) {
       const r = Math.random(); let type = 'basic';
       if (this.elapsed > 30 && r < 0.10) type = 'tank';
-      else if (this.elapsed > 35 && r < 0.22) type = 'splitter';
-      else if (this.elapsed > 25 && r < 0.36) type = 'shooter';
-      else if (this.elapsed > 40 && r < 0.46) type = 'exploder';
-      else if (this.elapsed > 15 && r < 0.52) type = 'fast';
+      else if (this.elapsed > 50 && r < 0.18) type = 'splitter'; // 分裂怪推后+减量(它会翻倍,前期最吵)
+      else if (this.elapsed > 25 && r < 0.34) type = 'shooter';
+      else if (this.elapsed > 45 && r < 0.44) type = 'exploder';
+      else if (this.elapsed > 15 && r < 0.50) type = 'fast';
       this.spawnEnemy(type);
     }
   }
