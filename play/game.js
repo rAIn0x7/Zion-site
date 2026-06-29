@@ -1018,8 +1018,10 @@ class Game extends Phaser.Scene {
     // 静音开关
     this.muteBtn = mkText(this, W-14, 76, SFX.muted ? '🔇' : '🔊', { fontSize: '20px' }).setOrigin(1, 0).setDepth(12).setInteractive({ useHandCursor: true });
     this.muteBtn.on('pointerup', () => this.muteBtn.setText(SFX.toggle() ? '🔇' : '🔊'));
-    this.pauseBtn = mkText(this, 14, 76, '⏸', { fontSize: '20px' }).setOrigin(0, 0).setDepth(12).setInteractive({ useHandCursor: true });
-    this.pauseBtn.on('pointerup', () => this.togglePause());
+    // 暂停/退出按钮:做成带底的胶囊 + 文字,够大够明显(原来只有一个 20px 的 ⏸ 字符,手机上几乎找不到 → "没法退出")
+    this.pauseBg = this.add.rectangle(46, 86, 74, 30, 0x1c2b4a, 0.92).setStrokeStyle(1.5, 0x6fd0ff).setDepth(12).setInteractive({ useHandCursor: true });
+    this.pauseBtn = mkText(this, 46, 86, '⏸ 暂停', { fontSize: '15px', color: '#cfe' }).setOrigin(0.5).setDepth(13);
+    this.pauseBg.on('pointerup', () => this.togglePause());
     this.vignette = this.add.rectangle(W/2, H/2, W, H, 0xff2200, 0).setDepth(9); // 低血红光预警
     // Boss 血条(默认隐藏,Boss 出现时显示)
     this.bossLabel = mkText(this, W/2, H-66, '👹 BOSS', { fontSize: '12px', color: '#e0a0ff' }).setOrigin(0.5).setDepth(11).setVisible(false);
@@ -1051,14 +1053,20 @@ class Game extends Phaser.Scene {
     if (!this.paused) {
       this.paused = true;
       const dim = this.add.rectangle(W/2, H/2, W, H, 0x000, 0.62).setDepth(25);
-      const t = mkText(this, W/2, H/2-50, '已暂停', { fontSize: '40px', color: '#cde', fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
-      const btn = this.add.rectangle(W/2, H/2+30, 200, 58, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(26).setInteractive({ useHandCursor: true });
-      const bt = mkText(this, W/2, H/2+30, '▶ 继续', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setDepth(27);
+      const t = mkText(this, W/2, H/2-70, '已暂停', { fontSize: '40px', color: '#cde', fontStyle: 'bold' }).setOrigin(0.5).setDepth(26);
+      const btn = this.add.rectangle(W/2, H/2+10, 220, 56, 0x2f7fd0).setStrokeStyle(2, 0xfff).setDepth(26).setInteractive({ useHandCursor: true });
+      const bt = mkText(this, W/2, H/2+10, '▶ 继续', { fontSize: '24px', color: '#fff' }).setOrigin(0.5).setDepth(27);
+      btn.on('pointerover', () => btn.setScale(1.04)); btn.on('pointerout', () => btn.setScale(1));
       btn.on('pointerup', () => this.togglePause());
-      const home = this.add.rectangle(W/2, H/2+102, 200, 52, 0x244).setStrokeStyle(2, 0x6fd0ff).setDepth(26).setInteractive({ useHandCursor: true });
-      const ht = mkText(this, W/2, H/2+102, '← 返回标题', { fontSize: '20px', color: '#cfe' }).setOrigin(0.5).setDepth(27);
+      // 结束本局:直接进结算(金币/段位/战绩都结算保留)——给"太强/不想玩了"的玩家一个体面的收场出口
+      const fin = this.add.rectangle(W/2, H/2+78, 220, 52, 0x2a4a2a).setStrokeStyle(2, 0x7be86a).setDepth(26).setInteractive({ useHandCursor: true });
+      const ft = mkText(this, W/2, H/2+78, '🏳️ 结束本局(结算)', { fontSize: '18px', color: '#cfe' }).setOrigin(0.5).setDepth(27);
+      fin.on('pointerover', () => fin.setScale(1.04)); fin.on('pointerout', () => fin.setScale(1));
+      fin.on('pointerup', () => { this.paused = false; if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; } this.end(); });
+      const home = this.add.rectangle(W/2, H/2+142, 220, 46, 0x244).setStrokeStyle(2, 0x6fd0ff).setDepth(26).setInteractive({ useHandCursor: true });
+      const ht = mkText(this, W/2, H/2+142, '← 放弃 · 返回标题', { fontSize: '16px', color: '#9fbed8' }).setOrigin(0.5).setDepth(27);
       home.on('pointerup', () => { this.paused = false; if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; } this.scene.start('title'); });
-      this.pauseLayer = [dim, t, btn, bt, home, ht];
+      this.pauseLayer = [dim, t, btn, bt, fin, ft, home, ht];
     } else {
       this.paused = false;
       if (this.pauseLayer) { this.pauseLayer.forEach(o => o.destroy()); this.pauseLayer = null; }
