@@ -161,6 +161,14 @@ nav.scrolled{border-color:var(--border);background:rgba(10,9,8,.82)}
 .subform button{background:var(--gold);color:var(--black);border:none;padding:0 30px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;cursor:none;font-weight:500}
 .subok{display:none;font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:#4ade80;margin-top:8px}
 .subok.show{display:block}
+/* 订阅区双轨:海外邮件 + 国内公众号/星球 */
+.subsplit{display:flex;align-items:center;gap:18px;max-width:450px;margin:26px auto 0;color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.18em}
+.subsplit::before,.subsplit::after{content:'';flex:1;height:1px;background:var(--border)}
+.cnsub{max-width:480px;margin:22px auto 0;border:1px solid var(--border);border-radius:14px;padding:20px 24px;background:rgba(201,168,76,.03)}
+.cnsub .ct{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.cnsub .cb{font-size:14px;color:var(--white);line-height:1.7}
+.cnsub .cb b{color:var(--gold-lt);font-weight:500}
+.cnsub .cd{font-size:12px;color:var(--muted);margin-top:6px}
 
 /* contact */
 #contact{position:relative;z-index:2;padding:0 0 100px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
@@ -197,6 +205,11 @@ footer a:hover{color:var(--gold)}
   .tiles,.wgrid,#contact{grid-template-columns:1fr}.tile{height:auto;min-height:180px}
   .stats{gap:30px}body{cursor:auto}.cur,.ring{display:none}
   .menu-btn,.subform button,.csubmit,.btn,.nav-cta{cursor:pointer}
+  /* 移动端硬伤修复:订阅按钮不再被裁切(竖排满宽);Ventures 描述不再藏 hover */
+  .subform{flex-direction:column;border-radius:16px;gap:10px;padding:10px}
+  .subform input{width:100%;text-align:center}
+  .subform button{width:100%;padding:15px;border-radius:10px}
+  .tile .desc{max-height:none;opacity:1;margin-top:12px}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal,.title .line,.eyebrow,.tagline,.sub,.actions,.stats{opacity:1!important;transform:none!important}.title .line{color:var(--gold)}.q{opacity:1}}
 </style>
@@ -241,11 +254,10 @@ footer a:hover{color:var(--gold)}
 </section>
 
 <div class="quotes" id="quotes">
-  <div class="q on"><p>"When something is important enough, you do it even if the odds are not in your favor."</p><cite>— Elon Musk</cite></div>
-  <div class="q"><p>"Persistence is very important. You should not give up unless you are forced to give up."</p><cite>— Elon Musk</cite></div>
-  <div class="q"><p>"The first step is to establish that something is possible; then probability will occur."</p><cite>— Elon Musk</cite></div>
-  <div class="q"><p>"Failure is an option here. If things are not failing, you are not innovating enough."</p><cite>— Elon Musk</cite></div>
-  <div class="q"><p>"I'd rather be optimistic and wrong than pessimistic and right."</p><cite>— Elon Musk</cite></div>
+  <div class="q on"><p>"信息差在消失,注意力才是稀缺品。降噪,然后判断。"</p><cite>— Zion 降噪</cite></div>
+  <div class="q"><p>"低成本 = 高试错次数 = 更可能撞上对的那个。"</p><cite>— Zion 降噪</cite></div>
+  <div class="q"><p>"架构跟着收入长,别跟着野心长。"</p><cite>— Zion 降噪</cite></div>
+  <div class="q"><p>"一个人做产品,最缺的是第二双眼睛——所以我让 AI 来当。"</p><cite>— Zion 降噪</cite></div>
 </div>
 
 <section id="statement">
@@ -287,6 +299,12 @@ footer a:hover{color:var(--gold)}
       <p class="soc">Free · 随时退订 · Building in public</p>
       <form class="subform" id="subForm" onsubmit="handleSubscribe(event)"><input type="email" id="subEmail" placeholder="your@email.com" required><button class="magnet" type="submit">JOIN →</button></form>
       <div class="subok" id="subOk">✓ You're on the list.</div>
+      <div class="subsplit">国内读者</div>
+      <div class="cnsub">
+        <div class="ct">📡 微信 · 每日一页纸精选</div>
+        <div class="cb">微信搜公众号 <b>「Zion降噪」</b>,回复 <b>「星球」</b>,进每日精选小圈子 <b>「降噪·静音舱」</b>。</div>
+        <div class="cd">AI 从几百条科技与宏观资讯里滤出的一页纸 + 我的点评。只讲认知与框架,不构成任何建议。</div>
+      </div>
     </div>
   </section>
 
@@ -297,6 +315,7 @@ footer a:hover{color:var(--gold)}
       <p class="csub">在做 AI、SaaS 或有趣的创业项目?想聊技术与财富的交汇点?欢迎联系。</p>
       <div class="clinks">
         <a href="mailto:1733680684@qq.com" class="clink magnet"><div><div class="cl">Email</div><div class="cv">1733680684@qq.com</div></div><span>→</span></a>
+        <div class="clink"><div><div class="cl">WeChat 公众号</div><div class="cv">搜「Zion降噪」· 回复「星球」</div></div><span>📡</span></div>
         <a href="https://github.com/rAIn0x7" target="_blank" rel="noopener" class="clink magnet"><div><div class="cl">GitHub</div><div class="cv">github.com/rAIn0x7</div></div><span>→</span></a>
         <a href="writing.html" class="clink magnet"><div><div class="cl">Writing</div><div class="cv">qizh.space/writing</div></div><span>→</span></a>
       </div>
