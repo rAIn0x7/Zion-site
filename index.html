@@ -161,16 +161,6 @@ nav.scrolled{border-color:var(--border);background:rgba(10,9,8,.82)}
 .subform button{background:var(--gold);color:var(--black);border:none;padding:0 30px;font-family:var(--mono);font-size:12px;letter-spacing:.1em;cursor:none;font-weight:500}
 .subok{display:none;font-family:var(--mono);font-size:13px;letter-spacing:.1em;color:#4ade80;margin-top:8px}
 .subok.show{display:block}
-/* hero 微文案 */
-.micro{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--dim);margin-top:16px;opacity:0;animation:fi 1s 1.7s forwards}
-/* 订阅区双轨:海外邮件 + 国内公众号/星球 */
-.subsplit{display:flex;align-items:center;gap:18px;max-width:450px;margin:26px auto 0;color:var(--dim);font-family:var(--mono);font-size:10px;letter-spacing:.18em}
-.subsplit::before,.subsplit::after{content:'';flex:1;height:1px;background:var(--border)}
-.cnsub{max-width:480px;margin:22px auto 0;border:1px solid var(--border);border-radius:14px;padding:20px 24px;background:rgba(201,168,76,.03)}
-.cnsub .ct{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
-.cnsub .cb{font-size:14px;color:var(--white);line-height:1.7}
-.cnsub .cb b{color:var(--gold-lt);font-weight:500}
-.cnsub .cd{font-size:12px;color:var(--muted);margin-top:6px}
 
 /* contact */
 #contact{position:relative;z-index:2;padding:0 0 100px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
@@ -205,15 +195,8 @@ footer a:hover{color:var(--gold)}
   .wrap,nav,footer{padding-left:24px;padding-right:24px}
   .nav-links,.nav-cta{display:none}.menu-btn{display:flex}
   .tiles,.wgrid,#contact{grid-template-columns:1fr}.tile{height:auto;min-height:180px}
-  .stats{gap:30px;flex-wrap:wrap;justify-content:center}body{cursor:auto}.cur,.ring{display:none}
+  .stats{gap:30px}body{cursor:auto}.cur,.ring{display:none}
   .menu-btn,.subform button,.csubmit,.btn,.nav-cta{cursor:pointer}
-  /* 移动端硬伤修复:订阅按钮不再被裁切(竖排满宽);Ventures 描述不再藏在 hover 里 */
-  .subform{flex-direction:column;border-radius:16px;gap:10px;padding:10px}
-  .subform input{width:100%;text-align:center}
-  .subform button{width:100%;padding:15px;border-radius:10px}
-  .tile .desc{max-height:none!important;opacity:1!important;margin-top:12px!important}
-  .actions{flex-direction:column;width:100%;max-width:320px;margin-left:auto;margin-right:auto}
-  .btn{width:100%;text-align:center}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal,.title .line,.eyebrow,.tagline,.sub,.actions,.stats{opacity:1!important;transform:none!important}.title .line{color:var(--gold)}.q{opacity:1}}
 </style>
@@ -227,7 +210,6 @@ footer a:hover{color:var(--gold)}
 <nav id="nav">
   <a href="index.html" class="logo magnet">ZI<span>O</span>N</a>
   <ul class="nav-links">
-    <li><a href="/play/" style="color:var(--gold-lt)">▶ play</a></li>
     <li><a href="#ventures">ventures</a></li>
     <li><a href="#writing">writing</a></li>
     <li><a href="about.html">about</a></li>
@@ -237,7 +219,7 @@ footer a:hover{color:var(--gold)}
   <button class="menu-btn" id="menuBtn" aria-label="menu"><span></span><span></span><span></span></button>
 </nav>
 <div class="mnav" id="mnav">
-  <a href="/play/" class="ml" style="color:var(--gold-lt)">▶ PLAY</a><a href="#ventures" class="ml">VENTURES</a><a href="#writing" class="ml">WRITING</a>
+  <a href="#ventures" class="ml">VENTURES</a><a href="#writing" class="ml">WRITING</a>
   <a href="about.html" class="ml">ABOUT</a><a href="#contact" class="ml">CONTACT</a><a href="#subscribe" class="ml">SUBSCRIBE</a>
 </div>
 
@@ -245,25 +227,25 @@ footer a:hover{color:var(--gold)}
   <div class="eyebrow">Builder · Founder · AI Native</div>
   <h1 class="title" id="title"><span class="line">BUILD</span><span class="line">WEALTH</span></h1>
   <div class="tagline">through technology.</div>
-  <div class="sub">一个人 + AI · 1 款游戏 / 3 个 AI 资讯站 / 每周一封降噪信</div>
+  <div class="sub">用技术创造财富 · building in public</div>
   <div class="actions">
-    <a href="/play/" class="btn btn-g magnet">▶ 玩我的游戏</a>
-    <a href="#subscribe" class="btn btn-o magnet">订阅 SIGNAL →</a>
+    <a href="#subscribe" class="btn btn-g magnet">JOIN THE SIGNAL →</a>
+    <a href="#ventures" class="btn btn-o magnet">VENTURES</a>
   </div>
-  <div class="micro">先玩 30 秒,再决定要不要留下</div>
   <div class="stats">
     <div class="stat"><div class="n" data-to="4">0</div><div class="k">Ventures</div></div>
     <div class="stat"><div class="n" data-to="1700" data-suffix="+">0</div><div class="k">AI-Curated Articles</div></div>
-    <div class="stat"><div class="n" data-to="3">0</div><div class="k">AI Signal Sites</div></div>
+    <div class="stat"><div class="n">∞</div><div class="k">Possibilities</div></div>
   </div>
   <div class="cue"></div>
 </section>
 
 <div class="quotes" id="quotes">
-  <div class="q on"><p>"信息差在消失,注意力才是稀缺品。降噪,然后判断。"</p><cite>— Zion 降噪</cite></div>
-  <div class="q"><p>"低成本 = 高试错次数 = 更可能撞上对的那个。"</p><cite>— Zion 降噪</cite></div>
-  <div class="q"><p>"架构跟着收入长,别跟着野心长。"</p><cite>— Zion 降噪</cite></div>
-  <div class="q"><p>"一个人做产品,最缺的是第二双眼睛——所以我让 AI 来当。"</p><cite>— Zion 降噪</cite></div>
+  <div class="q on"><p>"When something is important enough, you do it even if the odds are not in your favor."</p><cite>— Elon Musk</cite></div>
+  <div class="q"><p>"Persistence is very important. You should not give up unless you are forced to give up."</p><cite>— Elon Musk</cite></div>
+  <div class="q"><p>"The first step is to establish that something is possible; then probability will occur."</p><cite>— Elon Musk</cite></div>
+  <div class="q"><p>"Failure is an option here. If things are not failing, you are not innovating enough."</p><cite>— Elon Musk</cite></div>
+  <div class="q"><p>"I'd rather be optimistic and wrong than pessimistic and right."</p><cite>— Elon Musk</cite></div>
 </div>
 
 <section id="statement">
@@ -274,10 +256,10 @@ footer a:hover{color:var(--gold)}
   <section id="ventures">
     <div class="shead reveal"><span class="snum">01</span><h2 class="stitle">VENTURES</h2><div class="sline"></div></div>
     <div class="tiles">
-      <a href="/play/" target="_blank" rel="noopener" class="tile magnet reveal"><span class="num">01</span><div class="status"><span class="d"></span>PLAYABLE · 点开就玩</div><div class="tag">Web Game · Phaser · 2026</div><h3>Finger<b>MOBA</b></h3><div class="desc">竖屏单手幸存者小游戏:怪潮、自动开火、升级三选一。纯 Web 秒开即玩,活到最后还能晒战绩卡。</div></a>
-      <a href="https://lens.qizh.space" target="_blank" rel="noopener" class="tile magnet reveal"><span class="num">02</span><div class="status"><span class="d"></span>LIVE</div><div class="tag">AI Intelligence</div><h3>Crypto<b>Lens</b></h3><div class="desc">实时聚合科技与市场信号,AI 过滤噪音,每天省下 2 小时信息焦虑。</div></a>
-      <a href="post-why-vibe-coding-matters.html" class="tile magnet reveal"><span class="num">03</span><div class="status"><span class="d"></span>ACTIVE · BUILDING</div><div class="tag">AI · Dev Tools · 2026</div><h3>Vibe<b>Coding</b></h3><div class="desc">面向 AI Native 开发者:在 AI 加持下,一个人也能把想法做成真实产品。点开读这条线的方法论。</div></a>
-      <a href="about.html" class="tile magnet reveal"><span class="num">04</span><div class="status"><span class="d"></span>ONGOING</div><div class="tag">Personal IP</div><h3>Personal<b> Brand</b></h3><div class="desc">记录一个人 + AI 做产品的全过程,中英双轨,打造可信个人 IP。</div></a>
+      <div class="tile reveal"><span class="num">01</span><div class="status"><span class="d"></span>ACTIVE · BUILDING</div><div class="tag">AI · Dev Tools · 2026</div><h3>Vibe<b>Coding</b></h3><div class="desc">面向 AI Native 开发者的创业项目。在 AI 加持下,任何人都能把想法变成真实产品。</div></div>
+      <a href="https://lens.qizh.space" target="_blank" rel="noopener" class="tile magnet reveal"><span class="num">02</span><div class="status"><span class="d"></span>LIVE</div><div class="tag">Crypto Intelligence</div><h3>Crypto<b>Lens</b></h3><div class="desc">实时聚合加密信号,AI 过滤噪音,每天省下 2 小时信息焦虑。</div></a>
+      <div class="tile reveal"><span class="num">03</span><div class="tag">Personal IP · Ongoing</div><h3>Personal<b> Brand</b></h3><div class="desc">记录创业、技术与财富思维,双语社区,打造可信个人 IP。</div></div>
+      <a href="/play/" target="_blank" rel="noopener" class="tile magnet reveal"><span class="num">04</span><div class="status"><span class="d"></span>PLAYABLE</div><div class="tag">Web Game · Phaser · 2026</div><h3>Finger<b>MOBA</b></h3><div class="desc">竖屏单手幸存者小游戏:怪潮、自动开火、升级三选一。纯 Web 秒开即玩,点开就玩。</div></a>
     </div>
   </section>
 
@@ -305,12 +287,6 @@ footer a:hover{color:var(--gold)}
       <p class="soc">Free · 随时退订 · Building in public</p>
       <form class="subform" id="subForm" onsubmit="handleSubscribe(event)"><input type="email" id="subEmail" placeholder="your@email.com" required><button class="magnet" type="submit">JOIN →</button></form>
       <div class="subok" id="subOk">✓ You're on the list.</div>
-      <div class="subsplit">国内读者</div>
-      <div class="cnsub">
-        <div class="ct">📡 微信 · 每日一页纸精选</div>
-        <div class="cb">微信搜公众号 <b>「Zion降噪」</b>,回复 <b>「星球」</b>,进每日精选小圈子 <b>「降噪·静音舱」</b>。</div>
-        <div class="cd">AI 从几百条科技与宏观资讯里滤出的一页纸 + 我的点评。只讲认知与框架,不构成任何建议。</div>
-      </div>
     </div>
   </section>
 
@@ -321,8 +297,8 @@ footer a:hover{color:var(--gold)}
       <p class="csub">在做 AI、SaaS 或有趣的创业项目?想聊技术与财富的交汇点?欢迎联系。</p>
       <div class="clinks">
         <a href="mailto:1733680684@qq.com" class="clink magnet"><div><div class="cl">Email</div><div class="cv">1733680684@qq.com</div></div><span>→</span></a>
-        <div class="clink"><div><div class="cl">WeChat 公众号</div><div class="cv">搜「Zion降噪」· 回复「星球」</div></div><span>📡</span></div>
         <a href="https://github.com/rAIn0x7" target="_blank" rel="noopener" class="clink magnet"><div><div class="cl">GitHub</div><div class="cv">github.com/rAIn0x7</div></div><span>→</span></a>
+        <a href="writing.html" class="clink magnet"><div><div class="cl">Writing</div><div class="cv">qizh.space/writing</div></div><span>→</span></a>
       </div>
     </div>
     <div class="cform reveal">
