@@ -16,14 +16,14 @@
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.loli.net">
 <link rel="preconnect" href="https://gstatic.loli.net" crossorigin>
-<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500;600&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
   --black:#0a0908; --gold:#c9a84c; --gold-lt:#f0d488; --amber:#d8a24a; --bronze:#7a5a26;
   --white:#f5f1ea; --muted:#8a8378; --dim:#46423b; --border:rgba(201,168,76,.16);
   --rust:#d98a5f; --sage:#9bb088; --slate:#9bb0c2;
-  --display:'Bebas Neue',sans-serif; --serif:'Instrument Serif',serif; --body:'Outfit',sans-serif; --mono:'DM Mono',monospace;
+  --display:'Bebas Neue',sans-serif; --serif:'Instrument Serif','Noto Serif SC',serif; --body:'Outfit',sans-serif; --mono:'DM Mono',monospace;
 }
 html{scroll-behavior:smooth}
 body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;overflow-x:hidden;cursor:none;line-height:1.6}
@@ -94,8 +94,8 @@ nav.scrolled{border-color:var(--border);background:rgba(10,9,8,.82)}
 @keyframes pl{0%,100%{opacity:.3}50%{opacity:1}}
 
 /* quote rotator */
-.quotes{position:relative;z-index:2;border-block:1px solid var(--border);background:rgba(201,168,76,.02);padding:46px 24px;text-align:center;min-height:150px;display:flex;flex-direction:column;justify-content:center}
-.q{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(820px,88%);opacity:0;transition:opacity .9s}
+.quotes{position:relative;z-index:2;isolation:isolate;border-block:1px solid var(--border);background:rgba(201,168,76,.02);padding:48px 24px;text-align:center;min-height:184px;display:flex;flex-direction:column;justify-content:center}
+.q{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(820px,88%);opacity:0;pointer-events:none;transition:opacity .5s}
 .q.on{opacity:1}
 .q p{font-family:var(--serif);font-style:italic;font-size:clamp(22px,3vw,34px);line-height:1.35;color:var(--white)}
 .q cite{display:block;font-family:var(--mono);font-style:normal;font-size:11px;letter-spacing:.2em;color:var(--gold);text-transform:uppercase;margin-top:18px}
@@ -116,7 +116,7 @@ nav.scrolled{border-color:var(--border);background:rgba(10,9,8,.82)}
 /* ventures */
 #ventures{position:relative;z-index:2;padding:60px 0 110px}
 .tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.tile{position:relative;height:340px;border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:30px;transition:transform .4s cubic-bezier(.2,.7,.3,1),border-color .4s}
+.tile{position:relative;min-height:300px;border:1px solid var(--border);border-radius:8px;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;padding:30px;transition:transform .4s cubic-bezier(.2,.7,.3,1),border-color .4s}
 .tile::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 130%,rgba(201,168,76,.16),transparent 70%);opacity:.4;transition:opacity .4s}
 .tile:hover{transform:translateY(-8px);border-color:rgba(201,168,76,.45)}
 .tile:hover::before{opacity:1}
@@ -126,8 +126,7 @@ nav.scrolled{border-color:var(--border);background:rgba(10,9,8,.82)}
 .tile .tag{position:relative;font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
 .tile h3{position:relative;font-family:var(--display);font-size:38px;letter-spacing:.04em}
 .tile h3 b{color:var(--gold)}
-.tile .desc{position:relative;font-size:13px;color:var(--muted);max-height:0;opacity:0;overflow:hidden;transition:max-height .4s,opacity .4s,margin .4s}
-.tile:hover .desc{max-height:90px;opacity:1;margin-top:12px}
+.tile .desc{position:relative;font-size:13px;color:var(--muted);margin-top:12px;line-height:1.6}
 
 /* writing */
 #writing{position:relative;z-index:2;padding:0 0 110px}
@@ -171,7 +170,7 @@ nav.scrolled{border-color:var(--border);background:rgba(10,9,8,.82)}
 .cnsub .cd{font-size:12px;color:var(--muted);margin-top:6px}
 
 /* contact */
-#contact{position:relative;z-index:2;padding:0 0 100px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+#contact{position:relative;z-index:2;padding:0 0 100px;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
 .ctitle{font-family:var(--display);font-size:clamp(52px,8vw,92px);line-height:.95;letter-spacing:.03em;margin-bottom:22px}
 .ctitle span{color:var(--gold)}
 .csub{font-size:14px;color:var(--muted);line-height:1.8;margin-bottom:30px;max-width:360px}
@@ -188,7 +187,7 @@ nav.scrolled{border-color:var(--border);background:rgba(10,9,8,.82)}
 .fg input,.fg textarea,.fg select{width:100%;background:rgba(255,255,255,.03);border:1px solid var(--border);padding:12px 16px;color:var(--white);font-family:var(--body);font-size:14px;border-radius:6px;outline:none;transition:border-color .25s}
 .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:rgba(201,168,76,.5)}
 .fg textarea{height:90px;resize:none}.fg select option{background:#111}
-.csubmit{width:100%;background:var(--gold);color:var(--black);border:none;padding:14px;font-family:var(--display);font-size:16px;letter-spacing:.1em;cursor:none;border-radius:6px;transition:.25s}
+.csubmit{width:100%;background:var(--gold);color:var(--black);border:none;padding:15px;font-family:var(--mono);font-size:13px;letter-spacing:.12em;font-weight:500;cursor:none;border-radius:6px;transition:.25s}
 .csubmit:hover{background:var(--gold-lt)}
 .cok{display:none;flex-direction:column;align-items:center;text-align:center;padding:40px 20px;gap:12px}
 .cok.show{display:flex}.cok .ring2{width:60px;height:60px;border:1px solid var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:var(--gold)}
@@ -205,11 +204,20 @@ footer a:hover{color:var(--gold)}
   .tiles,.wgrid,#contact{grid-template-columns:1fr}.tile{height:auto;min-height:180px}
   .stats{gap:30px}body{cursor:auto}.cur,.ring{display:none}
   .menu-btn,.subform button,.csubmit,.btn,.nav-cta{cursor:pointer}
-  /* 移动端硬伤修复:订阅按钮不再被裁切(竖排满宽);Ventures 描述不再藏 hover */
+  /* 移动端:订阅按钮竖排满宽不裁切;作品卡大数字缩小并给标题留安全区,不再撞字 */
   .subform{flex-direction:column;border-radius:16px;gap:10px;padding:10px}
   .subform input{width:100%;text-align:center}
   .subform button{width:100%;padding:15px;border-radius:10px}
-  .tile .desc{max-height:none;opacity:1;margin-top:12px}
+  .tile{min-height:160px}
+  .tile .num{font-size:46px;top:16px;right:18px}
+  .tile h3{padding-right:50px}
+}
+@media(max-width:430px){
+  /* 小屏防折行毛刺:eyebrow 不折、两枚 hero 按钮等宽竖排、副标字距收紧 */
+  .eyebrow{letter-spacing:.22em;font-size:11px;white-space:nowrap}
+  .actions{flex-direction:column;width:100%;max-width:300px;margin-left:auto;margin-right:auto}
+  .btn{width:100%;text-align:center}
+  .subcard .soc{letter-spacing:.06em}
 }
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.reveal,.title .line,.eyebrow,.tagline,.sub,.actions,.stats{opacity:1!important;transform:none!important}.title .line{color:var(--gold)}.q{opacity:1}}
 </style>
