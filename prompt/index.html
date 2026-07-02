@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt 工坊 — 结构化提示词构建器 + 精选库 · qizh.space</title>
+<meta name="description" content="把一句模糊的需求,拼成结构化的高质量提示词。含 角色/背景/任务/格式/约束 构建器 + 可复制的精选 prompt 库。纯本地。">
+<link rel="canonical" href="https://qizh.space/prompt/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='62' font-family='Georgia,serif' font-weight='700' fill='%23c9a84c' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="Prompt 工坊 · qizh.space">
+<meta property="og:description" content="结构化提示词构建器 + 精选 prompt 库。">
+<meta property="og:url" content="https://qizh.space/prompt/">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0908;--bg2:#12100d;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);--panel:#15130f;--display:'Bebas Neue',sans-serif;--body:'Outfit','Noto Serif SC',sans-serif;--mono:'DM Mono',monospace;--radius:12px}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.6;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px 24px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:25px;letter-spacing:.16em}.logo span{color:var(--gold)}
+.nav-r{display:flex;gap:20px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r a:hover{color:var(--gold)}
+header{text-align:center;padding:54px 24px 24px}
+header h1{font-family:var(--display);font-size:clamp(40px,8vw,64px);letter-spacing:.04em;color:var(--gold-lt)}
+header p{color:var(--muted);font-size:14px;margin-top:8px}
+.modebar{display:flex;gap:8px;justify-content:center;margin:8px 0 30px}
+.mode{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--muted);background:none;border:1px solid var(--border);border-radius:99px;padding:9px 22px;cursor:pointer;transition:.2s}
+.mode.on{color:var(--gold);background:var(--panel)}
+.view{display:none;padding-bottom:80px}.view.on{display:block}
+/* builder */
+.builder{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px}
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin:14px 0 6px}
+label:first-child{margin-top:0}
+textarea,input{width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--body);font-size:14px;padding:11px 13px;outline:none;transition:border-color .2s;resize:vertical}
+textarea:focus,input:focus{border-color:rgba(201,168,76,.5)}
+textarea{min-height:58px;line-height:1.5}
+.out{background:#0c0b09;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word;min-height:200px;color:var(--gold-lt)}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;padding:10px 18px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--white);transition:.2s}
+.btn:hover{border-color:var(--gold)}
+.btn.g{background:var(--gold);color:var(--black);border-color:var(--gold);font-weight:500}.btn.g:hover{background:var(--gold-lt)}
+.tip{color:var(--dim);font-size:12px;margin-top:10px;font-family:var(--mono)}
+/* library */
+.cats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:24px}
+.cat{font-family:var(--mono);font-size:12px;color:var(--muted);border:1px solid var(--border);border-radius:99px;padding:6px 14px;cursor:pointer;transition:.2s}
+.cat.on{color:var(--gold);background:var(--panel)}
+.lib{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pc{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column}
+.pc h3{font-size:16px;font-weight:500;color:var(--white);margin-bottom:4px}
+.pc .tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.pc .body{font-family:var(--mono);font-size:12.5px;color:var(--muted);line-height:1.6;white-space:pre-wrap;flex:1;max-height:150px;overflow:hidden;position:relative}
+.pc .body.expand{max-height:none}
+.pc .fade{position:absolute;left:0;right:0;bottom:0;height:40px;background:linear-gradient(transparent,var(--panel))}
+.pc .body.expand .fade{display:none}
+.pc .pcbtns{display:flex;gap:8px;margin-top:14px}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--black);font-family:var(--mono);font-size:12px;padding:9px 18px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{border-top:1px solid var(--border);padding:26px 24px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
+@media(max-width:760px){.builder,.lib{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/tool/">工具</a><a href="/play/">play</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>PROMPT 工坊</h1>
+  <p>把一句模糊的需求,拼成结构化的高质量提示词</p>
+  <div class="modebar">
+    <button class="mode on" onclick="setMode('build')">🛠 构建器</button>
+    <button class="mode" onclick="setMode('lib')">📚 精选库</button>
+  </div>
+</header>
+<div class="wrap">
+
+  <div class="view on" id="v-build">
+    <div class="builder">
+      <div class="card">
+        <label>① 角色 / 身份(让模型"扮演谁")</label>
+        <textarea id="f-role" placeholder="资深中文文案 / 十年后端工程师 / 挑剔的产品设计师…"></textarea>
+        <label>② 背景 / 上下文(它需要先知道什么)</label>
+        <textarea id="f-ctx" placeholder="我在做一个面向国内程序员的工具站,受众是…"></textarea>
+        <label>③ 任务(你到底要它做什么,越具体越好)</label>
+        <textarea id="f-task" placeholder="把下面这段话改写成 3 个不同风格的标题…"></textarea>
+        <label>④ 输出格式</label>
+        <input id="f-fmt" placeholder="Markdown 表格 / 编号列表 / JSON / 每条不超过 20 字">
+        <label>⑤ 约束 / 要求(用「;」分隔多条)</label>
+        <textarea id="f-cons" placeholder="不要空话套话;中文;先给结论再解释;不确定就说不确定"></textarea>
+        <label>⑥ 示例(可选,给一个"好答案"样板)</label>
+        <textarea id="f-eg" placeholder="输入:… → 输出:…"></textarea>
+        <div class="row">
+          <button class="btn g" onclick="build()">生成提示词</button>
+          <button class="btn" onclick="clearB()">清空</button>
+        </div>
+        <div class="tip">框架法:好 prompt = 角色 + 背景 + 明确任务 + 格式 + 约束(+示例)。填得越具体,输出越稳。</div>
+      </div>
+      <div class="card">
+        <label>生成结果(复制到任意 AI)</label>
+        <div class="out" id="b-out">在左侧填写,点「生成提示词」。</div>
+        <div class="row">
+          <button class="btn g" onclick="copyText(document.getElementById('b-out').textContent)">复制</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="view" id="v-lib">
+    <div class="cats" id="cats"></div>
+    <div class="lib" id="lib"></div>
+  </div>
+
+</div>
+<footer>结构化提示词 · 纯本地 · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+<div class="toast" id="toast">已复制</div>
+<script>
+const TOAST=document.getElementById('toast');
+function copyText(t){if(!t)return;navigator.clipboard&&navigator.clipboard.writeText(t);TOAST.classList.add('show');setTimeout(()=>TOAST.classList.remove('show'),1100);}
+function setMode(m){document.querySelectorAll('.mode').forEach((b,i)=>b.classList.toggle('on',(m==='build')===(i===0)));document.getElementById('v-build').classList.toggle('on',m==='build');document.getElementById('v-lib').classList.toggle('on',m==='lib');}
+const $=id=>document.getElementById(id).value.trim();
+function build(){
+  const role=$('f-role'),ctx=$('f-ctx'),task=$('f-task'),fmt=$('f-fmt'),cons=$('f-cons'),eg=$('f-eg');
+  let p='';
+  if(role)p+='# 角色\n你是'+role+'。\n\n';
+  if(ctx)p+='# 背景\n'+ctx+'\n\n';
+  p+='# 任务\n'+(task||'(请在左侧③填写你要它做的事)')+'\n\n';
+  if(fmt)p+='# 输出格式\n'+fmt+'\n\n';
+  if(cons){const list=cons.split(/[;;\n]/).map(s=>s.trim()).filter(Boolean);if(list.length)p+='# 要求\n'+list.map(s=>'- '+s).join('\n')+'\n\n';}
+  if(eg)p+='# 示例\n'+eg+'\n\n';
+  p+='# 开始\n请开始。如信息不足,先向我提出最关键的 1-2 个问题,再动手。';
+  document.getElementById('b-out').textContent=p.trim();
+}
+function clearB(){['f-role','f-ctx','f-task','f-fmt','f-cons','f-eg'].forEach(id=>document.getElementById(id).value='');document.getElementById('b-out').textContent='在左侧填写,点「生成提示词」。';}
+
+const LIB=[
+ {cat:'写作',t:'爆款标题 5 连',b:'你是深谙中文社交媒体传播的资深编辑。\n针对我给的主题,产出 5 个风格各异的标题:①悬念钩子 ②数字利益 ③反差认知 ④第一人称故事 ⑤直给干货。\n每个不超过 22 字,不用夸张震惊体,不用感叹号堆砌。\n主题:【在此填写】'},
+ {cat:'写作',t:'长文降噪成一页纸',b:'你是信息降噪编辑。把我粘贴的长文压缩成一页纸:\n1. 一句话结论(它到底说了什么);\n2. 3-5 条关键信号(每条一句,带数字优先);\n3. 与我相关的一句话「所以呢」。\n只保留值得注意力的,删掉所有铺垫和废话。\n正文:【粘贴】'},
+ {cat:'写作',t:'把初稿改得像人写的',b:'你是挑剔的中文编辑。把下面这段改得更像一个真实、克制、有观点的人写的:去掉 AI 腔和套话("在当今""值得注意的是""综上"),短句为主,能删就删,保留信息与观点。\n只输出改后版本。\n原文:【粘贴】'},
+ {cat:'编程',t:'资深工程师 Code Review',b:'你是有十年经验、注重可读性与边界情况的工程师。\nReview 下面的代码,只报你有把握的真问题,按严重度排序:\n每条=【文件:行为】+【为什么是问题】+【怎么改】。\n不要泛泛而谈"建议优化",不要臆测需求。\n代码:【粘贴】'},
+ {cat:'编程',t:'自然语言 → 正则',b:'把我的描述转成一个正则表达式:\n- 给出正则本体(标注适用语言/引擎);\n- 逐段解释;\n- 给 2 个匹配示例 + 1 个不匹配示例。\n描述:【在此填写,如"匹配国内 11 位手机号"】'},
+ {cat:'编程',t:'报错定位',b:'你是善于系统排查的工程师。面对下面的报错:\n1. 先说最可能的 1-2 个根因(附判断依据);\n2. 给出验证每个假设的最小步骤;\n3. 再给修复方案。\n不要一上来就贴大段改法,先定位。\n报错 + 相关代码:【粘贴】'},
+ {cat:'思考',t:'当我的反方(红队)',b:'你是理性、就事论事的反方。针对我下面的想法/决定,尽力找出它最可能失败的地方:\n- 3 个最致命的风险或盲点;\n- 每个附"如果成真会怎样";\n- 最后给一句:如果只改一件事来降低风险,改什么。\n不要为了反对而反对,只指真问题。\n我的想法:【填写】'},
+ {cat:'思考',t:'第一性原理拆解',b:'把下面这个问题拆到第一性原理:\n1. 它由哪些不可再分的基本事实/约束组成?\n2. 现有做法的哪些假设其实可以被打破?\n3. 如果从零开始,会怎么做?\n问题:【填写】'},
+ {cat:'AI 提效',t:'万能追问模板',b:'在回答我之前,先判断信息是否足够。如果不足,先向我提出最关键的问题(最多 3 个),我回答后你再作答;如果足够,直接作答并在开头用一句话复述你对任务的理解。'},
+ {cat:'AI 提效',t:'角色+评分自迭代',b:'你先以【某领域顶尖专家】的身份完成任务;完成后,切换成【最挑剔的评审】给自己的产出按 10 分制打分并列出扣分点;然后根据扣分点再改一版。输出:最终版 + 一句话说明你改了什么。\n任务:【填写】'},
+];
+const cats=['全部',...[...new Set(LIB.map(x=>x.cat))]];
+let curCat='全部';
+const catsEl=document.getElementById('cats'),libEl=document.getElementById('lib');
+cats.forEach(c=>{const b=document.createElement('button');b.className='cat'+(c==='全部'?' on':'');b.textContent=c;b.onclick=()=>{curCat=c;document.querySelectorAll('.cat').forEach(x=>x.classList.toggle('on',x.textContent===c));renderLib();};catsEl.appendChild(b);});
+function renderLib(){
+  libEl.innerHTML='';
+  LIB.filter(x=>curCat==='全部'||x.cat===curCat).forEach(x=>{
+    const el=document.createElement('div');el.className='pc';
+    el.innerHTML=`<div class="tag">${x.cat}</div><h3>${x.t}</h3><div class="body">${x.b.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}<div class="fade"></div></div><div class="pcbtns"><button class="btn g">复制</button><button class="btn">展开</button></div>`;
+    const body=el.querySelector('.body'),btns=el.querySelectorAll('button');
+    btns[0].onclick=()=>copyText(x.b);
+    btns[1].onclick=()=>{const e=body.classList.toggle('expand');btns[1].textContent=e?'收起':'展开';};
+    libEl.appendChild(el);
+  });
+}
+renderLib();
+</script>
+</body>
+</html>

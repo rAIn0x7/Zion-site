@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工具箱 — Zion · qizh.space</title>
+<meta name="description" content="一组零广告干扰、纯本地运行的实用小工具:JSON 格式化、时间戳转换、Base64、URL 编解码、正则测试、人民币大写、中文字数统计。数据不出浏览器。">
+<link rel="canonical" href="https://qizh.space/tool/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='62' font-family='Georgia,serif' font-weight='700' fill='%23c9a84c' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="工具箱 — Zion · qizh.space">
+<meta property="og:description" content="纯本地运行的实用小工具,数据不出浏览器。">
+<meta property="og:url" content="https://qizh.space/tool/">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0908;--bg2:#12100d;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);--panel:#15130f;--display:'Bebas Neue',sans-serif;--body:'Outfit','Noto Serif SC',sans-serif;--mono:'DM Mono',monospace;--radius:12px}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.6;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px 24px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:25px;letter-spacing:.16em}.logo span{color:var(--gold)}
+.nav-r{display:flex;gap:20px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r a:hover{color:var(--gold)}
+header{text-align:center;padding:54px 24px 30px}
+header h1{font-family:var(--display);font-size:clamp(40px,8vw,64px);letter-spacing:.04em;color:var(--gold-lt)}
+header p{color:var(--muted);font-size:14px;margin-top:8px}
+.layout{display:grid;grid-template-columns:210px 1fr;gap:24px;padding-bottom:80px}
+.tabs{display:flex;flex-direction:column;gap:4px;position:sticky;top:80px;align-self:start}
+.tab{text-align:left;font-family:var(--mono);font-size:13px;letter-spacing:.04em;color:var(--muted);background:none;border:1px solid transparent;border-radius:10px;padding:11px 14px;cursor:pointer;transition:.15s}
+.tab:hover{color:var(--white);background:var(--panel)}
+.tab.on{color:var(--gold);border-color:var(--border);background:var(--panel)}
+.panel{display:none;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:26px}
+.panel.on{display:block}
+.panel h2{font-family:var(--display);font-size:26px;letter-spacing:.04em;color:var(--white);margin-bottom:4px}
+.panel .hint{color:var(--muted);font-size:12.5px;margin-bottom:18px}
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin:14px 0 6px}
+textarea,input,select{width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--mono);font-size:13.5px;padding:12px 14px;outline:none;transition:border-color .2s;resize:vertical}
+textarea:focus,input:focus,select:focus{border-color:rgba(201,168,76,.5)}
+textarea{min-height:120px;line-height:1.5}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;padding:10px 18px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--white);transition:.2s}
+.btn:hover{border-color:var(--gold)}
+.btn.g{background:var(--gold);color:var(--black);border-color:var(--gold);font-weight:500}
+.btn.g:hover{background:var(--gold-lt)}
+.out{margin-top:16px;background:#0c0b09;border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-family:var(--mono);font-size:13.5px;white-space:pre-wrap;word-break:break-word;min-height:48px;color:var(--gold-lt)}
+.out.err{color:#ff8a8a}
+.mono-sm{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+mark{background:rgba(201,168,76,.32);color:var(--gold-lt);border-radius:2px}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--black);font-family:var(--mono);font-size:12px;padding:9px 18px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{border-top:1px solid var(--border);padding:26px 24px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em}
+footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
+@media(max-width:760px){.layout{grid-template-columns:1fr}.tabs{flex-direction:row;flex-wrap:wrap;position:static;gap:6px}.tab{flex:1 0 auto}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/prompt/">prompt</a><a href="/play/">play</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>工具箱</h1>
+  <p>纯本地运行 · 数据不出浏览器 · 无需登录</p>
+</header>
+<div class="wrap">
+  <div class="layout">
+    <div class="tabs" id="tabs"></div>
+    <div id="panels">
+
+      <section class="panel" data-tool="json">
+        <h2>JSON 格式化 / 校验</h2>
+        <div class="hint">格式化、压缩、语法校验。全部在本地完成。</div>
+        <label>输入 JSON</label>
+        <textarea id="json-in" placeholder='{"hello":"world","n":[1,2,3]}'></textarea>
+        <div class="row">
+          <button class="btn g" onclick="TOOL.jsonFmt(2)">格式化</button>
+          <button class="btn" onclick="TOOL.jsonFmt(0)">压缩</button>
+          <button class="btn" onclick="TOOL.copy('json-out')">复制结果</button>
+        </div>
+        <div class="out" id="json-out"></div>
+      </section>
+
+      <section class="panel" data-tool="ts">
+        <h2>时间戳 ↔ 日期</h2>
+        <div class="hint">Unix 时间戳与北京时间互转,支持秒/毫秒。</div>
+        <div class="grid2">
+          <div>
+            <label>时间戳 → 日期(秒或毫秒)</label>
+            <input id="ts-in" placeholder="1751000000">
+            <div class="row"><button class="btn g" onclick="TOOL.ts2date()">转换</button><button class="btn" onclick="document.getElementById('ts-in').value=Math.floor(Date.now()/1000);TOOL.ts2date()">当前</button></div>
+            <div class="out" id="ts-out"></div>
+          </div>
+          <div>
+            <label>日期 → 时间戳</label>
+            <input id="dt-in" placeholder="2026-07-01 12:00:00">
+            <div class="row"><button class="btn g" onclick="TOOL.date2ts()">转换</button></div>
+            <div class="out" id="dt-out"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" data-tool="b64">
+        <h2>Base64 编 / 解码</h2>
+        <div class="hint">支持中文(UTF-8 安全)。</div>
+        <label>文本</label>
+        <textarea id="b64-in" placeholder="你好 world"></textarea>
+        <div class="row">
+          <button class="btn g" onclick="TOOL.b64(1)">编码 →</button>
+          <button class="btn" onclick="TOOL.b64(0)">← 解码</button>
+          <button class="btn" onclick="TOOL.copy('b64-out')">复制</button>
+        </div>
+        <div class="out" id="b64-out"></div>
+      </section>
+
+      <section class="panel" data-tool="url">
+        <h2>URL 编 / 解码</h2>
+        <div class="hint">encodeURIComponent / decodeURIComponent。</div>
+        <label>文本</label>
+        <textarea id="url-in" placeholder="https://qizh.space/?q=你好&a=1"></textarea>
+        <div class="row">
+          <button class="btn g" onclick="TOOL.url(1)">编码 →</button>
+          <button class="btn" onclick="TOOL.url(0)">← 解码</button>
+          <button class="btn" onclick="TOOL.copy('url-out')">复制</button>
+        </div>
+        <div class="out" id="url-out"></div>
+      </section>
+
+      <section class="panel" data-tool="re">
+        <h2>正则测试</h2>
+        <div class="hint">实时高亮匹配 + 分组捕获。</div>
+        <label>正则表达式</label>
+        <input id="re-pat" placeholder="\\d+" oninput="TOOL.re()">
+        <label>标志(如 gi)</label>
+        <input id="re-flags" value="g" oninput="TOOL.re()" style="max-width:120px">
+        <label>测试文本</label>
+        <textarea id="re-in" placeholder="订单 123 金额 456 元" oninput="TOOL.re()"></textarea>
+        <div class="mono-sm" id="re-info" style="margin-top:10px"></div>
+        <div class="out" id="re-out"></div>
+      </section>
+
+      <section class="panel" data-tool="rmb">
+        <h2>人民币金额大写</h2>
+        <div class="hint">数字金额 → 中文大写(发票 / 合同用)。</div>
+        <label>金额(元)</label>
+        <input id="rmb-in" placeholder="1234.56" oninput="TOOL.rmb()">
+        <div class="out" id="rmb-out"></div>
+      </section>
+
+      <section class="panel" data-tool="wc">
+        <h2>中文字数统计</h2>
+        <div class="hint">字符 / 不含空格 / 中文字 / 单词 / 行数。公众号、论文常用。</div>
+        <label>文本</label>
+        <textarea id="wc-in" placeholder="在此粘贴文本…" oninput="TOOL.wc()" style="min-height:160px"></textarea>
+        <div class="out" id="wc-out"></div>
+      </section>
+
+    </div>
+  </div>
+</div>
+<footer>
+  纯本地工具 · 无数据上传 · <a href="/">qizh.space</a> · 微信搜「Zion降噪」
+</footer>
+<div class="toast" id="toast">已复制</div>
+<script>
+const TOOLS=[['json','JSON 格式化'],['ts','时间戳转换'],['b64','Base64'],['url','URL 编解码'],['re','正则测试'],['rmb','人民币大写'],['wc','字数统计']];
+const tabsEl=document.getElementById('tabs');
+TOOLS.forEach(([k,name],i)=>{const b=document.createElement('button');b.className='tab'+(i===0?' on':'');b.textContent=name;b.dataset.k=k;b.onclick=()=>select(k);tabsEl.appendChild(b);});
+function select(k){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.k===k));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.dataset.tool===k));
+  if(location.hash.slice(1)!==k)history.replaceState(null,'','#'+k);
+}
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const TOAST=document.getElementById('toast');
+const TOOL={
+  copy(id){const el=document.getElementById(id);const t=el.textContent;if(!t)return;navigator.clipboard&&navigator.clipboard.writeText(t);TOAST.classList.add('show');setTimeout(()=>TOAST.classList.remove('show'),1100);},
+  set(id,v,err){const el=document.getElementById(id);el.textContent=v;el.classList.toggle('err',!!err);},
+  jsonFmt(sp){const v=document.getElementById('json-in').value.trim();if(!v)return this.set('json-out','');try{this.set('json-out',JSON.stringify(JSON.parse(v),null,sp));}catch(e){this.set('json-out','✗ '+e.message,1);}},
+  ts2date(){let v=document.getElementById('ts-in').value.trim();if(!v)return this.set('ts-out','');let n=Number(v);if(isNaN(n))return this.set('ts-out','✗ 不是数字',1);if(v.length<=10)n*=1000;const d=new Date(n);if(isNaN(d))return this.set('ts-out','✗ 无效',1);this.set('ts-out',d.toLocaleString('zh-CN',{hour12:false})+'  ·  '+d.toISOString());},
+  date2ts(){const v=document.getElementById('dt-in').value.trim();if(!v)return this.set('dt-out','');const d=new Date(v.replace(/-/g,'/'));if(isNaN(d))return this.set('dt-out','✗ 无法解析,试试 2026-07-01 12:00:00',1);this.set('dt-out','秒 '+Math.floor(d.getTime()/1000)+'   ·   毫秒 '+d.getTime());},
+  b64(enc){const v=document.getElementById('b64-in').value;if(!v)return this.set('b64-out','');try{this.set('b64-out',enc?btoa(unescape(encodeURIComponent(v))):decodeURIComponent(escape(atob(v.trim()))));}catch(e){this.set('b64-out','✗ '+e.message,1);}},
+  url(enc){const v=document.getElementById('url-in').value;if(!v)return this.set('url-out','');try{this.set('url-out',enc?encodeURIComponent(v):decodeURIComponent(v));}catch(e){this.set('url-out','✗ '+e.message,1);}},
+  re(){const pat=document.getElementById('re-pat').value,flags=document.getElementById('re-flags').value,txt=document.getElementById('re-in').value;const info=document.getElementById('re-info');if(!pat){this.set('re-out','');info.textContent='';return;}let rx;try{rx=new RegExp(pat,flags);}catch(e){info.textContent='✗ '+e.message;document.getElementById('re-out').classList.add('err');this.set('re-out','');return;}document.getElementById('re-out').classList.remove('err');let count=0,html='',last=0,m,g=flags.includes('g');const re2=new RegExp(pat,flags.includes('g')?flags:flags+'g');while((m=re2.exec(txt))!==null){count++;html+=esc(txt.slice(last,m.index))+'<mark>'+esc(m[0]||'')+'</mark>';last=m.index+(m[0].length||0);if(m[0]===''){re2.lastIndex++;}if(count>5000)break;}html+=esc(txt.slice(last));info.textContent='匹配 '+count+' 处';document.getElementById('re-out').innerHTML=html||'(无文本)';},
+  rmb(){const v=document.getElementById('rmb-in').value.trim();if(!v)return this.set('rmb-out','');const n=Number(v);if(isNaN(n)||n<0)return this.set('rmb-out','✗ 请输入非负数字',1);if(n>999999999999.99)return this.set('rmb-out','✗ 数值过大',1);this.set('rmb-out',rmbUpper(n));},
+  wc(){const v=document.getElementById('wc-in').value;const chars=[...v].length;const noSpace=[...v.replace(/\s/g,'')].length;const cn=(v.match(/[一-龥]/g)||[]).length;const words=(v.trim().match(/[a-zA-Z0-9]+/g)||[]).length;const lines=v?v.split(/\n/).length:0;this.set('wc-out',`字符 ${chars}    不含空格 ${noSpace}    中文字 ${cn}    英文单词 ${words}    行数 ${lines}`);}
+};
+function rmbUpper(money){
+  const cn='零壹贰叁肆伍陆柒捌玖',unit=['','拾','佰','仟'],big=['','万','亿','兆'];
+  let neg=money<0;money=Math.abs(money);
+  let s=money.toFixed(2).split('.'),int=s[0],dec=s[1];
+  let out='';
+  if(int==='0')out='';else{
+    let groups=[];for(let i=int.length;i>0;i-=4)groups.unshift(int.slice(Math.max(0,i-4),i));
+    groups.forEach((g,gi)=>{
+      let seg='',zero=false;
+      for(let i=0;i<g.length;i++){const d=+g[i],pos=g.length-1-i;if(d===0){zero=true;}else{if(zero&&seg)seg+='零';zero=false;seg+=cn[d]+unit[pos];}}
+      if(seg)out+=seg+big[groups.length-1-gi];else if(out&&!out.endsWith('零'))out+='零';
+    });
+    out=out.replace(/零+$/,'')+'元';
+  }
+  let df=+dec[0],dm=+dec[1];
+  if(df===0&&dm===0){out=(out||'零元')+'整';}
+  else{if(!out)out='';if(df>0)out+=cn[df]+'角';else if(out)out+='零';if(dm>0)out+=cn[dm]+'分';}
+  return (neg?'负':'')+(out||'零元整');
+}
+select(location.hash.slice(1)||'json');
+TOOL.wc();
+</script>
+</body>
+</html>
