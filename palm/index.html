@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 手相 · 拍张手掌照,看看你的纹路 — qizh.space</title>
+<meta name="description" content="上传或拍一张手掌照片,AI 解读你的掌纹与手型:生命线、智慧线、感情线、事业线。趣味手相,仅供娱乐。">
+<link rel="canonical" href="https://qizh.space/palm/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%96%90%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="AI 手相 · 拍张手掌照看纹路">
+<meta property="og:description" content="AI 解读掌纹与手型,趣味手相,仅供娱乐。qizh.space/palm">
+<meta property="og:url" content="https://qizh.space/palm/">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0908;--bg2:#12100d;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);--panel:#15130f;--display:'Bebas Neue',sans-serif;--body:'Outfit','Noto Serif SC',sans-serif;--mono:'DM Mono',monospace;--radius:14px}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.7;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:680px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:24px;letter-spacing:.16em}.logo span{color:var(--gold)}
+.nav-r{display:flex;gap:18px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r a:hover{color:var(--gold)}
+header{text-align:center;padding:48px 20px 12px}
+header h1{font-family:var(--display);font-size:clamp(42px,10vw,68px);letter-spacing:.03em;color:var(--gold-lt)}
+header .sub{color:var(--muted);font-size:14px;margin-top:6px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:22px}
+.drop{border:1.5px dashed rgba(201,168,76,.4);border-radius:var(--radius);padding:38px 20px;text-align:center;cursor:pointer;transition:.2s;background:#0c0b09}
+.drop:hover,.drop.over{border-color:var(--gold);background:#100e0a}
+.drop .ico{font-size:44px}
+.drop .t{font-size:15px;color:var(--white);margin-top:8px}
+.drop .h{font-size:12px;color:var(--muted);margin-top:6px;font-family:var(--mono)}
+.preview{display:none;text-align:center}
+.preview img{max-width:100%;max-height:340px;border-radius:10px;border:1px solid var(--border)}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.btn{font-family:var(--mono);font-size:13px;letter-spacing:.06em;padding:12px 24px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--white);transition:.2s}
+.btn:hover{border-color:var(--gold)}
+.btn.g{background:var(--gold);color:var(--black);border-color:var(--gold);font-weight:600}.btn.g:hover{background:var(--gold-lt)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.tip{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center;margin-top:14px;line-height:1.7}
+.tip a{color:var(--muted);text-decoration:underline}
+.loading{display:none;text-align:center;padding:30px}
+.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;margin:0 auto;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading p{color:var(--muted);font-size:13px;margin-top:14px;font-family:var(--mono)}
+.report{display:none}
+.report .rt{font-family:var(--display);font-size:30px;letter-spacing:.04em;color:var(--gold-lt);text-align:center;margin-bottom:4px}
+.report .body{white-space:pre-wrap;font-size:15px;line-height:1.9;color:var(--white);margin-top:14px}
+.report .body b,.report .body strong{color:var(--gold-lt);font-weight:600}
+.cta{margin-top:22px;border:1px solid var(--border);border-radius:12px;padding:18px 20px;background:rgba(201,168,76,.04);text-align:center}
+.cta .ct{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.cta .cb{font-size:14px;color:var(--white)}.cta .cb b{color:var(--gold-lt)}
+.err{color:#ff8a8a;font-size:13px;text-align:center;margin-top:12px;font-family:var(--mono)}
+details.keybox{margin-top:18px;font-family:var(--mono);font-size:12px}
+details.keybox summary{color:var(--muted);cursor:pointer}
+details.keybox input{width:100%;margin-top:10px;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--mono);font-size:12px;padding:10px 12px;outline:none}
+details.keybox .kh{color:var(--dim);margin-top:8px;line-height:1.6}
+footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:40px}
+footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/tool/">工具</a><a href="/prompt/">prompt</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>AI 手相</h1>
+  <div class="sub">拍张手掌照 · AI 读你的掌纹与手型 · 仅供娱乐</div>
+</header>
+<div class="wrap">
+  <div class="card" id="stage">
+    <div class="drop" id="drop">
+      <div class="ico">🖐</div>
+      <div class="t">点击上传 / 拍摄你的手掌</div>
+      <div class="h">手心朝上 · 五指自然张开 · 光线充足</div>
+    </div>
+    <input type="file" id="file" accept="image/*" capture="environment" hidden>
+    <div class="preview" id="preview"><img id="pimg" alt="手掌预览"></div>
+    <div class="row" id="actions" style="display:none">
+      <button class="btn g" id="go">🔮 开始解读</button>
+      <button class="btn" id="redo">换一张</button>
+    </div>
+    <div class="loading" id="loading"><div class="spin"></div><p id="lmsg">正在端详你的手纹…</p></div>
+    <div class="err" id="err"></div>
+    <details class="keybox" id="keybox">
+      <summary>⚙︎ 测试设置(粘贴你自己的 Gemini Key)</summary>
+      <input id="key" type="password" placeholder="AIza… 仅存你本地浏览器,不上传、不进代码">
+      <div class="kh">测试模式:调用直连 Gemini,需要你自己的 key(仅本地保存)。正式对外版会换成服务端代理——不暴露 key、国内可达。</div>
+    </details>
+  </div>
+
+  <div class="card report" id="report">
+    <div class="rt">🖐 你的手相速读</div>
+    <div class="body" id="rbody"></div>
+    <div class="cta">
+      <div class="ct">✨ 想看更深 / 每天一条降噪信号</div>
+      <div class="cb">微信搜公众号 <b>「Zion降噪」</b> · 回复 <b>「手相」</b></div>
+    </div>
+    <div class="row">
+      <button class="btn g" id="again">再测一张</button>
+      <button class="btn" id="shot">截图分享给朋友测</button>
+    </div>
+    <div class="tip">🔒 仅供娱乐,不构成任何建议 · 图片只在你设备与模型间处理,本站不留存</div>
+  </div>
+</div>
+<footer>AI 手相 · 趣味娱乐 · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+<script>
+const MODEL='gemini-2.0-flash';
+const PROXY='';  // 正式版填 Cloudflare Worker 地址;为空=测试模式(本地 key 直连 Gemini)
+const SYS=`你是一位温暖、有洞察力、略带神秘感的手相师,风格娱乐向、正能量。根据用户上传的这张手掌照片,识别照片中可见的掌纹与手型,给出一段有趣、具体、鼓励人的手相解读。
+
+要求:
+- 先用一句话点出这只手给你的整体第一印象。
+- 然后分这几块,每块 2-3 句,务必"先描述你在照片里看到的纹路/手型特征,再由此推断",让人觉得是真在看这只手:
+  🌿 生命线(精力与活力) / 🧠 智慧线(思维与性格) / ❤️ 感情线(感情态度) / 💼 事业·财运(事业线走势) / ✋ 手型气质。
+- 最后【综合】一段:一句温暖有力的总评 + 一个具体、可执行的小建议(别空泛)。
+- 语气像懂你的朋友,不要"据传统手相学""从命理角度"这类八股;不算命断吉凶,不涉及健康诊断、投资、寿命等断言。
+- 若照片里看不清手掌、太暗、或根本不是手,就友好地请对方重拍(手心朝上、五指张开、光线充足),不要硬编。
+- 全程简体中文,总长约 320-450 字。结尾另起一行:「✨ 仅供娱乐 · Zion降噪」。`;
+
+const $=id=>document.getElementById(id);
+let imgB64='';
+function setErr(m){$('err').textContent=m||'';}
+function resize(file,cb){
+  const img=new Image(),url=URL.createObjectURL(file);
+  img.onload=()=>{const max=1024;let{width:w,height:h}=img;if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);}
+    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+    URL.revokeObjectURL(url);cb(c.toDataURL('image/jpeg',0.85));};
+  img.onerror=()=>{URL.revokeObjectURL(url);setErr('图片读取失败,换一张试试');};
+  img.src=url;
+}
+function loadFile(file){
+  if(!file||!file.type.startsWith('image/')){setErr('请选图片文件');return;}
+  setErr('');resize(file,dataUrl=>{imgB64=dataUrl;$('pimg').src=dataUrl;$('drop').style.display='none';$('preview').style.display='block';$('actions').style.display='flex';$('report').style.display='none';});
+}
+$('drop').onclick=()=>$('file').click();
+$('file').onchange=e=>loadFile(e.target.files[0]);
+['dragover','dragenter'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('over');}));
+['dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.remove('over');}));
+$('drop').addEventListener('drop',e=>{if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0]);});
+function reset(){imgB64='';$('file').value='';$('drop').style.display='block';$('preview').style.display='none';$('actions').style.display='none';$('report').style.display='none';setErr('');}
+$('redo').onclick=reset;$('again').onclick=()=>{reset();window.scrollTo({top:0,behavior:'smooth'});};
+$('shot').onclick=()=>alert('长按/截图这张报告,发给朋友或朋友圈,叫他们也来测 → qizh.space/palm');
+
+const savedKey=localStorage.getItem('gm_key');if(savedKey)$('key').value=savedKey;
+$('key').oninput=e=>localStorage.setItem('gm_key',e.target.value.trim());
+
+async function analyze(){
+  if(!imgB64){setErr('先上传一张手掌照');return;}
+  setErr('');$('actions').style.display='none';$('loading').style.display='block';
+  const b64=imgB64.split(',')[1];
+  try{
+    let text;
+    if(PROXY){
+      const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mime:'image/jpeg'})});
+      const j=await r.json();if(!r.ok)throw new Error(j.error||'服务异常');text=j.text;
+    }else{
+      const key=$('key').value.trim();
+      if(!key){$('loading').style.display='none';$('actions').style.display='flex';$('keybox').open=true;setErr('测试模式需要先在下方「测试设置」粘贴你的 Gemini Key');return;}
+      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(key)}`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({contents:[{parts:[{text:SYS},{inline_data:{mime_type:'image/jpeg',data:b64}}]}],generationConfig:{temperature:0.95,maxOutputTokens:900}})});
+      const j=await r.json();
+      if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+      text=j.candidates&&j.candidates[0]&&j.candidates[0].content.parts[0].text;
+      if(!text)throw new Error('模型没有返回内容(可能被安全策略拦截),换张更清晰的手掌照');
+    }
+    $('rbody').innerHTML=text.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
+    $('loading').style.display='none';$('report').style.display='block';$('report').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){
+    $('loading').style.display='none';$('actions').style.display='flex';
+    setErr('解读失败:'+e.message);
+  }
+}
+$('go').onclick=analyze;
+</script>
+</body>
+</html>
