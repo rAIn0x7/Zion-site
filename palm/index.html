@@ -4,11 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI 手相 · 拍张手掌照,看看你的纹路 — qizh.space</title>
-<meta name="description" content="上传或拍一张手掌照片,AI 解读你的掌纹与手型:生命线、智慧线、感情线、事业线。趣味手相,仅供娱乐。">
+<meta name="description" content="上传或拍一张手掌照片,AI 识别掌纹特征,给出生命线、智慧线、感情线、事业线解读。趣味手相,仅供娱乐。">
 <link rel="canonical" href="https://qizh.space/palm/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%96%90%3C/text%3E%3C/svg%3E">
 <meta property="og:title" content="AI 手相 · 拍张手掌照看纹路">
-<meta property="og:description" content="AI 解读掌纹与手型,趣味手相,仅供娱乐。qizh.space/palm">
+<meta property="og:description" content="AI 识别掌纹特征,趣味手相解读,仅供娱乐。qizh.space/palm">
 <meta property="og:url" content="https://qizh.space/palm/">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.loli.net">
@@ -17,48 +17,51 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--black:#0a0908;--bg2:#12100d;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);--panel:#15130f;--display:'Bebas Neue',sans-serif;--body:'Outfit','Noto Serif SC',sans-serif;--mono:'DM Mono',monospace;--radius:14px}
 html{scroll-behavior:smooth}
-body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.7;min-height:100vh}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.75;min-height:100vh}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:680px;margin:0 auto;padding:0 20px}
 nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .logo{font-family:var(--display);font-size:24px;letter-spacing:.16em}.logo span{color:var(--gold)}
 .nav-r{display:flex;gap:18px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
 .nav-r a:hover{color:var(--gold)}
-header{text-align:center;padding:48px 20px 12px}
+header{text-align:center;padding:44px 20px 8px}
 header h1{font-family:var(--display);font-size:clamp(42px,10vw,68px);letter-spacing:.03em;color:var(--gold-lt)}
 header .sub{color:var(--muted);font-size:14px;margin-top:6px}
-.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-top:22px}
-.drop{border:1.5px dashed rgba(201,168,76,.4);border-radius:var(--radius);padding:38px 20px;text-align:center;cursor:pointer;transition:.2s;background:#0c0b09}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-top:20px}
+.hands{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;font-family:var(--mono);font-size:12px}
+.hands .g{display:flex;align-items:center;gap:6px;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--border);border-radius:99px;overflow:hidden}
+.seg button{background:none;border:none;color:var(--muted);font-family:var(--mono);font-size:12px;padding:6px 14px;cursor:pointer}
+.seg button.on{background:var(--gold);color:var(--black);font-weight:600}
+.drop{border:1.5px dashed rgba(201,168,76,.4);border-radius:var(--radius);padding:34px 18px;text-align:center;cursor:pointer;transition:.2s;background:#0c0b09}
 .drop:hover,.drop.over{border-color:var(--gold);background:#100e0a}
-.drop .ico{font-size:44px}
-.drop .t{font-size:15px;color:var(--white);margin-top:8px}
-.drop .h{font-size:12px;color:var(--muted);margin-top:6px;font-family:var(--mono)}
+.drop .ico{font-size:42px}.drop .t{font-size:15px;color:var(--white);margin-top:6px}.drop .h{font-size:12px;color:var(--muted);margin-top:6px;font-family:var(--mono)}
 .preview{display:none;text-align:center}
-.preview img{max-width:100%;max-height:340px;border-radius:10px;border:1px solid var(--border)}
-.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:16px}
-.btn{font-family:var(--mono);font-size:13px;letter-spacing:.06em;padding:12px 24px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--white);transition:.2s}
+.preview img{max-width:100%;max-height:320px;border-radius:10px;border:1px solid var(--border)}
+.row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:14px}
+.btn{font-family:var(--mono);font-size:13px;letter-spacing:.06em;padding:11px 22px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--white);transition:.2s}
 .btn:hover{border-color:var(--gold)}
 .btn.g{background:var(--gold);color:var(--black);border-color:var(--gold);font-weight:600}.btn.g:hover{background:var(--gold-lt)}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.tip{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center;margin-top:14px;line-height:1.7}
-.tip a{color:var(--muted);text-decoration:underline}
-.loading{display:none;text-align:center;padding:30px}
-.spin{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;margin:0 auto;animation:sp 1s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.loading p{color:var(--muted);font-size:13px;margin-top:14px;font-family:var(--mono)}
-.report{display:none}
-.report .rt{font-family:var(--display);font-size:30px;letter-spacing:.04em;color:var(--gold-lt);text-align:center;margin-bottom:4px}
-.report .body{white-space:pre-wrap;font-size:15px;line-height:1.9;color:var(--white);margin-top:14px}
-.report .body b,.report .body strong{color:var(--gold-lt);font-weight:600}
-.cta{margin-top:22px;border:1px solid var(--border);border-radius:12px;padding:18px 20px;background:rgba(201,168,76,.04);text-align:center}
-.cta .ct{font-family:var(--mono);font-size:12px;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
-.cta .cb{font-size:14px;color:var(--white)}.cta .cb b{color:var(--gold-lt)}
+.tiny{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:center;margin-top:12px;line-height:1.7}
+.loading{display:none;text-align:center;padding:26px}
+.spin{width:34px;height:34px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;margin:0 auto;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.loading p{color:var(--muted);font-size:13px;margin-top:12px;font-family:var(--mono)}
 .err{color:#ff8a8a;font-size:13px;text-align:center;margin-top:12px;font-family:var(--mono)}
-details.keybox{margin-top:18px;font-family:var(--mono);font-size:12px}
+.report{display:none}
+.report .rt{font-family:var(--display);font-size:28px;letter-spacing:.04em;color:var(--gold-lt);text-align:center}
+.report .rsub{text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px}
+.sec{margin-top:20px;border-top:1px solid var(--border);padding-top:14px}
+.sec h4{font-size:15px;color:var(--gold-lt);font-weight:600;margin-bottom:5px}
+.sec p{font-size:14.5px;color:var(--white);line-height:1.8}
+.philo{margin-top:20px;border-top:1px solid var(--border);padding-top:14px;font-size:13.5px;color:var(--muted);line-height:1.85;font-style:italic}
+.cta{margin-top:20px;border:1px solid var(--border);border-radius:12px;padding:16px 18px;background:rgba(201,168,76,.04);text-align:center}
+.cta .ct{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;margin-bottom:5px}
+.cta .cb{font-size:14px;color:var(--white)}.cta .cb b{color:var(--gold-lt)}
+details.keybox{margin-top:16px;font-family:var(--mono);font-size:12px}
 details.keybox summary{color:var(--muted);cursor:pointer}
 details.keybox input{width:100%;margin-top:10px;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--mono);font-size:12px;padding:10px 12px;outline:none}
 details.keybox .kh{color:var(--dim);margin-top:8px;line-height:1.6}
-footer{border-top:1px solid var(--border);padding:24px 20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:40px}
+footer{border-top:1px solid var(--border);padding:22px 20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:36px}
 footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </style>
 </head>
@@ -69,10 +72,14 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </nav>
 <header>
   <h1>AI 手相</h1>
-  <div class="sub">拍张手掌照 · AI 读你的掌纹与手型 · 仅供娱乐</div>
+  <div class="sub">拍张手掌照 · AI 识别掌纹特征 · 趣味解读 · 仅供娱乐</div>
 </header>
 <div class="wrap">
   <div class="card" id="stage">
+    <div class="hands">
+      <span class="g">惯用手 <span class="seg" id="segDom"><button data-v="right" class="on">右撇子</button><button data-v="left">左撇子</button></span></span>
+      <span class="g">这只手是 <span class="seg" id="segHand"><button data-v="left" class="on">左手</button><button data-v="right">右手</button></span></span>
+    </div>
     <div class="drop" id="drop">
       <div class="ico">🖐</div>
       <div class="t">点击上传 / 拍摄你的手掌</div>
@@ -84,18 +91,21 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <button class="btn g" id="go">🔮 开始解读</button>
       <button class="btn" id="redo">换一张</button>
     </div>
-    <div class="loading" id="loading"><div class="spin"></div><p id="lmsg">正在端详你的手纹…</p></div>
+    <div class="row"><button class="btn" id="sample">🎲 看一份示例报告</button></div>
+    <div class="loading" id="loading"><div class="spin"></div><p>正在端详你的手纹…</p></div>
     <div class="err" id="err"></div>
     <details class="keybox" id="keybox">
-      <summary>⚙︎ 测试设置(粘贴你自己的 Gemini Key)</summary>
-      <input id="key" type="password" placeholder="AIza… 仅存你本地浏览器,不上传、不进代码">
-      <div class="kh">测试模式:调用直连 Gemini,需要你自己的 key(仅本地保存)。正式对外版会换成服务端代理——不暴露 key、国内可达。</div>
+      <summary>⚙︎ 测试设置(粘贴你自己的 智谱 Key)</summary>
+      <input id="key" type="password" placeholder="智谱 API Key · 仅存本地浏览器,不上传、不进代码">
+      <div class="kh">测试模式:直连智谱 GLM-4V-Flash(免费)。正式对外版会换成 Cloudflare Worker 代理——藏 key、国内可达、跨域无忧。「示例报告」不需要 key。</div>
     </details>
   </div>
 
   <div class="card report" id="report">
     <div class="rt">🖐 你的手相速读</div>
-    <div class="body" id="rbody"></div>
+    <div class="rsub" id="rsub"></div>
+    <div id="rbody"></div>
+    <div class="philo" id="rphilo"></div>
     <div class="cta">
       <div class="ct">✨ 想看更深 / 每天一条降噪信号</div>
       <div class="cb">微信搜公众号 <b>「Zion降噪」</b> · 回复 <b>「手相」</b></div>
@@ -104,77 +114,149 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <button class="btn g" id="again">再测一张</button>
       <button class="btn" id="shot">截图分享给朋友测</button>
     </div>
-    <div class="tip">🔒 仅供娱乐,不构成任何建议 · 图片只在你设备与模型间处理,本站不留存</div>
+    <div class="tiny">🔒 仅供娱乐,不构成任何建议,切不可当真 · 图片只在你设备与模型间处理,本站不留存</div>
   </div>
 </div>
 <footer>AI 手相 · 趣味娱乐 · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
 <script>
-const MODEL='gemini-1.5-flash';
-const PROXY='';  // 正式版填 Cloudflare Worker 地址;为空=测试模式(本地 key 直连 Gemini)
-const SYS=`你是一位温暖、有洞察力、略带神秘感的手相师,风格娱乐向、正能量。根据用户上传的这张手掌照片,识别照片中可见的掌纹与手型,给出一段有趣、具体、鼓励人的手相解读。
+const MODEL='glm-4v-flash';
+const PROXY='';  // 正式版填 Cloudflare Worker 地址;为空=测试模式(本地 key 直连智谱)
 
-要求:
-- 先用一句话点出这只手给你的整体第一印象。
-- 然后分这几块,每块 2-3 句,务必"先描述你在照片里看到的纹路/手型特征,再由此推断",让人觉得是真在看这只手:
-  🌿 生命线(精力与活力) / 🧠 智慧线(思维与性格) / ❤️ 感情线(感情态度) / 💼 事业·财运(事业线走势) / ✋ 手型气质。
-- 最后【综合】一段:一句温暖有力的总评 + 一个具体、可执行的小建议(别空泛)。
-- 语气像懂你的朋友,不要"据传统手相学""从命理角度"这类八股;不算命断吉凶,不涉及健康诊断、投资、寿命等断言。
-- 若照片里看不清手掌、太暗、或根本不是手,就友好地请对方重拍(手心朝上、五指张开、光线充足),不要硬编。
-- 全程简体中文,总长约 320-450 字。结尾另起一行:「✨ 仅供娱乐 · Zion降噪」。`;
+/* ── 特征提取:让智谱只看手照、只回结构化 JSON(不写评文) ── */
+const EXTRACT_PROMPT=`你是一个手相特征识别器。请仔细观察这张手掌照片,只输出一个 JSON 对象描述你观察到的掌纹与手型特征,不要写任何解读或多余文字。若某项看不清,填 "不清"。字段与可选值如下:
+{
+ "is_hand": true/false,               // 照片里是否能看清一只摊开的手掌
+ "life": {"vitality":"旺|弱|不清",     // 生命线弧度:向外弧度大、越过食指中指间垂线=旺;弧度小、未越过=弱
+          "travel": true/false,        // 生命线末端(近手腕处)是否有明显分叉(旅行线)
+          "multiple": true/false},     // 是否有多条平行/交叠的生命线
+ "head": {"length":"长|短|不清",       // 智慧线越过食指中指间垂线=长,否则=短
+          "curve":"直|弯|很弯|不清",   // 智慧线弧度
+          "joined":"连|不连|不清"},    // 智慧线起点是否与生命线起点相连
+ "heart": {"length":"长|短|不清",      // 感情线越过食指中指间垂线=长
+           "angle":"上扬|平缓|不清",   // 感情线整体走势
+           "end":"下弯|分叉|普通|不清"},// 末端(食指下方)形态
+ "fate": "清晰|下半|上半|断续|无|不清",// 事业线(中指下向手腕):贯穿清晰/只有下半/只有上半/断断续续/几乎没有
+ "special": []                         // 从这些里选出你确实看到的:["神秘十字线","断掌","霸王线","佛之眼","所罗门之星"]
+}
+只返回 JSON,不要解释、不要 markdown 代码块以外的文字。`;
 
+/* ── 评语库(=从视频提炼的 skill,固定文案,查表出结果) ── */
+const LEX={
+ life:{
+  vitality:{旺:'你的生命线弧度饱满、越过了食指中指间那条垂线——生命力持续在线,精力和身体底子都算充沛,是能扛事的类型。',
+            弱:'生命线弧度偏小、没越过食指中指间的垂线——这阵子精力偏弱、容易累,别硬撑,规律作息会把它慢慢养回来。',
+            不清:'生命线看得不太清楚,换张手心更平、光线更足的照片会更准。'},
+  travel:'而且末端有一道分叉——这是「旅行线」:你这辈子会去很多地方,运气通常不错,眼界开阔、自带一股好运的气场。',
+  multiple:'你还有不止一条生命线——这代表生命力极其顽强,属于能跟逆境反复拉扯还站得住的人。'},
+ head:{
+  length:{长:'智慧线偏长:你思考周全、稳重,凡事想在前头;偶尔的代价是瞻前顾后、不够果决。',
+          短:'智慧线偏短:你偏直觉型,反应快、行事果断,执行力强,注意别太冒失。',
+          不清:'智慧线不太清晰。'},
+  curve:{直:'这条线走得比较直,说明你偏理性、讲逻辑。',弯:'线条带弧度,说明你偏感性、重感受。',
+         很弯:'弧度很大——你相当理想化、感受力强,真该考虑往创作/艺术那类方向使劲。',不清:''},
+  joined:{连:'它和生命线起点相连——你通情达理、善解人意,很会站在别人角度想事。',
+          不连:'它和生命线起点是分开的——你比较有主见、也可以说有点任性,自己认定的事不太受人左右。',不清:'',接近:'两线起点靠得很近,你算是懂得体谅人的类型。'}},
+ heart:{
+  length:{长:'感情线偏长:你情绪整体稳定、专一长情,一旦认定就走得久。',
+          短:'感情线偏短:你情绪起伏偏大、感受强烈,爱憎分明。',不清:'感情线不太清楚。'},
+  angle:{上扬:'走势明显上扬——你偏情绪化、容易上头(也容易冲动消费),但好处是不记仇、来得快去得也快,很容易一见钟情。',
+         平缓:'走势平缓——你情绪稳、专一,但要提醒一句:真被踩了底线,你也不太会轻易原谅,俗称记仇。',不清:''},
+  end:{下弯:'末端往下弯:你对情感偏克制、不爱外露,给人一种「有点酷」的疏离感。',
+       分叉:'末端有漂亮的分叉——这是「幸运女神线」:你是会给身边人带来好运的人,择偶交友时这可是加分项。',普通:'',不清:''}},
+ fate:{清晰:'💼 事业线上下贯穿、清晰有力——你事业有成的概率很大,是领袖型人格。'+
+             '(这只手若是先天手,说明你早早就在某方面露出天赋;若是后天手,说明靠努力也能干出大成就。)',
+       下半:'💼 事业线只有下半段——你早年事业运不错,趁年轻好好使劲,大概率能攒出一定成就。',
+       上半:'💼 事业线只有上半段——你是大器晚成型,前半程铺垫,后半程发力。',
+       断续:'💼 事业线断断续续——这一生事业可能有几段波折、辗转几个方向,不必慌,那是在换更合适的赛道。',
+       无:'💼 几乎看不到明显的事业线——别担心,这不代表一事无成,只说明你更偏辅助型人格:帮对的人成功、从而成就自己;找到靠谱的带领者,你的人生会很有收获。',
+       不清:'💼 事业线不太清楚,换张更清晰的照片能看得更准。'},
+ special:{
+  神秘十字线:'🔮 神秘十字线:你意识里像有一股神秘力量护着,每每陷入绝境总能化险为夷。',
+  断掌:'✊ 断掌:你性格强势、独立性强、事业心重,肯下功夫的话,成事的概率很高。',
+  霸王线:'👑 霸王线(王者之相):财气很足——招财的金运线与守财的财运线俱全,是既能赚也能守的格局。',
+  佛之眼:'👁 佛之眼:大拇指上那圈「眼睛」,说明你灵性、悟性都不错,直觉很准。',
+  所罗门之星:'⭐ 所罗门之星(极罕见):智慧与权力的象征,非凡的直觉与创造力,天生带使命感——这是可能改写自己命运轨迹的手。'}
+};
+const PHILO='掌纹会随经历改变——三主线变得慢,其他纹路半年一年就可能大变,所以理想的别得意、不理想的更不必灰心。命理从来天定几分、人尽几分:先天的禀赋要靠后天去拓展扩充,才能发挥到极致。君子的命,始终握在自己手里。\n\n✨ 仅供娱乐,切不可当真 · Zion降噪';
+
+let dom='right',hand='left',imgB64='';
 const $=id=>document.getElementById(id);
-let imgB64='';
+function bindSeg(id,set){$(id).querySelectorAll('button').forEach(b=>b.onclick=()=>{$(id).querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');set(b.dataset.v);});}
+bindSeg('segDom',v=>dom=v); bindSeg('segHand',v=>hand=v);
+function handLabel(){const isInnate=(hand!==dom);return {isInnate,txt:(hand==='left'?'左手':'右手')+' · '+(isInnate?'先天之手':'后天之手')};}
+
 function setErr(m){$('err').textContent=m||'';}
-function resize(file,cb){
-  const img=new Image(),url=URL.createObjectURL(file);
-  img.onload=()=>{const max=1024;let{width:w,height:h}=img;if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);}
-    const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
-    URL.revokeObjectURL(url);cb(c.toDataURL('image/jpeg',0.85));};
-  img.onerror=()=>{URL.revokeObjectURL(url);setErr('图片读取失败,换一张试试');};
-  img.src=url;
-}
-function loadFile(file){
-  if(!file||!file.type.startsWith('image/')){setErr('请选图片文件');return;}
-  setErr('');resize(file,dataUrl=>{imgB64=dataUrl;$('pimg').src=dataUrl;$('drop').style.display='none';$('preview').style.display='block';$('actions').style.display='flex';$('report').style.display='none';});
-}
-$('drop').onclick=()=>$('file').click();
-$('file').onchange=e=>loadFile(e.target.files[0]);
+function resize(file,cb){const img=new Image(),url=URL.createObjectURL(file);img.onload=()=>{const max=1024;let{width:w,height:h}=img;if(w>max||h>max){const r=Math.min(max/w,max/h);w=Math.round(w*r);h=Math.round(h*r);}const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);cb(c.toDataURL('image/jpeg',0.85));};img.onerror=()=>{URL.revokeObjectURL(url);setErr('图片读取失败,换一张');};img.src=url;}
+function loadFile(file){if(!file||!file.type.startsWith('image/')){setErr('请选图片文件');return;}setErr('');resize(file,d=>{imgB64=d;$('pimg').src=d;$('drop').style.display='none';$('preview').style.display='block';$('actions').style.display='flex';$('report').style.display='none';});}
+$('drop').onclick=()=>$('file').click();$('file').onchange=e=>loadFile(e.target.files[0]);
 ['dragover','dragenter'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.add('over');}));
 ['dragleave','drop'].forEach(ev=>$('drop').addEventListener(ev,e=>{e.preventDefault();$('drop').classList.remove('over');}));
 $('drop').addEventListener('drop',e=>{if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0]);});
 function reset(){imgB64='';$('file').value='';$('drop').style.display='block';$('preview').style.display='none';$('actions').style.display='none';$('report').style.display='none';setErr('');}
-$('redo').onclick=reset;$('again').onclick=()=>{reset();window.scrollTo({top:0,behavior:'smooth'});};
-$('shot').onclick=()=>alert('长按/截图这张报告,发给朋友或朋友圈,叫他们也来测 → qizh.space/palm');
+$('redo').onclick=reset;$('again').onclick=()=>{reset();scrollTo({top:0,behavior:'smooth'});};
+$('shot').onclick=()=>alert('长按/截图这份报告,发给朋友或朋友圈,叫他们也来测 → qizh.space/palm');
+const sk=localStorage.getItem('zp_key');if(sk)$('key').value=sk;$('key').oninput=e=>localStorage.setItem('zp_key',e.target.value.trim());
 
-const savedKey=localStorage.getItem('gm_key');if(savedKey)$('key').value=savedKey;
-$('key').oninput=e=>localStorage.setItem('gm_key',e.target.value.trim());
+/* ── 特征 → 评语拼装(核心:查表,不生成) ── */
+function assemble(f){
+  const hl=handLabel();
+  const parts=[];
+  // 生命线
+  let life=(LEX.life.vitality[f.life&&f.life.vitality]||LEX.life.vitality['不清']);
+  if(f.life&&f.life.travel)life+=' '+LEX.life.travel;
+  if(f.life&&f.life.multiple)life+=' '+LEX.life.multiple;
+  parts.push({h:'🌿 生命线 · 生命力',p:life});
+  // 智慧线
+  let head=(LEX.head.length[f.head&&f.head.length]||'');
+  const hc=LEX.head.curve[f.head&&f.head.curve];if(hc)head+=' '+hc;
+  const hj=LEX.head.joined[f.head&&f.head.joined];if(hj)head+=' '+hj;
+  parts.push({h:'🧠 智慧线 · 思维',p:head||'智慧线不太清晰。'});
+  // 感情线
+  let heart=(LEX.heart.length[f.heart&&f.heart.length]||'');
+  const ha=LEX.heart.angle[f.heart&&f.heart.angle];if(ha)heart+=' '+ha;
+  const he=LEX.heart.end[f.heart&&f.heart.end];if(he)heart+=' '+he;
+  parts.push({h:'❤️ 感情线 · 情绪',p:heart||'感情线不太清晰。'});
+  // 事业线
+  parts.push({h:'💼 事业线 · 成就',p:(LEX.fate[f.fate]||LEX.fate['不清']).replace('先天手',hl.isInnate?'先天手':'后天手')});
+  // 特殊
+  const sp=(f.special||[]).map(s=>LEX.special[s]).filter(Boolean);
+  if(sp.length)parts.push({h:'🔮 特殊纹路',p:sp.join('\n')});
+  return {sub:hl.txt+' · '+(hl.isInnate?'代表你天生的命运':'代表你后天能争取的命运'),parts};
+}
+function render(f){
+  const r=assemble(f);
+  $('rsub').textContent=r.sub;
+  $('rbody').innerHTML=r.parts.map(x=>`<div class="sec"><h4>${x.h}</h4><p>${x.p.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</p></div>`).join('');
+  $('rphilo').textContent=PHILO;
+  $('loading').style.display='none';$('report').style.display='block';$('report').scrollIntoView({behavior:'smooth',block:'start'});
+}
+// 示例:随机造一组特征,免 key 预览评语库
+function rand(a){return a[Math.floor(Math.random()*a.length)];}
+$('sample').onclick=()=>{render({life:{vitality:rand(['旺','弱']),travel:Math.random()<.5,multiple:Math.random()<.3},head:{length:rand(['长','短']),curve:rand(['直','弯','很弯']),joined:rand(['连','不连'])},heart:{length:rand(['长','短']),angle:rand(['上扬','平缓']),end:rand(['下弯','分叉','普通'])},fate:rand(['清晰','下半','上半','断续','无']),special:Math.random()<.5?[rand(['神秘十字线','断掌','霸王线','佛之眼','所罗门之星'])]:[]});};
 
 async function analyze(){
   if(!imgB64){setErr('先上传一张手掌照');return;}
   setErr('');$('actions').style.display='none';$('loading').style.display='block';
-  const b64=imgB64.split(',')[1];
+  const dataUri=imgB64,b64=imgB64.split(',')[1];
   try{
-    let text;
+    let content;
     if(PROXY){
-      const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64,mime:'image/jpeg'})});
-      const j=await r.json();if(!r.ok)throw new Error(j.error||'服务异常');text=j.text;
+      const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64})});
+      const j=await r.json();if(!r.ok)throw new Error(j.error||'服务异常');content=j.text;
     }else{
       const key=$('key').value.trim();
-      if(!key){$('loading').style.display='none';$('actions').style.display='flex';$('keybox').open=true;setErr('测试模式需要先在下方「测试设置」粘贴你的 Gemini Key');return;}
-      const r=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${encodeURIComponent(key)}`,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({contents:[{parts:[{text:SYS},{inline_data:{mime_type:'image/jpeg',data:b64}}]}],generationConfig:{temperature:0.95,maxOutputTokens:900}})});
-      const j=await r.json();
-      if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
-      text=j.candidates&&j.candidates[0]&&j.candidates[0].content.parts[0].text;
-      if(!text)throw new Error('模型没有返回内容(可能被安全策略拦截),换张更清晰的手掌照');
+      if(!key){$('loading').style.display='none';$('actions').style.display='flex';$('keybox').open=true;setErr('测试模式需先在下方「测试设置」粘贴智谱 Key(或点上面「看示例报告」)');return;}
+      const r=await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+        body:JSON.stringify({model:MODEL,temperature:0.6,messages:[{role:'user',content:[{type:'text',text:EXTRACT_PROMPT},{type:'image_url',image_url:{url:dataUri}}]}]})});
+      const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));
+      content=j.choices&&j.choices[0]&&j.choices[0].message.content;
     }
-    $('rbody').innerHTML=text.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>');
-    $('loading').style.display='none';$('report').style.display='block';$('report').scrollIntoView({behavior:'smooth',block:'start'});
-  }catch(e){
-    $('loading').style.display='none';$('actions').style.display='flex';
-    setErr('解读失败:'+e.message);
-  }
+    if(!content)throw new Error('模型没返回内容,换张更清晰的手掌照');
+    const m=content.match(/\{[\s\S]*\}/);if(!m)throw new Error('识别结果解析失败,重试或换张照片');
+    const f=JSON.parse(m[0]);
+    if(f.is_hand===false){$('loading').style.display='none';$('actions').style.display='flex';setErr('没看清手掌 🖐 请手心朝上、五指张开、光线足一点再拍');return;}
+    render(f);
+  }catch(e){$('loading').style.display='none';$('actions').style.display='flex';setErr('解读失败:'+e.message);}
 }
 $('go').onclick=analyze;
 </script>
