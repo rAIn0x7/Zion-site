@@ -144,7 +144,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 <div class="toast" id="toast">已复制</div>
 <script>
 const MODEL='glm-4v-flash';
-const PROXY='';  // 部署 Worker 后填它的网址(https://xxx.workers.dev);为空=测试模式(本地 key 直连智谱)
+const PROXY='https://palm-proxy.1733680684.workers.dev';  // CF Worker 代理:藏 key、国内可达;为空则回退本地 key 测试模式
 const UNLOCK_CODE='解密掌纹';  // 关注公众号回复「手相」得到的解锁口令(改成你自动回复里设的词)
 
 const EXTRACT_PROMPT=`你是一个手相特征识别器。请仔细观察这张手掌照片,只输出一个 JSON 对象描述你观察到的掌纹与手型特征,不要写任何解读或多余文字。若某项看不清,填 "不清"。字段与可选值如下:
