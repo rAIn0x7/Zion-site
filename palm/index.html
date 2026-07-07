@@ -63,6 +63,12 @@ header .sub{color:var(--muted);font-size:14px;margin-top:6px}
 .sec h4{font-size:15px;color:var(--gold-lt);font-weight:600;margin-bottom:4px}
 .sec p{font-size:14.5px;color:var(--white);line-height:1.8}
 .philo{margin-top:18px;border-top:1px solid var(--border);padding-top:12px;font-size:13px;color:var(--muted);line-height:1.85;font-style:italic}
+.lockcta{margin-top:16px;border:1px solid rgba(201,168,76,.42);border-radius:12px;padding:16px;background:rgba(201,168,76,.06);text-align:center;font-size:13.5px;color:var(--white);line-height:1.7}
+.lockcta b{color:var(--gold-lt)}
+.lockcta .lr{display:flex;gap:8px;justify-content:center;margin-top:12px;flex-wrap:wrap}
+.lockcta input{flex:0 1 170px;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--mono);font-size:13px;padding:9px 12px;outline:none;text-align:center}
+.lockZone{transition:filter .3s}
+.lockZone.blur{filter:blur(6px);pointer-events:none;user-select:none}
 .cta{margin-top:18px;border:1px solid var(--border);border-radius:12px;padding:15px 16px;background:rgba(201,168,76,.05);text-align:center}
 .cta .ct{font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--gold);text-transform:uppercase;margin-bottom:5px}
 .cta .cb{font-size:14px;color:var(--white)}.cta .cb b{color:var(--gold-lt)}
@@ -123,7 +129,6 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <div class="dims" id="rdims"></div>
     </div>
     <div id="rbody"></div>
-    <div class="philo" id="rphilo"></div>
     <div class="cta">
       <div class="ct">✨ 想看更深 / 每天一条降噪信号</div>
       <div class="cb">微信搜公众号 <b>「Zion降噪」</b> · 回复 <b>「手相」</b></div>
@@ -139,7 +144,8 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 <div class="toast" id="toast">已复制</div>
 <script>
 const MODEL='glm-4v-flash';
-const PROXY='';  // 正式版填 Cloudflare Worker 地址;为空=测试模式(本地 key 直连智谱)
+const PROXY='';  // 部署 Worker 后填它的网址(https://xxx.workers.dev);为空=测试模式(本地 key 直连智谱)
+const UNLOCK_CODE='解密掌纹';  // 关注公众号回复「手相」得到的解锁口令(改成你自动回复里设的词)
 
 const EXTRACT_PROMPT=`你是一个手相特征识别器。请仔细观察这张手掌照片,只输出一个 JSON 对象描述你观察到的掌纹与手型特征,不要写任何解读或多余文字。若某项看不清,填 "不清"。字段与可选值如下:
 {
@@ -269,11 +275,19 @@ function render(f){
   lastTag=tag;lastScore=sc.total;
   $('rtag').textContent=tag;$('rsub').textContent=r.sub;$('rscore').textContent=sc.total;
   $('rdims').innerHTML=[['🌿生命力',sc.life],['🧠思维',sc.mind],['❤️情绪',sc.emo],['💼事业',sc.career]].map(d=>`<div class="dim"><span class="n">${d[1]}</span>${d[0]}</div>`).join('');
-  $('rbody').innerHTML=r.parts.map(x=>`<div class="sec"><h4>${x.h}</h4><p>${x.p.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</p></div>`).join('');
-  $('rphilo').textContent=PHILO;
+  const secHTML=x=>`<div class="sec"><h4>${x.h}</h4><p>${x.p.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</p></div>`;
+  const first=r.parts[0],rest=r.parts.slice(1);
+  $('rbody').innerHTML=secHTML(first)
+    +`<div class="lockcta" id="lockCta">🔒 关注公众号 <b>「Zion降噪」</b> 回复 <b>「手相」</b> 拿口令,解锁 智慧线 / 感情线 / 事业线 + 特殊纹 完整解读<div class="lr"><input id="lockInput" placeholder="解锁口令" autocomplete="off"><button class="btn g" id="lockBtn">解锁</button></div></div>`
+    +`<div class="lockZone" id="lockZone">`+rest.map(secHTML).join('')+`<div class="philo">${PHILO}</div>`+`</div>`;
+  $('lockBtn').onclick=tryUnlock;
+  $('lockInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryUnlock();});
+  applyLock();
   $('stage').style.display='none';                       // 隐藏上传区 → 报告是干净的可截图单元
   $('loading').style.display='none';$('report').style.display='block';$('report').scrollIntoView({behavior:'smooth',block:'start'});
 }
+function applyLock(){const u=localStorage.getItem('palm_unlocked')==='1';const z=$('lockZone'),c=$('lockCta');if(z)z.classList.toggle('blur',!u);if(c)c.style.display=u?'none':'block';}
+function tryUnlock(){const v=($('lockInput').value||'').trim();if(v&&v===UNLOCK_CODE){localStorage.setItem('palm_unlocked','1');applyLock();toast('解锁成功 ✨');}else toast('口令不对,去公众号回复「手相」拿');}
 function rand(a){return a[Math.floor(Math.random()*a.length)];}
 $('sample').onclick=()=>{
   dom=rand(['right','left']);hand=rand(['left','right']);      // 示例也随机惯用手/这只手
