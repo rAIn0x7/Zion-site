@@ -144,7 +144,8 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 <div class="toast" id="toast">已复制</div>
 <script>
 const MODEL='glm-4v-flash';
-const PROXY='https://palm-proxy.1733680684.workers.dev';  // CF Worker 代理:藏 key、国内可达;为空则回退本地 key 测试模式
+const PROXY='';  // 曾用 CF Worker 代理,但 *.workers.dev 国内被墙(Failed to fetch),已停用;改为浏览器直连智谱(bigmodel.cn 国内可达)
+const GLM_KEY='a3627c50241e4ba89fc4f56193b9c724.ADj57yFSiiLajwRC';  // 智谱 API Key(open.bigmodel.cn 拿的)。为空则回退到下方「测试设置」手填。注意:此站是公开静态页,key 会暴露在网页里——只用免费额度、别在智谱后台给这个 key 开通付费,泄露最多被人蹭免费量,不产生账单。
 const UNLOCK_CODE='解密掌纹';  // 关注公众号回复「手相」得到的解锁口令(改成你自动回复里设的词)
 
 const EXTRACT_PROMPT=`你是一个手相特征识别器。请仔细观察这张手掌照片,只输出一个 JSON 对象描述你观察到的掌纹与手型特征,不要写任何解读或多余文字。若某项看不清,填 "不清"。字段与可选值如下:
@@ -303,7 +304,7 @@ async function analyze(){
   try{
     let content;
     if(PROXY){const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64})});const j=await r.json();if(!r.ok)throw new Error(j.error||'服务异常');content=j.text;}
-    else{const key=$('key').value.trim();if(!key){$('loading').style.display='none';$('actions').style.display='flex';$('keybox').open=true;setErr('测试模式需先在下方「测试设置」粘贴智谱 Key(或点上面「看示例报告」)');return;}
+    else{const key=GLM_KEY||$('key').value.trim();if(!key){$('loading').style.display='none';$('actions').style.display='flex';$('keybox').open=true;setErr('先在下方「测试设置」粘贴智谱 Key(或点上面「看示例报告」)');return;}
       const r=await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:MODEL,temperature:0.6,messages:[{role:'user',content:[{type:'text',text:EXTRACT_PROMPT},{type:'image_url',image_url:{url:dataUri}}]}]})});
       const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));content=j.choices&&j.choices[0]&&j.choices[0].message.content;}
     if(!content)throw new Error('模型没返回内容,换张更清晰的手掌照');
