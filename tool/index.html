@@ -4,13 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>工具箱 — Zion · qizh.space</title>
-<meta name="description" content="一组零广告干扰、纯本地运行的实用小工具:JSON 格式化、时间戳转换、Base64、URL 编解码、正则测试、人民币大写、中文字数统计。数据不出浏览器。">
+<meta name="description" content="一组纯本地运行的实用小工具:二维码生成、图片压缩/格式转换、Markdown 公众号排版、复利计算,以及 JSON / Base64 / URL / 正则 / 时间戳、人民币大写、中文字数统计。零广告、无需登录,数据不出浏览器。">
 <link rel="canonical" href="https://qizh.space/tool/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='62' font-family='Georgia,serif' font-weight='700' fill='%23c9a84c' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
 <meta property="og:title" content="工具箱 — Zion · qizh.space">
-<meta property="og:description" content="纯本地运行的实用小工具,数据不出浏览器。">
+<meta property="og:description" content="纯本地运行的实用小工具:二维码 / 图片压缩 / Markdown 排版 / 复利计算…… 零广告,数据不出浏览器。">
 <meta property="og:url" content="https://qizh.space/tool/">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
 <link rel="preconnect" href="https://fonts.loli.net">
 <link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -22,16 +21,30 @@ a{color:inherit;text-decoration:none}
 .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
 nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px 24px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .logo{font-family:var(--display);font-size:25px;letter-spacing:.16em}.logo span{color:var(--gold)}
-.nav-r{display:flex;gap:20px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r{display:flex;gap:18px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted);flex-wrap:wrap;justify-content:flex-end}
 .nav-r a:hover{color:var(--gold)}
-header{text-align:center;padding:54px 24px 30px}
+.nav-r a.here{color:var(--gold)}
+header{text-align:center;padding:48px 24px 22px}
 header h1{font-family:var(--display);font-size:clamp(40px,8vw,64px);letter-spacing:.04em;color:var(--gold-lt)}
 header p{color:var(--muted);font-size:14px;margin-top:8px}
-.layout{display:grid;grid-template-columns:210px 1fr;gap:24px;padding-bottom:80px}
-.tabs{display:flex;flex-direction:column;gap:4px;position:sticky;top:80px;align-self:start}
-.tab{text-align:left;font-family:var(--mono);font-size:13px;letter-spacing:.04em;color:var(--muted);background:none;border:1px solid transparent;border-radius:10px;padding:11px 14px;cursor:pointer;transition:.15s}
-.tab:hover{color:var(--white);background:var(--panel)}
-.tab.on{color:var(--gold);border-color:var(--border);background:var(--panel)}
+.pb{padding-bottom:80px}
+/* search + cards */
+.search-wrap{position:relative;margin:6px 0 4px}
+#search{width:100%;font-family:var(--body);font-size:16px;padding:16px 18px 16px 48px;border-radius:12px;background:var(--panel);border:1px solid var(--border);color:var(--white);outline:none;transition:border-color .2s}
+#search:focus{border-color:rgba(201,168,76,.5)}
+#search::placeholder{color:var(--dim)}
+.search-ico{position:absolute;left:18px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:17px;pointer-events:none}
+.cat-title{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin:30px 0 12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.card{text-align:left;display:flex;flex-direction:column;gap:6px;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 16px 18px;cursor:pointer;transition:.18s;color:inherit;font-family:var(--body)}
+.card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.card-ico{font-size:24px;line-height:1}
+.card-name{font-weight:500;font-size:15px;color:var(--white)}
+.card-desc{font-size:12.5px;color:var(--muted);line-height:1.5}
+.empty{color:var(--muted);font-family:var(--mono);font-size:13px;padding:36px 0;text-align:center}
+.back{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:12.5px;letter-spacing:.04em;color:var(--muted);cursor:pointer;margin-bottom:16px;background:none;border:none}
+.back:hover{color:var(--gold)}
+/* panels (single tool view) */
 .panel{display:none;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:26px}
 .panel.on{display:block}
 .panel h2{font-family:var(--display);font-size:26px;letter-spacing:.04em;color:var(--white);margin-bottom:4px}
@@ -40,6 +53,8 @@ label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.1em;c
 textarea,input,select{width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--mono);font-size:13.5px;padding:12px 14px;outline:none;transition:border-color .2s;resize:vertical}
 textarea:focus,input:focus,select:focus{border-color:rgba(201,168,76,.5)}
 textarea{min-height:120px;line-height:1.5}
+input[type=file]{padding:10px 12px;font-size:12px}
+input[type=range]{padding:0;accent-color:var(--gold);height:22px}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
 .btn{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;padding:10px 18px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--white);transition:.2s}
 .btn:hover{border-color:var(--gold)}
@@ -54,111 +69,178 @@ mark{background:rgba(201,168,76,.32);color:var(--gold-lt);border-radius:2px}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 footer{border-top:1px solid var(--border);padding:26px 24px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em}
 footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
-@media(max-width:760px){.layout{grid-template-columns:1fr}.tabs{flex-direction:row;flex-wrap:wrap;position:static;gap:6px}.tab{flex:1 0 auto}.grid2{grid-template-columns:1fr}}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}header{padding:34px 24px 18px}}
 </style>
 </head>
 <body>
 <nav>
   <a href="/" class="logo">ZI<span>O</span>N</a>
-  <div class="nav-r"><a href="/prompt/">prompt</a><a href="/play/">play</a><a href="/">← 主站</a></div>
+  <div class="nav-r"><a href="/tool/" class="here">工具</a><a href="/prompt/">Prompt</a><a href="/palm/">手相</a><a href="/play/">游戏</a><a href="/">主站</a></div>
 </nav>
 <header>
   <h1>工具箱</h1>
-  <p>纯本地运行 · 数据不出浏览器 · 无需登录</p>
+  <p>纯本地运行 · 数据不出浏览器 · 零广告 · 无需登录</p>
 </header>
-<div class="wrap">
-  <div class="layout">
-    <div class="tabs" id="tabs"></div>
-    <div id="panels">
+<div class="wrap pb">
 
-      <section class="panel" data-tool="json">
-        <h2>JSON 格式化 / 校验</h2>
-        <div class="hint">格式化、压缩、语法校验。全部在本地完成。</div>
-        <label>输入 JSON</label>
-        <textarea id="json-in" placeholder='{"hello":"world","n":[1,2,3]}'></textarea>
-        <div class="row">
-          <button class="btn g" onclick="TOOL.jsonFmt(2)">格式化</button>
-          <button class="btn" onclick="TOOL.jsonFmt(0)">压缩</button>
-          <button class="btn" onclick="TOOL.copy('json-out')">复制结果</button>
-        </div>
-        <div class="out" id="json-out"></div>
-      </section>
-
-      <section class="panel" data-tool="ts">
-        <h2>时间戳 ↔ 日期</h2>
-        <div class="hint">Unix 时间戳与北京时间互转,支持秒/毫秒。</div>
-        <div class="grid2">
-          <div>
-            <label>时间戳 → 日期(秒或毫秒)</label>
-            <input id="ts-in" placeholder="1751000000">
-            <div class="row"><button class="btn g" onclick="TOOL.ts2date()">转换</button><button class="btn" onclick="document.getElementById('ts-in').value=Math.floor(Date.now()/1000);TOOL.ts2date()">当前</button></div>
-            <div class="out" id="ts-out"></div>
-          </div>
-          <div>
-            <label>日期 → 时间戳</label>
-            <input id="dt-in" placeholder="2026-07-01 12:00:00">
-            <div class="row"><button class="btn g" onclick="TOOL.date2ts()">转换</button></div>
-            <div class="out" id="dt-out"></div>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel" data-tool="b64">
-        <h2>Base64 编 / 解码</h2>
-        <div class="hint">支持中文(UTF-8 安全)。</div>
-        <label>文本</label>
-        <textarea id="b64-in" placeholder="你好 world"></textarea>
-        <div class="row">
-          <button class="btn g" onclick="TOOL.b64(1)">编码 →</button>
-          <button class="btn" onclick="TOOL.b64(0)">← 解码</button>
-          <button class="btn" onclick="TOOL.copy('b64-out')">复制</button>
-        </div>
-        <div class="out" id="b64-out"></div>
-      </section>
-
-      <section class="panel" data-tool="url">
-        <h2>URL 编 / 解码</h2>
-        <div class="hint">encodeURIComponent / decodeURIComponent。</div>
-        <label>文本</label>
-        <textarea id="url-in" placeholder="https://qizh.space/?q=你好&a=1"></textarea>
-        <div class="row">
-          <button class="btn g" onclick="TOOL.url(1)">编码 →</button>
-          <button class="btn" onclick="TOOL.url(0)">← 解码</button>
-          <button class="btn" onclick="TOOL.copy('url-out')">复制</button>
-        </div>
-        <div class="out" id="url-out"></div>
-      </section>
-
-      <section class="panel" data-tool="re">
-        <h2>正则测试</h2>
-        <div class="hint">实时高亮匹配 + 分组捕获。</div>
-        <label>正则表达式</label>
-        <input id="re-pat" placeholder="\\d+" oninput="TOOL.re()">
-        <label>标志(如 gi)</label>
-        <input id="re-flags" value="g" oninput="TOOL.re()" style="max-width:120px">
-        <label>测试文本</label>
-        <textarea id="re-in" placeholder="订单 123 金额 456 元" oninput="TOOL.re()"></textarea>
-        <div class="mono-sm" id="re-info" style="margin-top:10px"></div>
-        <div class="out" id="re-out"></div>
-      </section>
-
-      <section class="panel" data-tool="rmb">
-        <h2>人民币金额大写</h2>
-        <div class="hint">数字金额 → 中文大写(发票 / 合同用)。</div>
-        <label>金额(元)</label>
-        <input id="rmb-in" placeholder="1234.56" oninput="TOOL.rmb()">
-        <div class="out" id="rmb-out"></div>
-      </section>
-
-      <section class="panel" data-tool="wc">
-        <h2>中文字数统计</h2>
-        <div class="hint">字符 / 不含空格 / 中文字 / 单词 / 行数。公众号、论文常用。</div>
-        <label>文本</label>
-        <textarea id="wc-in" placeholder="在此粘贴文本…" oninput="TOOL.wc()" style="min-height:160px"></textarea>
-        <div class="out" id="wc-out"></div>
-      </section>
-
+  <!-- 首页:可搜索卡片墙 -->
+  <div id="home">
+    <div class="search-wrap">
+      <span class="search-ico">⌕</span>
+      <input id="search" placeholder="搜工具:二维码 / 字数 / 压缩 / json / 复利…" oninput="renderHome(this.value)" autocomplete="off">
     </div>
+    <div id="recent"></div>
+    <div id="catwrap"></div>
+  </div>
+
+  <!-- 单工具操作区 -->
+  <div id="toolview" style="display:none">
+    <button class="back" onclick="goHome()">← 返回全部工具</button>
+
+    <section class="panel" data-tool="qr">
+      <h2>二维码生成器</h2>
+      <div class="hint">输入文本 / 链接 → 本地生成二维码,可下载 PNG。适合「关注公众号 / 加微信」码。编码全程纯 JS,不联网。</div>
+      <label>内容</label>
+      <textarea id="qr-in" placeholder="https://qizh.space  或  微信号 / 公众号名"></textarea>
+      <div class="row">
+        <label style="margin:0 8px 0 0">纠错等级</label>
+        <select id="qr-ecc" style="max-width:150px" onchange="TOOL.qr()"><option value="MEDIUM">中 (M)</option><option value="LOW">低 (L)</option><option value="QUARTILE">较高 (Q)</option><option value="HIGH">高 (H)</option></select>
+      </div>
+      <div class="row">
+        <button class="btn g" onclick="TOOL.qr()">生成</button>
+        <button class="btn" onclick="TOOL.qrDownload()">下载 PNG</button>
+      </div>
+      <div class="out" id="qr-msg" style="min-height:auto">输入内容后点「生成」</div>
+      <div style="margin-top:14px;text-align:center"><canvas id="qr-canvas" style="max-width:100%;background:#fff;border-radius:8px;display:none"></canvas></div>
+    </section>
+
+    <section class="panel" data-tool="imgc">
+      <h2>图片压缩 / 格式转换</h2>
+      <div class="hint">上传图片 → 本地 canvas 重绘输出 JPEG / WebP / PNG,可改最大边尺寸与质量。原图不上传。</div>
+      <label>选择图片</label>
+      <input type="file" id="imgc-file" accept="image/*" onchange="TOOL.imgcLoad(event)">
+      <div class="grid2">
+        <div><label>输出格式</label><select id="imgc-fmt" onchange="TOOL.imgcRun()"><option value="image/jpeg">JPEG</option><option value="image/webp">WebP</option><option value="image/png">PNG</option></select></div>
+        <div><label>最大边尺寸 (px)</label><input id="imgc-max" value="1600" oninput="TOOL.imgcRun()"></div>
+      </div>
+      <label>质量 <span id="imgc-qval" class="mono-sm">0.82</span>(PNG 无损,不受质量影响)</label>
+      <input type="range" id="imgc-q" min="0.1" max="1" step="0.01" value="0.82" oninput="document.getElementById('imgc-qval').textContent=this.value;TOOL.imgcRun()">
+      <div class="out" id="imgc-msg" style="min-height:auto">上传图片后自动处理</div>
+      <div class="row"><button class="btn g" onclick="TOOL.imgcDownload()">下载结果</button></div>
+      <div style="margin-top:14px;text-align:center"><img id="imgc-prev" alt="预览" style="max-width:100%;border-radius:8px;display:none"></div>
+    </section>
+
+    <section class="panel" data-tool="md">
+      <h2>Markdown → 公众号排版</h2>
+      <div class="hint">左侧写 Markdown,右侧实时渲染为带内联样式的富文本,一键复制可直接粘进公众号后台。解析器纯 JS 自写。</div>
+      <div class="grid2">
+        <div><label>Markdown</label><textarea id="md-in" style="min-height:360px" oninput="TOOL.md()" placeholder="# 一级标题&#10;&#10;正文 **加粗**、*斜体*、`代码` 与 [链接](https://qizh.space)。&#10;&#10;> 引用一句话&#10;&#10;- 列表项一&#10;- 列表项二"></textarea></div>
+        <div><label>预览(选中即复制)</label><div id="md-out" style="min-height:360px;max-height:520px;overflow:auto;background:#fff;color:#3f3f3f;border:1px solid var(--border);border-radius:8px;padding:18px"></div></div>
+      </div>
+      <div class="row"><button class="btn g" onclick="TOOL.mdCopy()">复制排版结果</button><span class="mono-sm">复制后到公众号后台正文区直接粘贴</span></div>
+    </section>
+
+    <section class="panel" data-tool="calc">
+      <h2>复利 / 定投计算器</h2>
+      <div class="hint">按 初始本金 + 每月定投 + 年化收益率 复利估算终值,并给出逐年增长。仅为估算,非投资建议。</div>
+      <div class="grid2">
+        <div><label>初始本金(元)</label><input id="calc-p" value="10000" oninput="TOOL.calc()"></div>
+        <div><label>每月定投(元)</label><input id="calc-m" value="2000" oninput="TOOL.calc()"></div>
+        <div><label>年化收益率(%)</label><input id="calc-r" value="8" oninput="TOOL.calc()"></div>
+        <div><label>年限(年)</label><input id="calc-y" value="10" oninput="TOOL.calc()"></div>
+      </div>
+      <div class="out" id="calc-out"></div>
+      <div class="row"><button class="btn" onclick="TOOL.copy('calc-out')">复制结论</button></div>
+      <div id="calc-bars" style="margin-top:16px"></div>
+    </section>
+
+    <section class="panel" data-tool="json">
+      <h2>JSON 格式化 / 校验</h2>
+      <div class="hint">格式化、压缩、语法校验。全部在本地完成。</div>
+      <label>输入 JSON</label>
+      <textarea id="json-in" placeholder='{"hello":"world","n":[1,2,3]}'></textarea>
+      <div class="row">
+        <button class="btn g" onclick="TOOL.jsonFmt(2)">格式化</button>
+        <button class="btn" onclick="TOOL.jsonFmt(0)">压缩</button>
+        <button class="btn" onclick="TOOL.copy('json-out')">复制结果</button>
+      </div>
+      <div class="out" id="json-out"></div>
+    </section>
+
+    <section class="panel" data-tool="ts">
+      <h2>时间戳 ↔ 日期</h2>
+      <div class="hint">Unix 时间戳与本地时间互转,支持秒/毫秒。</div>
+      <div class="grid2">
+        <div>
+          <label>时间戳 → 日期(秒或毫秒)</label>
+          <input id="ts-in" placeholder="1751000000">
+          <div class="row"><button class="btn g" onclick="TOOL.ts2date()">转换</button><button class="btn" onclick="document.getElementById('ts-in').value=Math.floor(Date.now()/1000);TOOL.ts2date()">当前</button></div>
+          <div class="out" id="ts-out"></div>
+        </div>
+        <div>
+          <label>日期 → 时间戳</label>
+          <input id="dt-in" placeholder="2026-07-01 12:00:00">
+          <div class="row"><button class="btn g" onclick="TOOL.date2ts()">转换</button></div>
+          <div class="out" id="dt-out"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" data-tool="b64">
+      <h2>Base64 编 / 解码</h2>
+      <div class="hint">支持中文(UTF-8 安全)。</div>
+      <label>文本</label>
+      <textarea id="b64-in" placeholder="你好 world"></textarea>
+      <div class="row">
+        <button class="btn g" onclick="TOOL.b64(1)">编码 →</button>
+        <button class="btn" onclick="TOOL.b64(0)">← 解码</button>
+        <button class="btn" onclick="TOOL.copy('b64-out')">复制</button>
+      </div>
+      <div class="out" id="b64-out"></div>
+    </section>
+
+    <section class="panel" data-tool="url">
+      <h2>URL 编 / 解码</h2>
+      <div class="hint">encodeURIComponent / decodeURIComponent。</div>
+      <label>文本</label>
+      <textarea id="url-in" placeholder="https://qizh.space/?q=你好&a=1"></textarea>
+      <div class="row">
+        <button class="btn g" onclick="TOOL.url(1)">编码 →</button>
+        <button class="btn" onclick="TOOL.url(0)">← 解码</button>
+        <button class="btn" onclick="TOOL.copy('url-out')">复制</button>
+      </div>
+      <div class="out" id="url-out"></div>
+    </section>
+
+    <section class="panel" data-tool="re">
+      <h2>正则测试</h2>
+      <div class="hint">实时高亮匹配 + 匹配计数。</div>
+      <label>正则表达式</label>
+      <input id="re-pat" placeholder="\d+" oninput="TOOL.re()">
+      <label>标志(如 gi)</label>
+      <input id="re-flags" value="g" oninput="TOOL.re()" style="max-width:120px">
+      <label>测试文本</label>
+      <textarea id="re-in" placeholder="订单 123 金额 456 元" oninput="TOOL.re()"></textarea>
+      <div class="mono-sm" id="re-info" style="margin-top:10px"></div>
+      <div class="out" id="re-out"></div>
+    </section>
+
+    <section class="panel" data-tool="rmb">
+      <h2>人民币金额大写</h2>
+      <div class="hint">数字金额 → 中文大写(发票 / 合同用)。</div>
+      <label>金额(元)</label>
+      <input id="rmb-in" placeholder="1234.56" oninput="TOOL.rmb()">
+      <div class="out" id="rmb-out"></div>
+    </section>
+
+    <section class="panel" data-tool="wc">
+      <h2>中文字数统计</h2>
+      <div class="hint">字符 / 不含空格 / 中文字 / 英文单词 / 行数。公众号、论文常用。</div>
+      <label>文本</label>
+      <textarea id="wc-in" placeholder="在此粘贴文本…" oninput="TOOL.wc()" style="min-height:160px"></textarea>
+      <div class="out" id="wc-out"></div>
+    </section>
+
   </div>
 </div>
 <footer>
@@ -166,28 +248,94 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 </footer>
 <div class="toast" id="toast">已复制</div>
 <script>
-const TOOLS=[['json','JSON 格式化'],['ts','时间戳转换'],['b64','Base64'],['url','URL 编解码'],['re','正则测试'],['rmb','人民币大写'],['wc','字数统计']];
-const tabsEl=document.getElementById('tabs');
-TOOLS.forEach(([k,name],i)=>{const b=document.createElement('button');b.className='tab'+(i===0?' on':'');b.textContent=name;b.dataset.k=k;b.onclick=()=>select(k);tabsEl.appendChild(b);});
-function select(k){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.k===k));
-  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.dataset.tool===k));
-  if(location.hash.slice(1)!==k)history.replaceState(null,'','#'+k);
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const TOAST=$('toast');
+const fmtSize=b=>b<1024?b+' B':b<1048576?(b/1024).toFixed(1)+' KB':(b/1048576).toFixed(2)+' MB';
+
+/* ---------- tool catalog ---------- */
+const TOOLS=[
+  {k:'wc',   name:'中文字数统计',        icon:'📝', cat:'文本·写作', desc:'字符 / 中文字 / 单词 / 行数', alias:'字数 统计 字符 word count 公众号 论文'},
+  {k:'md',   name:'Markdown 公众号排版', icon:'✍️', cat:'文本·写作', desc:'MD → 带内联样式富文本,可粘进公众号', alias:'markdown md 公众号 排版 富文本 微信'},
+  {k:'qr',   name:'二维码生成器',        icon:'🔳', cat:'图片',      desc:'文本 / 链接 → 二维码,可下载 PNG', alias:'qr 二维码 码 qrcode 公众号 加微信 关注'},
+  {k:'imgc', name:'图片压缩 / 转换',     icon:'🖼️', cat:'图片',      desc:'重绘输出 JPEG / WebP,调尺寸与质量', alias:'图片 压缩 格式 转换 jpeg webp png compress'},
+  {k:'rmb',  name:'人民币大写',          icon:'💰', cat:'换算·计算', desc:'数字金额 → 中文大写', alias:'人民币 大写 金额 发票 合同 rmb money'},
+  {k:'calc', name:'复利 / 定投计算器',   icon:'📈', cat:'换算·计算', desc:'本金+定投+年化 → 终值与逐年增长', alias:'复利 定投 理财 收益 杠杆 计算器 compound'},
+  {k:'json', name:'JSON 格式化',         icon:'🧬', cat:'编码·开发', desc:'格式化 / 压缩 / 语法校验', alias:'json 格式化 校验 压缩 美化 beautify'},
+  {k:'ts',   name:'时间戳转换',          icon:'⏱️', cat:'编码·开发', desc:'Unix 时间戳 ↔ 日期,秒/毫秒', alias:'时间戳 timestamp 日期 unix time date'},
+  {k:'b64',  name:'Base64',             icon:'🔐', cat:'编码·开发', desc:'Base64 编 / 解码(UTF-8 安全)', alias:'base64 编码 解码 encode decode'},
+  {k:'url',  name:'URL 编解码',          icon:'🔗', cat:'编码·开发', desc:'encode / decodeURIComponent', alias:'url 编码 解码 encode uri escape'},
+  {k:'re',   name:'正则测试',            icon:'⚡', cat:'编码·开发', desc:'实时高亮匹配 + 计数', alias:'正则 regex regexp 匹配 test'}
+];
+const CATS=['文本·写作','图片','换算·计算','编码·开发'];
+const byKey=k=>TOOLS.find(t=>t.k===k);
+
+/* ---------- recent (localStorage) ---------- */
+function getRecent(){try{return (JSON.parse(localStorage.getItem('tool_recent'))||[]).map(byKey).filter(Boolean);}catch(e){return [];}}
+function pushRecent(k){let r=getRecent().map(t=>t.k);r=[k,...r.filter(x=>x!==k)].slice(0,4);try{localStorage.setItem('tool_recent',JSON.stringify(r));}catch(e){}}
+
+/* ---------- home / card wall ---------- */
+function cardHTML(t){return `<button class="card" onclick="openTool('${t.k}')"><span class="card-ico">${t.icon}</span><span class="card-name">${esc(t.name)}</span><span class="card-desc">${esc(t.desc)}</span></button>`;}
+function renderHome(filter){
+  const q=(filter||'').trim().toLowerCase();
+  const recentEl=$('recent'),recent=getRecent();
+  if(recent.length&&!q){recentEl.innerHTML='<div class="cat-title">最近用过</div><div class="cards">'+recent.map(cardHTML).join('')+'</div>';}
+  else recentEl.innerHTML='';
+  let html='';
+  CATS.forEach(cat=>{
+    let items=TOOLS.filter(t=>t.cat===cat);
+    if(q)items=items.filter(t=>(t.name+' '+t.alias+' '+t.desc).toLowerCase().includes(q));
+    if(!items.length)return;
+    html+='<div class="cat-title">'+cat+'</div><div class="cards">'+items.map(cardHTML).join('')+'</div>';
+  });
+  $('catwrap').innerHTML=html||'<div class="empty">没有匹配「'+esc(filter)+'」的工具</div>';
 }
-const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const TOAST=document.getElementById('toast');
+
+/* ---------- routing ---------- */
+function openTool(k){location.hash='#'+k;}
+function goHome(){if(location.hash)location.hash='';else route();}
+function showHome(){$('home').style.display='block';$('toolview').style.display='none';renderHome($('search').value);}
+function showTool(t){
+  $('home').style.display='none';$('toolview').style.display='block';
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.dataset.tool===t.k));
+  pushRecent(t.k);window.scrollTo(0,0);
+}
+function route(){const t=byKey(location.hash.slice(1));if(t)showTool(t);else showHome();}
+window.addEventListener('hashchange',route);
+
+/* ---------- tools ---------- */
 const TOOL={
-  copy(id){const el=document.getElementById(id);const t=el.textContent;if(!t)return;navigator.clipboard&&navigator.clipboard.writeText(t);TOAST.classList.add('show');setTimeout(()=>TOAST.classList.remove('show'),1100);},
-  set(id,v,err){const el=document.getElementById(id);el.textContent=v;el.classList.toggle('err',!!err);},
-  jsonFmt(sp){const v=document.getElementById('json-in').value.trim();if(!v)return this.set('json-out','');try{this.set('json-out',JSON.stringify(JSON.parse(v),null,sp));}catch(e){this.set('json-out','✗ '+e.message,1);}},
-  ts2date(){let v=document.getElementById('ts-in').value.trim();if(!v)return this.set('ts-out','');let n=Number(v);if(isNaN(n))return this.set('ts-out','✗ 不是数字',1);if(v.length<=10)n*=1000;const d=new Date(n);if(isNaN(d))return this.set('ts-out','✗ 无效',1);this.set('ts-out',d.toLocaleString('zh-CN',{hour12:false})+'  ·  '+d.toISOString());},
-  date2ts(){const v=document.getElementById('dt-in').value.trim();if(!v)return this.set('dt-out','');const d=new Date(v.replace(/-/g,'/'));if(isNaN(d))return this.set('dt-out','✗ 无法解析,试试 2026-07-01 12:00:00',1);this.set('dt-out','秒 '+Math.floor(d.getTime()/1000)+'   ·   毫秒 '+d.getTime());},
-  b64(enc){const v=document.getElementById('b64-in').value;if(!v)return this.set('b64-out','');try{this.set('b64-out',enc?btoa(unescape(encodeURIComponent(v))):decodeURIComponent(escape(atob(v.trim()))));}catch(e){this.set('b64-out','✗ '+e.message,1);}},
-  url(enc){const v=document.getElementById('url-in').value;if(!v)return this.set('url-out','');try{this.set('url-out',enc?encodeURIComponent(v):decodeURIComponent(v));}catch(e){this.set('url-out','✗ '+e.message,1);}},
-  re(){const pat=document.getElementById('re-pat').value,flags=document.getElementById('re-flags').value,txt=document.getElementById('re-in').value;const info=document.getElementById('re-info');if(!pat){this.set('re-out','');info.textContent='';return;}let rx;try{rx=new RegExp(pat,flags);}catch(e){info.textContent='✗ '+e.message;document.getElementById('re-out').classList.add('err');this.set('re-out','');return;}document.getElementById('re-out').classList.remove('err');let count=0,html='',last=0,m,g=flags.includes('g');const re2=new RegExp(pat,flags.includes('g')?flags:flags+'g');while((m=re2.exec(txt))!==null){count++;html+=esc(txt.slice(last,m.index))+'<mark>'+esc(m[0]||'')+'</mark>';last=m.index+(m[0].length||0);if(m[0]===''){re2.lastIndex++;}if(count>5000)break;}html+=esc(txt.slice(last));info.textContent='匹配 '+count+' 处';document.getElementById('re-out').innerHTML=html||'(无文本)';},
-  rmb(){const v=document.getElementById('rmb-in').value.trim();if(!v)return this.set('rmb-out','');const n=Number(v);if(isNaN(n)||n<0)return this.set('rmb-out','✗ 请输入非负数字',1);if(n>999999999999.99)return this.set('rmb-out','✗ 数值过大',1);this.set('rmb-out',rmbUpper(n));},
-  wc(){const v=document.getElementById('wc-in').value;const chars=[...v].length;const noSpace=[...v.replace(/\s/g,'')].length;const cn=(v.match(/[一-龥]/g)||[]).length;const words=(v.trim().match(/[a-zA-Z0-9]+/g)||[]).length;const lines=v?v.split(/\n/).length:0;this.set('wc-out',`字符 ${chars}    不含空格 ${noSpace}    中文字 ${cn}    英文单词 ${words}    行数 ${lines}`);}
+  toast(msg){TOAST.textContent=msg||'已复制';TOAST.classList.add('show');setTimeout(()=>TOAST.classList.remove('show'),1100);},
+  copy(id){const el=$(id);const t=el.textContent;if(!t)return;navigator.clipboard&&navigator.clipboard.writeText(t);this.toast('已复制');},
+  set(id,v,err){const el=$(id);el.textContent=v;el.classList.toggle('err',!!err);},
+  jsonFmt(sp){const v=$('json-in').value.trim();if(!v)return this.set('json-out','');try{this.set('json-out',JSON.stringify(JSON.parse(v),null,sp));}catch(e){this.set('json-out','✗ '+e.message,1);}},
+  ts2date(){let v=$('ts-in').value.trim();if(!v)return this.set('ts-out','');let n=Number(v);if(isNaN(n))return this.set('ts-out','✗ 不是数字',1);if(v.length<=10)n*=1000;const d=new Date(n);if(isNaN(d))return this.set('ts-out','✗ 无效',1);this.set('ts-out',d.toLocaleString('zh-CN',{hour12:false})+'  ·  '+d.toISOString());},
+  date2ts(){const v=$('dt-in').value.trim();if(!v)return this.set('dt-out','');const d=new Date(v.replace(/-/g,'/'));if(isNaN(d))return this.set('dt-out','✗ 无法解析,试试 2026-07-01 12:00:00',1);this.set('dt-out','秒 '+Math.floor(d.getTime()/1000)+'   ·   毫秒 '+d.getTime());},
+  b64(enc){const v=$('b64-in').value;if(!v)return this.set('b64-out','');try{this.set('b64-out',enc?btoa(unescape(encodeURIComponent(v))):decodeURIComponent(escape(atob(v.trim()))));}catch(e){this.set('b64-out','✗ '+e.message,1);}},
+  url(enc){const v=$('url-in').value;if(!v)return this.set('url-out','');try{this.set('url-out',enc?encodeURIComponent(v):decodeURIComponent(v));}catch(e){this.set('url-out','✗ '+e.message,1);}},
+  re(){const pat=$('re-pat').value,flags=$('re-flags').value,txt=$('re-in').value;const info=$('re-info');if(!pat){this.set('re-out','');info.textContent='';return;}let rx;try{rx=new RegExp(pat,flags);}catch(e){info.textContent='✗ '+e.message;$('re-out').classList.add('err');this.set('re-out','');return;}$('re-out').classList.remove('err');let count=0,html='',last=0,m;const re2=new RegExp(pat,flags.includes('g')?flags:flags+'g');while((m=re2.exec(txt))!==null){count++;html+=esc(txt.slice(last,m.index))+'<mark>'+esc(m[0]||'')+'</mark>';last=m.index+(m[0].length||0);if(m[0]===''){re2.lastIndex++;}if(count>5000)break;}html+=esc(txt.slice(last));info.textContent='匹配 '+count+' 处';$('re-out').innerHTML=html||'(无文本)';},
+  rmb(){const v=$('rmb-in').value.trim();if(!v)return this.set('rmb-out','');const n=Number(v);if(isNaN(n)||n<0)return this.set('rmb-out','✗ 请输入非负数字',1);if(n>999999999999.99)return this.set('rmb-out','✗ 数值过大',1);this.set('rmb-out',rmbUpper(n));},
+  wc(){const v=$('wc-in').value;const chars=[...v].length;const noSpace=[...v.replace(/\s/g,'')].length;const cn=(v.match(/[一-龥]/g)||[]).length;const words=(v.trim().match(/[a-zA-Z0-9]+/g)||[]).length;const lines=v?v.split(/\n/).length:0;this.set('wc-out',`字符 ${chars}    不含空格 ${noSpace}    中文字 ${cn}    英文单词 ${words}    行数 ${lines}`);},
+
+  /* --- 二维码 --- */
+  qr(){const text=$('qr-in').value;if(!text){this.set('qr-msg','请输入内容');$('qr-canvas').style.display='none';return;}let mods;try{mods=makeQr(text,$('qr-ecc').value);}catch(e){this.set('qr-msg','✗ '+e.message,1);$('qr-canvas').style.display='none';return;}const n=mods.length,quiet=4,scale=Math.max(2,Math.floor(440/(n+quiet*2))),dim=(n+quiet*2)*scale;const cv=$('qr-canvas');cv.width=dim;cv.height=dim;const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,dim,dim);ctx.fillStyle='#000';for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(mods[y][x])ctx.fillRect((x+quiet)*scale,(y+quiet)*scale,scale,scale);cv.style.display='inline-block';this.set('qr-msg','已生成 · '+n+'×'+n+' 模块 · '+dim+'px');},
+  qrDownload(){const cv=$('qr-canvas');if(cv.style.display==='none'||!cv.width){this.toast('先点「生成」');return;}const a=document.createElement('a');a.download='qrcode.png';a.href=cv.toDataURL('image/png');a.click();},
+
+  /* --- 图片压缩 --- */
+  imgcLoad(ev){const f=ev.target.files[0];if(!f)return;this._imgcOrig=f.size;const img=new Image();img.onload=()=>{this._imgcImg=img;this.imgcRun();};img.onerror=()=>this.set('imgc-msg','✗ 无法读取该图片',1);const rd=new FileReader();rd.onload=e=>{img.src=e.target.result;};rd.readAsDataURL(f);},
+  imgcRun(){const img=this._imgcImg;if(!img)return;let max=parseInt($('imgc-max').value)||Math.max(img.width,img.height);let w=img.width,h=img.height;if(Math.max(w,h)>max){const r=max/Math.max(w,h);w=Math.round(w*r);h=Math.round(h*r);}const cv=document.createElement('canvas');cv.width=w;cv.height=h;const ctx=cv.getContext('2d');const fmt=$('imgc-fmt').value;if(fmt==='image/jpeg'){ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);}ctx.drawImage(img,0,0,w,h);const q=parseFloat($('imgc-q').value),url=cv.toDataURL(fmt,q);this._imgcURL=url;const outSize=Math.round((url.length-url.indexOf(',')-1)*3/4);$('imgc-prev').src=url;$('imgc-prev').style.display='inline-block';const pct=this._imgcOrig?Math.round((1-outSize/this._imgcOrig)*100):0;this.set('imgc-msg',`原图 ${fmtSize(this._imgcOrig)} → 输出 ${fmtSize(outSize)}  (${pct>=0?'省 '+pct:'增 '+(-pct)}%)  ·  ${w}×${h}`);},
+  imgcDownload(){if(!this._imgcURL){this.toast('先上传图片');return;}const ext={'image/jpeg':'jpg','image/webp':'webp','image/png':'png'}[$('imgc-fmt').value];const a=document.createElement('a');a.download='compressed.'+ext;a.href=this._imgcURL;a.click();},
+
+  /* --- Markdown --- */
+  md(){$('md-out').innerHTML=mdRender($('md-in').value);},
+  mdCopy(){const el=$('md-out');if(!el.innerHTML.trim()){this.toast('先输入内容');return;}const range=document.createRange();range.selectNodeContents(el);const sel=window.getSelection();sel.removeAllRanges();sel.addRange(range);let ok=false;try{ok=document.execCommand('copy');}catch(e){}sel.removeAllRanges();this.toast(ok?'已复制排版结果':'复制失败,请手动选中');},
+
+  /* --- 复利 --- */
+  calc(){const p=+$('calc-p').value||0,m=+$('calc-m').value||0,r=(+$('calc-r').value||0)/100,y=Math.min(80,Math.max(0,Math.floor(+$('calc-y').value||0)));const rm=r/12;let v=p;const yearly=[];for(let month=1;month<=y*12;month++){v=v*(1+rm)+m;if(month%12===0)yearly.push(v);}const invested=p+m*y*12,gain=v-invested,fmt=n=>'¥'+Math.round(n).toLocaleString('zh-CN');this.set('calc-out',`${y} 年后终值约 ${fmt(v)}\n总投入 ${fmt(invested)}    总收益 ${fmt(gain)}  (总收益率 ${invested?Math.round(gain/invested*100):0}%)`);const max=yearly.length?yearly[yearly.length-1]:1;let bars='';yearly.forEach((val,idx)=>{const w=Math.max(1,val/max*100);bars+=`<div style="display:flex;align-items:center;gap:8px;margin:3px 0"><span class="mono-sm" style="width:46px;flex:none">第${idx+1}年</span><div style="flex:1;background:#0c0b09;border-radius:4px;overflow:hidden"><div style="width:${w}%;height:16px;background:linear-gradient(90deg,#c9a84c,#f0d488)"></div></div><span class="mono-sm" style="width:104px;flex:none;text-align:right;color:var(--gold-lt)">${fmt(val)}</span></div>`;});$('calc-bars').innerHTML=bars;}
 };
+
+/* ---------- 人民币大写 ---------- */
 function rmbUpper(money){
   const cn='零壹贰叁肆伍陆柒捌玖',unit=['','拾','佰','仟'],big=['','万','亿','兆'];
   let neg=money<0;money=Math.abs(money);
@@ -207,8 +355,116 @@ function rmbUpper(money){
   else{if(!out)out='';if(df>0)out+=cn[df]+'角';else if(out)out+='零';if(dm>0)out+=cn[dm]+'分';}
   return (neg?'负':'')+(out||'零元整');
 }
-select(location.hash.slice(1)||'json');
-TOOL.wc();
+
+/* ---------- Markdown → 内联样式富文本(简版,自写) ---------- */
+function mdRender(src){
+  const P='margin:14px 0;line-height:1.75;font-size:16px;color:#3f3f3f';
+  const inline=t=>{
+    t=esc(t);
+    t=t.replace(/`([^`]+)`/g,'<code style="background:#f5f5f5;color:#c7254e;padding:2px 5px;border-radius:3px;font-family:monospace;font-size:.9em">$1</code>');
+    t=t.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+    t=t.replace(/(^|[^*])\*([^*]+)\*/g,'$1<em>$2</em>');
+    t=t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,'<a href="$2" style="color:#576b95;text-decoration:none">$1</a>');
+    return t;
+  };
+  const isSpecial=l=>/^(#{1,6}\s|>|(-|\*|\+)\s|\d+\.\s|```|(-{3,}|\*{3,}|_{3,})\s*$)/.test(l);
+  const lines=src.split('\n');let html='',i=0;
+  while(i<lines.length){
+    let line=lines[i];
+    if(/^```/.test(line)){let code='';i++;while(i<lines.length&&!/^```/.test(lines[i])){code+=lines[i]+'\n';i++;}i++;html+='<pre style="background:#f7f7f7;border-radius:6px;padding:14px;overflow:auto;font-size:13px;line-height:1.5;margin:14px 0"><code style="font-family:monospace;color:#333">'+esc(code.replace(/\n$/,''))+'</code></pre>';continue;}
+    let hm=line.match(/^(#{1,6})\s+(.*)/);
+    if(hm){const lv=hm[1].length,sizes=[26,23,20,18,16,15];html+=`<h${lv} style="font-size:${sizes[lv-1]}px;font-weight:700;margin:22px 0 12px;color:#222;line-height:1.4">`+inline(hm[2])+`</h${lv}>`;i++;continue;}
+    if(/^(-{3,}|\*{3,}|_{3,})\s*$/.test(line)){html+='<hr style="border:none;border-top:1px solid #e5e5e5;margin:20px 0">';i++;continue;}
+    if(/^>\s?/.test(line)){let q='';while(i<lines.length&&/^>\s?/.test(lines[i])){q+=lines[i].replace(/^>\s?/,'')+' ';i++;}html+='<blockquote style="border-left:3px solid #c9a84c;background:#faf8f2;padding:10px 16px;margin:14px 0;color:#666;font-size:15px">'+inline(q.trim())+'</blockquote>';continue;}
+    if(/^(-|\*|\+)\s+/.test(line)){let items='';while(i<lines.length&&/^(-|\*|\+)\s+/.test(lines[i])){items+='<li style="margin:6px 0;line-height:1.7">'+inline(lines[i].replace(/^(-|\*|\+)\s+/,''))+'</li>';i++;}html+='<ul style="margin:14px 0;padding-left:24px;font-size:16px;color:#3f3f3f">'+items+'</ul>';continue;}
+    if(/^\d+\.\s+/.test(line)){let items='';while(i<lines.length&&/^\d+\.\s+/.test(lines[i])){items+='<li style="margin:6px 0;line-height:1.7">'+inline(lines[i].replace(/^\d+\.\s+/,''))+'</li>';i++;}html+='<ol style="margin:14px 0;padding-left:24px;font-size:16px;color:#3f3f3f">'+items+'</ol>';continue;}
+    if(line.trim()===''){i++;continue;}
+    let para=line;i++;while(i<lines.length&&lines[i].trim()!==''&&!isSpecial(lines[i])){para+=' '+lines[i];i++;}
+    html+='<p style="'+P+'">'+inline(para)+'</p>';
+  }
+  return html;
+}
+
+/* ---------- QR 码编码(纯 JS,Nayuki 算法移植) ---------- */
+const makeQr=(function(){
+  const Ecc={LOW:{ord:0,fb:1},MEDIUM:{ord:1,fb:0},QUARTILE:{ord:2,fb:3},HIGH:{ord:3,fb:2}};
+  const ECC_CW=[
+    [-1,7,10,15,20,26,18,20,24,30,18,20,24,26,30,22,24,28,30,28,28,28,28,30,30,26,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30],
+    [-1,10,16,26,18,24,16,18,22,22,26,30,22,22,24,24,28,28,26,26,26,26,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28,28],
+    [-1,13,22,18,26,18,24,18,22,20,24,28,26,24,20,30,24,28,28,26,30,28,30,30,30,30,28,30,30,30,30,30,30,30,30,30,30,30,30,30,30],
+    [-1,17,28,22,16,22,28,26,26,24,28,24,28,22,24,24,30,28,28,26,28,30,24,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30,30]];
+  const NUM_BLK=[
+    [-1,1,1,1,1,1,2,2,2,2,4,4,4,4,4,6,6,6,6,7,8,8,9,9,10,12,12,12,13,14,15,16,17,18,19,19,20,21,22,24,25],
+    [-1,1,1,1,2,2,4,4,4,5,5,5,8,9,9,10,10,11,13,14,16,17,17,18,20,21,23,25,26,28,29,31,33,35,37,38,40,43,45,47,49],
+    [-1,1,1,2,2,4,4,6,6,8,8,8,10,12,16,12,17,16,18,21,20,23,23,25,27,29,34,34,35,38,40,43,45,48,51,53,56,59,62,65,68],
+    [-1,1,1,2,4,4,4,5,6,8,8,11,11,16,16,18,16,19,21,25,25,25,34,30,32,35,37,40,42,45,48,51,54,57,60,63,66,70,74,77,81]];
+  const getBit=(x,i)=>((x>>>i)&1)!==0;
+  function numRawDataModules(ver){let r=(16*ver+128)*ver+64;if(ver>=2){const na=Math.floor(ver/7)+2;r-=(25*na-10)*na-55;if(ver>=7)r-=36;}return r;}
+  function numDataCodewords(ver,ecl){return Math.floor(numRawDataModules(ver)/8)-ECC_CW[ecl.ord][ver]*NUM_BLK[ecl.ord][ver];}
+  function rsMul(x,y){let z=0;for(let i=7;i>=0;i--){z=(z<<1)^((z>>>7)*0x11D);z^=((y>>>i)&1)*x;}return z&0xFF;}
+  function rsDivisor(degree){let result=[];for(let i=0;i<degree-1;i++)result.push(0);result.push(1);let root=1;for(let i=0;i<degree;i++){for(let j=0;j<result.length;j++){result[j]=rsMul(result[j],root);if(j+1<result.length)result[j]^=result[j+1];}root=rsMul(root,0x02);}return result;}
+  function rsRemainder(data,divisor){let result=divisor.map(()=>0);for(const b of data){const factor=b^result.shift();result.push(0);divisor.forEach((coef,i)=>{result[i]^=rsMul(coef,factor);});}return result;}
+  function alignPositions(ver,size){if(ver===1)return [];const na=Math.floor(ver/7)+2;const step=(ver===32)?26:Math.ceil((size-13)/(na*2-2))*2;let result=[6];for(let pos=size-7;result.length<na;pos-=step)result.splice(1,0,pos);return result;}
+  function addEccInterleave(data,ver,ecl){
+    const numBlocks=NUM_BLK[ecl.ord][ver],blockEccLen=ECC_CW[ecl.ord][ver],rawCw=Math.floor(numRawDataModules(ver)/8);
+    const numShort=numBlocks-rawCw%numBlocks,shortLen=Math.floor(rawCw/numBlocks);
+    let blocks=[];const div=rsDivisor(blockEccLen);
+    for(let i=0,k=0;i<numBlocks;i++){let dat=data.slice(k,k+shortLen-blockEccLen+(i<numShort?0:1));k+=dat.length;const ecc=rsRemainder(dat,div);if(i<numShort)dat.push(0);blocks.push(dat.concat(ecc));}
+    let result=[];for(let i=0;i<blocks[0].length;i++){blocks.forEach((block,j)=>{if(i!==shortLen-blockEccLen||j>=numShort)result.push(block[i]);});}
+    return result;
+  }
+  return function(text,eclName){
+    const ecl=Ecc[eclName]||Ecc.MEDIUM;
+    const data=Array.from(new TextEncoder().encode(text));
+    let version;
+    for(version=1;;version++){const cap=numDataCodewords(version,ecl)*8,ccbits=version<10?8:16,used=4+ccbits+data.length*8;if(used<=cap)break;if(version>=40)throw new Error('数据过长,无法生成二维码');}
+    // bit buffer
+    const bb=[];const appendBits=(val,len)=>{for(let i=len-1;i>=0;i--)bb.push((val>>>i)&1);};
+    appendBits(0b0100,4);appendBits(data.length,version<10?8:16);for(const b of data)appendBits(b,8);
+    const cap=numDataCodewords(version,ecl)*8;
+    appendBits(0,Math.min(4,cap-bb.length));appendBits(0,(8-bb.length%8)%8);
+    for(let pad=0xEC;bb.length<cap;pad^=0xEC^0x11)appendBits(pad,8);
+    const dataCw=new Array(bb.length/8).fill(0);bb.forEach((bit,i)=>{dataCw[i>>>3]|=bit<<(7-(i&7));});
+    const allCw=addEccInterleave(dataCw,version,ecl);
+    // matrix
+    const size=version*4+17;
+    const modules=Array.from({length:size},()=>new Array(size).fill(false));
+    const isFn=Array.from({length:size},()=>new Array(size).fill(false));
+    const setF=(x,y,dark)=>{modules[y][x]=dark;isFn[y][x]=true;};
+    // finder
+    const finder=(cx,cy)=>{for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const dist=Math.max(Math.abs(dx),Math.abs(dy)),xx=cx+dx,yy=cy+dy;if(xx>=0&&xx<size&&yy>=0&&yy<size)setF(xx,yy,dist!==2&&dist!==4);}};
+    // timing
+    for(let i=0;i<size;i++){setF(6,i,i%2===0);setF(i,6,i%2===0);}
+    finder(3,3);finder(size-4,3);finder(3,size-4);
+    // alignment
+    const ap=alignPositions(version,size),na=ap.length;
+    for(let i=0;i<na;i++)for(let j=0;j<na;j++){if((i===0&&j===0)||(i===0&&j===na-1)||(i===na-1&&j===0))continue;const cx=ap[i],cy=ap[j];for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++)setF(cx+dx,cy+dy,Math.max(Math.abs(dx),Math.abs(dy))!==1);}
+    function drawFormat(mask){const fdata=ecl.fb<<3|mask;let rem=fdata;for(let i=0;i<10;i++)rem=(rem<<1)^((rem>>>9)*0x537);const bits=(fdata<<10|rem)^0x5412;for(let i=0;i<=5;i++)setF(8,i,getBit(bits,i));setF(8,7,getBit(bits,6));setF(8,8,getBit(bits,7));setF(7,8,getBit(bits,8));for(let i=9;i<15;i++)setF(14-i,8,getBit(bits,i));for(let i=0;i<8;i++)setF(size-1-i,8,getBit(bits,i));for(let i=8;i<15;i++)setF(8,size-15+i,getBit(bits,i));setF(8,size-8,true);}
+    function drawVersion(){if(version<7)return;let rem=version;for(let i=0;i<12;i++)rem=(rem<<1)^((rem>>>11)*0x1F25);const bits=version<<12|rem;for(let i=0;i<18;i++){const color=getBit(bits,i),a=size-11+i%3,b=Math.floor(i/3);setF(a,b,color);setF(b,a,color);}}
+    drawFormat(0);drawVersion();
+    // data
+    let idx=0;
+    for(let right=size-1;right>=1;right-=2){if(right===6)right=5;for(let vert=0;vert<size;vert++){for(let j=0;j<2;j++){const x=right-j,upward=((right+1)&2)===0,y=upward?size-1-vert:vert;if(!isFn[y][x]&&idx<allCw.length*8){modules[y][x]=getBit(allCw[idx>>>3],7-(idx&7));idx++;}}}}
+    // masking
+    function applyMask(mask){for(let y=0;y<size;y++)for(let x=0;x<size;x++){let inv;switch(mask){case 0:inv=(x+y)%2===0;break;case 1:inv=y%2===0;break;case 2:inv=x%3===0;break;case 3:inv=(x+y)%3===0;break;case 4:inv=(Math.floor(x/3)+Math.floor(y/2))%2===0;break;case 5:inv=(x*y)%2+(x*y)%3===0;break;case 6:inv=((x*y)%2+(x*y)%3)%2===0;break;case 7:inv=((x+y)%2+(x*y)%3)%2===0;break;}if(!isFn[y][x]&&inv)modules[y][x]=!modules[y][x];}}
+    function addHist(run,hist){if(hist[0]===0)run+=size;hist.pop();hist.unshift(run);}
+    function countPat(hist){const n=hist[1];const core=n>0&&hist[2]===n&&hist[3]===n*3&&hist[4]===n&&hist[5]===n;return (core&&hist[0]>=n*4&&hist[6]>=n?1:0)+(core&&hist[6]>=n*4&&hist[0]>=n?1:0);}
+    function termCount(runColor,runLen,hist){if(runColor){addHist(runLen,hist);runLen=0;}runLen+=size;addHist(runLen,hist);return countPat(hist);}
+    function penalty(){let result=0;
+      for(let y=0;y<size;y++){let runColor=false,runX=0,hist=[0,0,0,0,0,0,0];for(let x=0;x<size;x++){if(modules[y][x]===runColor){runX++;if(runX===5)result+=3;else if(runX>5)result++;}else{addHist(runX,hist);if(!runColor)result+=countPat(hist)*40;runColor=modules[y][x];runX=1;}}result+=termCount(runColor,runX,hist)*40;}
+      for(let x=0;x<size;x++){let runColor=false,runY=0,hist=[0,0,0,0,0,0,0];for(let y=0;y<size;y++){if(modules[y][x]===runColor){runY++;if(runY===5)result+=3;else if(runY>5)result++;}else{addHist(runY,hist);if(!runColor)result+=countPat(hist)*40;runColor=modules[y][x];runY=1;}}result+=termCount(runColor,runY,hist)*40;}
+      for(let y=0;y<size-1;y++)for(let x=0;x<size-1;x++){const c=modules[y][x];if(c===modules[y][x+1]&&c===modules[y+1][x]&&c===modules[y+1][x+1])result+=3;}
+      let dark=0;for(const row of modules)for(const c of row)if(c)dark++;const total=size*size;const k=Math.ceil(Math.abs(dark*20-total*10)/total)-1;result+=k*10;return result;}
+    let minPen=Infinity,bestMask=0;
+    for(let mask=0;mask<8;mask++){applyMask(mask);drawFormat(mask);const p=penalty();if(p<minPen){minPen=p;bestMask=mask;}applyMask(mask);}
+    applyMask(bestMask);drawFormat(bestMask);
+    return modules;
+  };
+})();
+
+/* ---------- init ---------- */
+TOOL.wc();TOOL.md();TOOL.calc();
+route();
 </script>
 </body>
 </html>

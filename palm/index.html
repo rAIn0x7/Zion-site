@@ -81,12 +81,17 @@ details.keybox .kh{color:var(--dim);margin-top:8px;line-height:1.6}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 footer{border-top:1px solid var(--border);padding:22px 20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:36px}
 footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
+.shareov{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:14px}
+.shareov.on{display:flex}
+.shareov img{max-width:min(86vw,340px);max-height:70vh;border-radius:14px;box-shadow:0 10px 44px rgba(0,0,0,.6)}
+.shareov .svtip{color:var(--gold-lt);font-family:var(--mono);font-size:12.5px;text-align:center;letter-spacing:.04em}
+.shareov .svbtns{display:flex;gap:10px}
 </style>
 </head>
 <body>
 <nav>
   <a href="/" class="logo">ZI<span>O</span>N</a>
-  <div class="nav-r"><a href="/tool/">工具</a><a href="/prompt/">prompt</a><a href="/">← 主站</a></div>
+  <div class="nav-r"><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/play/">游戏</a><a href="/">← 主站</a></div>
 </nav>
 <header>
   <h1>AI 手相</h1>
@@ -139,6 +144,11 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     </div>
     <div class="wm">qizh.space/palm · 微信搜「Zion降噪」· 仅供娱乐,切不可当真</div>
   </div>
+</div>
+<div class="shareov" id="shareov">
+  <img id="shareimg" alt="手相分享卡">
+  <div class="svtip" id="svtip">长按图片保存,发朋友圈 📲</div>
+  <div class="svbtns"><button class="btn g" id="svdl">下载图片</button><button class="btn" id="svclose">关闭</button></div>
 </div>
 <footer>AI 手相 · 趣味娱乐 · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
 <div class="toast" id="toast">已复制</div>
@@ -280,7 +290,7 @@ function tagOf(f){
   return '【'+q1+q2+' · '+suffix+'】';
 }
 
-let dom='right',hand='left',imgB64='',lastTag='',lastScore=0;
+let dom='right',hand='left',imgB64='',lastTag='',lastScore=0,lastSc=null,lastSub='',lastHook='';
 const $=id=>document.getElementById(id);
 const TOAST=$('toast');function toast(m){TOAST.textContent=m;TOAST.classList.add('show');setTimeout(()=>TOAST.classList.remove('show'),1300);}
 function pick(x){return Array.isArray(x)?x[Math.floor(Math.random()*x.length)]:(x||'');}
@@ -296,9 +306,47 @@ $('drop').onclick=()=>$('file').click();$('file').onchange=e=>loadFile(e.target.
 $('drop').addEventListener('drop',e=>{if(e.dataTransfer.files[0])loadFile(e.dataTransfer.files[0]);});
 function reset(){imgB64='';$('file').value='';$('stage').style.display='block';$('drop').style.display='block';$('preview').style.display='none';$('actions').style.display='none';$('report').style.display='none';setErr('');}
 $('redo').onclick=reset;$('again').onclick=()=>{reset();scrollTo({top:0,behavior:'smooth'});};
-$('shot').onclick=async()=>{const t='我的手相人设是'+lastTag+',综合 '+lastScore+' 分!来测测你的 👉 qizh.space/palm';
-  if(navigator.share){try{await navigator.share({title:'AI 手相人设',text:t,url:'https://qizh.space/palm'});return;}catch(e){}}
-  try{await navigator.clipboard.writeText(t);toast('已复制,粘给朋友或发朋友圈');}catch(e){alert(t);}};
+// ── 分享卡:canvas 生成竖版海报 ──
+function _rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
+function _wrap(x,t,max){const out=[];let line='';for(const ch of t){if(x.measureText(line+ch).width>max&&line){out.push(line);line=ch;}else line+=ch;}if(line)out.push(line);return out;}
+function drawCard(){
+  const S=2,W=540,H=650,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
+  const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';
+  x.fillStyle='#0a0908';x.fillRect(0,0,W,H);
+  const g=x.createRadialGradient(W/2,210,40,W/2,210,430);g.addColorStop(0,'rgba(201,168,76,.15)');g.addColorStop(1,'rgba(201,168,76,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.strokeStyle='rgba(201,168,76,.5)';x.lineWidth=1.5;_rr(x,16,16,W-32,H-32,18);x.stroke();
+  const sc=lastSc||{life:0,mind:0,emo:0,career:0};
+  x.fillStyle='#c9a84c';x.font='13px monospace';x.fillText('🖐  AI 手相人设',W/2,60);
+  let Y=114;x.fillStyle='#f0d488';x.font='bold 33px "Noto Serif SC",sans-serif';
+  _wrap(x,lastTag,W-90).slice(0,2).forEach(l=>{x.fillText(l,W/2,Y);Y+=42;});
+  Y+=2;x.fillStyle='#8a8378';x.font='12px monospace';x.fillText(lastSub||'',W/2,Y);Y+=48;
+  x.fillStyle='#8a8378';x.font='13px monospace';x.fillText('综合手相',W/2,Y);Y+=56;
+  x.fillStyle='#f0d488';x.font='700 70px "Bebas Neue",sans-serif';x.fillText(String(lastScore),W/2,Y);Y+=20;
+  x.fillStyle='#6b655c';x.font='11px monospace';x.fillText('/ 100 分',W/2,Y);Y+=46;
+  [['🌿生命力',sc.life],['🧠思维',sc.mind],['❤️情绪',sc.emo],['💼事业',sc.career]].forEach((d,i)=>{const cx=W*(i+0.5)/4;x.fillStyle='#f0d488';x.font='700 24px "Bebas Neue",sans-serif';x.fillText(String(d[1]),cx,Y);x.fillStyle='#8a8378';x.font='10.5px "Noto Serif SC",sans-serif';x.fillText(d[0],cx,Y+18);});
+  Y+=62;x.strokeStyle='rgba(201,168,76,.16)';x.lineWidth=1;x.beginPath();x.moveTo(60,Y);x.lineTo(W-60,Y);x.stroke();Y+=34;
+  x.fillStyle='#d9c48a';x.font='14px "Noto Serif SC",sans-serif';
+  let hk=lastHook||'';if(hk.length>58)hk=hk.slice(0,58)+'…';
+  _wrap(x,hk,W-96).slice(0,3).forEach(l=>{x.fillText(l,W/2,Y);Y+=25;});
+  x.fillStyle='#c9a84c';x.font='12.5px monospace';x.fillText('微信搜「Zion降噪」回复「手相」测你的手',W/2,H-58);
+  x.fillStyle='#6b655c';x.font='11px monospace';x.fillText('qizh.space/palm · 仅供娱乐',W/2,H-36);
+  return c;
+}
+async function shareCard(){
+  if(!lastTag){toast('先测一张再分享');return;}
+  try{await document.fonts.ready;}catch(e){}
+  const canvas=drawCard(),dataUrl=canvas.toDataURL('image/png');
+  const txt='我的手相人设是'+lastTag+',综合 '+lastScore+' 分!来测测你的 👉 qizh.space/palm';
+  try{
+    const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
+    if(blob&&navigator.canShare){const file=new File([blob],'palm.png',{type:'image/png'});if(navigator.canShare({files:[file]})){await navigator.share({files:[file],text:txt});return;}}
+  }catch(e){}
+  $('shareimg').src=dataUrl;$('shareov').classList.add('on');
+  $('svdl').onclick=()=>{const a=document.createElement('a');a.href=dataUrl;a.download='我的手相人设.png';a.click();};
+}
+$('shot').onclick=shareCard;
+$('svclose').onclick=()=>$('shareov').classList.remove('on');
+$('shareov').addEventListener('click',e=>{if(e.target===$('shareov'))$('shareov').classList.remove('on');});
 const sk=localStorage.getItem('zp_key');if(sk)$('key').value=sk;$('key').oninput=e=>localStorage.setItem('zp_key',e.target.value.trim());
 
 // gen 存在时用模型现写的毒舌文案;否则用种子驱动的本地库(pickR 确定性)作兜底
@@ -322,7 +370,7 @@ function assemble(f,rng,gen){
 }
 function renderReport(f,rng,gen,sig){
   const r=assemble(f,rng,gen),sc=scores(f,sig),tag=tagOf(f);
-  lastTag=tag;lastScore=sc.total;
+  lastTag=tag;lastScore=sc.total;lastSc=sc;lastSub=r.sub;lastHook=((r.parts[0]&&r.parts[0].p)||'').replace(/\s+/g,'');
   $('rtag').textContent=tag;$('rsub').textContent=r.sub;$('rscore').textContent=sc.total;
   $('rdims').innerHTML=[['🌿生命力',sc.life],['🧠思维',sc.mind],['❤️情绪',sc.emo],['💼事业',sc.career]].map(d=>`<div class="dim"><span class="n">${d[1]}</span>${d[0]}</div>`).join('');
   const secHTML=x=>`<div class="sec"><h4>${x.h}</h4><p>${x.p.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</p></div>`;
