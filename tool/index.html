@@ -10,6 +10,13 @@
 <meta property="og:title" content="工具箱 — Zion · qizh.space">
 <meta property="og:description" content="纯本地运行的实用小工具:二维码 / 图片压缩 / Markdown 排版 / 复利计算…… 零广告,数据不出浏览器。">
 <meta property="og:url" content="https://qizh.space/tool/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-tool.png">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="工具箱 — Zion · qizh.space">
+<meta name="twitter:description" content="纯本地实用小工具:二维码 / 图片压缩 / Markdown 排版 / 复利计算…… 数据不出浏览器。">
+<meta name="twitter:image" content="https://qizh.space/og-tool.png">
 <link rel="preconnect" href="https://fonts.loli.net">
 <link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -70,6 +77,17 @@ mark{background:rgba(201,168,76,.32);color:var(--gold-lt);border-radius:2px}
 footer{border-top:1px solid var(--border);padding:26px 24px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em}
 footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 @media(max-width:760px){.grid2{grid-template-columns:1fr}header{padding:34px 24px 18px}}
+.subwrap{max-width:560px;margin:36px auto 20px;text-align:center;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px}
+.subt{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt)}
+.subd{color:var(--muted);font-size:13px;margin:6px 0 16px}
+.subf{display:flex;gap:8px;max-width:400px;margin:0 auto}
+.subf input{flex:1;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--body);font-size:14px;padding:11px 13px;outline:none}
+.subf input:focus{border-color:rgba(201,168,76,.5)}
+.subbtn{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;padding:0 20px;border-radius:8px;cursor:pointer;border:none;background:var(--gold);color:var(--black);font-weight:600}
+.subbtn:hover{background:var(--gold-lt)}
+.subok{display:none;color:var(--gold);font-family:var(--mono);font-size:13px;margin-top:8px}
+.subok.show{display:block}
+.subcn{color:var(--dim);font-family:var(--mono);font-size:11px;margin-top:12px}
 </style>
 </head>
 <body>
@@ -242,6 +260,13 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     </section>
 
   </div>
+</div>
+<div class="subwrap">
+  <div class="subt">📩 每周一封「降噪信号」</div>
+  <div class="subd">AI 趋势 · 创业逻辑 · 新工具更新。不发噪音,只发值得你 10 分钟的。</div>
+  <form class="subf" id="subForm" onsubmit="handleSub(event)"><input type="email" id="subEmail" placeholder="your@email.com" required><button class="subbtn" type="submit">订阅 →</button></form>
+  <div class="subok" id="subOk">✓ 已加入,下次见。</div>
+  <div class="subcn">或微信搜「Zion降噪」· 回复「星球」进每日精选</div>
 </div>
 <footer>
   纯本地工具 · 无数据上传 · <a href="/">qizh.space</a> · 微信搜「Zion降噪」
@@ -465,6 +490,10 @@ const makeQr=(function(){
 /* ---------- init ---------- */
 TOOL.wc();TOOL.md();TOOL.calc();
 route();
+/* ── 订阅捕获(复用主站 Supabase)── */
+function handleSub(e){e.preventDefault();var v=(document.getElementById('subEmail').value||'').trim();if(!v)return;
+  try{fetch('https://uzvguynixndzusrlqryo.supabase.co/rest/v1/subscribers',{method:'POST',headers:{'apikey':'sb_publishable_tHr8G_hSTCG9kDYpC48_bg_CWjXpeLN','Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({email:v})});}catch(_){}
+  document.getElementById('subForm').style.display='none';document.getElementById('subOk').classList.add('show');}
 </script>
 </body>
 </html>
