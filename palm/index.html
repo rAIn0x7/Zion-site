@@ -204,15 +204,60 @@ const LEX={
   所罗门之星:'⭐ 所罗门之星(极罕见):智慧与权力的象征,非凡直觉与创造力,天生带使命感——可能改写自己命运轨迹的手。'}};
 const PHILO='掌纹会随经历改变——三主线变得慢,其他纹路半年一年就可能大变,所以理想的别得意、不理想的更不必灰心。命理从来天定几分、人尽几分:先天禀赋要靠后天去拓展,才能发挥到极致。君子的命,始终握在自己手里。';
 
+/* ── 引擎:图像内容哈希 → 确定性种子(跨人变异 + 同人一致,零依赖)── */
+const API='https://open.bigmodel.cn/api/paas/v4/chat/completions';
+function xmur3(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^=h>>>16)>>>0;};}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function _gray(img,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(img,0,0,w,h);const d=x.getImageData(0,0,w,h).data,g=[];for(let i=0;i<w*h;i++)g.push(.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2]);return g;}
+// 128-bit = aHash(8×8) + dHash(9×8),纯 canvas,无需任何库
+function imgHash(uri){return new Promise(res=>{const img=new Image();img.onload=()=>{try{const a=_gray(img,8,8),avg=a.reduce((p,q)=>p+q,0)/a.length;let bits='';for(const v of a)bits+=v>avg?'1':'0';const d=_gray(img,9,8);for(let y=0;y<8;y++)for(let x=0;x<8;x++)bits+=d[y*9+x]<d[y*9+x+1]?'1':'0';res(bits);}catch(e){res('0'.repeat(128));}};img.onerror=()=>res('0'.repeat(128));img.src=uri;});}
+function pickR(x,rng){return Array.isArray(x)?x[Math.floor(rng()*x.length)]:(x||'');}
+function wpick(rng,ps){let t=0;for(const p of ps)t+=p[1];let x=rng()*t;for(const p of ps){if((x-=p[1])<0)return p[0];}return ps[ps.length-1][0];}
+// 种子驱动地"演绎"出一套命格特征(绝不出"不清";稀有纹加权抽签,同图必同)
+function seededFeatures(rng){
+  const f={is_hand:true,
+    life:{vitality:wpick(rng,[['旺',60],['弱',40]]),travel:rng()<.28,multiple:rng()<.12},
+    head:{length:wpick(rng,[['长',50],['短',50]]),curve:wpick(rng,[['直',40],['弯',45],['很弯',15]]),joined:wpick(rng,[['连',45],['不连',45],['接近',10]])},
+    heart:{length:wpick(rng,[['长',50],['短',50]]),angle:wpick(rng,[['上扬',50],['平缓',50]]),end:wpick(rng,[['下弯',30],['分叉',25],['普通',45]])},
+    fate:wpick(rng,[['清晰',22],['下半',20],['上半',20],['断续',18],['无',20]]),
+    special:[]};
+  const pool=[['所罗门之星',.01],['霸王线',.03],['断掌',.05],['神秘十字线',.06],['佛之眼',.08]];
+  for(const p of pool)if(rng()<p[1])f.special.push(p[0]);
+  return f;
+}
+function fromHash(hash,gen,sig){const rng=mulberry32(xmur3(hash)());const f=seededFeatures(rng);renderReport(f,rng,gen,sig||{});}
+
+/* ── 智谱调用:①轻量门控(判是否手+2个半真信号) ②毒舌文案生成 ── */
+function apiKey(){return GLM_KEY||($('key')?$('key').value.trim():'');}
+function stripBox(c){return (c||'').replace(/<\|begin_of_box\|>/g,'').replace(/<\|end_of_box\|>/g,'');}
+const LITE_PROMPT='看这张手掌照片,只返回一个JSON,不要多余文字:{"is_hand":true或false,"lines":可见主纹条数(1到5的整数),"depth":"浅淡"或"中等"或"深"}';
+async function liteExtract(b64){const key=apiKey();if(!key)return {};
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:MODEL,temperature:0.2,messages:[{role:'user',content:[{type:'text',text:LITE_PROMPT},{type:'image_url',image_url:{url:'data:image/jpeg;base64,'+b64}}]}]})});
+    if(!r.ok)return {};const j=await r.json();const m=stripBox(j.choices&&j.choices[0]&&j.choices[0].message.content).match(/\{[\s\S]*\}/);return m?JSON.parse(m[0]):{};}catch(e){return {};}}
+function buildPersona(f,sc,tag){const j=f.head.joined;
+  return {标签:tag,
+    生命线:f.life.vitality+(f.life.travel?'·有旅行线':'')+(f.life.multiple?'·双生命线':''),
+    智慧线:f.head.length+'·走势'+f.head.curve+'·'+(j==='连'?'与生命线相连':j==='不连'?'独立分开':'起点接近'),
+    感情线:f.heart.length+'·'+f.heart.angle+'·末端'+f.heart.end,
+    事业线:f.fate,特殊纹:(f.special&&f.special.length)?f.special:'无',评分:sc};}
+function genPrompt(f,persona){const hasSp=f.special&&f.special.length;
+  const spI=hasSp?('设定里的特殊纹【'+f.special.join('、')+'】是最大爆点,special段要重点渲染、写得神一点、给足"天选"的牛逼感。'):'';
+  const spF=hasSp?',"special":"特殊纹路解读"':'';
+  return '你是一位毒舌又通透的手相说书人。根据下面这份【已定好的命格设定】,为每条掌纹写解读。要求:紧扣设定里的关键词;毒舌犀利、好听里带刺、具体有画面、像在戳这个人本人;严禁"你会克服困难走向成功""相信自己"这类放之四海皆准的空话;每段2-3句、纯中文文本、不要加emoji和小标题。'+spI+'只输出如下JSON,不要任何多余文字:\n{"life":"生命线/生命力解读","head":"智慧线/思维解读","heart":"感情线/情绪解读","fate":"事业线/成就解读"'+spF+'}\n命格设定:'+JSON.stringify(persona);}
+async function genText(persona,f){const key=apiKey();if(!key)return null;
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:MODEL,temperature:0.92,messages:[{role:'user',content:genPrompt(f,persona)}]})});
+    if(!r.ok)return null;const j=await r.json();const m=stripBox(j.choices&&j.choices[0]&&j.choices[0].message.content).match(/\{[\s\S]*\}/);return m?JSON.parse(m[0]):null;}catch(e){return null;}}
+
 /* ── 评分 & 人设标签 ── */
 const SC={vitality:{旺:92,弱:68,不清:78},head:{长:86,短:88,不清:80},heart:{长:90,短:76,不清:80},fate:{清晰:95,下半:83,上半:81,断续:73,无:79,不清:78}};
-function scores(f){
+function scores(f,sig){
   const life=Math.min(99,(SC.vitality[f.life&&f.life.vitality]||78)+((f.life&&f.life.travel)?4:0)+((f.life&&f.life.multiple)?6:0));
   const mind=SC.head[f.head&&f.head.length]||80;
   const emo=Math.min(99,(SC.heart[f.heart&&f.heart.length]||80)+((f.heart&&f.heart.end==='分叉')?5:0));
   const career=SC.fate[f.fate]||78;
   let bonus=0;(f.special||[]).forEach(s=>bonus+={'所罗门之星':6,'霸王线':4,'断掌':3,'神秘十字线':3,'佛之眼':2}[s]||0);
-  const total=Math.max(62,Math.min(99,Math.round((life+mind+emo+career)/4)+bonus));
+  let nud=0;if(sig){if(sig.depth==='深')nud=2;else if(sig.depth==='浅淡')nud=-2;}  // 半真信号:纹深轻微加减
+  const total=Math.max(62,Math.min(99,Math.round((life+mind+emo+career)/4)+bonus+nud));
   return {life,mind,emo,career,total};
 }
 function tagOf(f){
@@ -256,23 +301,27 @@ $('shot').onclick=async()=>{const t='我的手相人设是'+lastTag+',综合 '+l
   try{await navigator.clipboard.writeText(t);toast('已复制,粘给朋友或发朋友圈');}catch(e){alert(t);}};
 const sk=localStorage.getItem('zp_key');if(sk)$('key').value=sk;$('key').oninput=e=>localStorage.setItem('zp_key',e.target.value.trim());
 
-function assemble(f){
-  const hl=handLabel(),parts=[];
-  let life=pick(LEX.life.vitality[f.life&&f.life.vitality]||LEX.life.vitality['不清']);
-  if(f.life&&f.life.travel)life+=' '+LEX.life.travel;
-  if(f.life&&f.life.multiple)life+=' '+LEX.life.multiple;
+// gen 存在时用模型现写的毒舌文案;否则用种子驱动的本地库(pickR 确定性)作兜底
+function assemble(f,rng,gen){
+  const hl=handLabel(),parts=[],g=gen||{};
+  let life=pickR(LEX.life.vitality[f.life.vitality]||LEX.life.vitality['旺'],rng);
+  if(f.life.travel)life+=' '+LEX.life.travel;
+  if(f.life.multiple)life+=' '+LEX.life.multiple;
+  if(g.life)life=g.life;
   parts.push({h:'🌿 生命线 · 生命力',p:life});
-  let head=pick(LEX.head.length[f.head&&f.head.length]||['']);const hc=pick(LEX.head.curve[f.head&&f.head.curve]||['']);if(hc)head+=' '+hc;const hj=pick(LEX.head.joined[f.head&&f.head.joined]||['']);if(hj)head+=' '+hj;
-  parts.push({h:'🧠 智慧线 · 思维',p:head||'智慧线不太清晰。'});
-  let heart=pick(LEX.heart.length[f.heart&&f.heart.length]||['']);const ha=pick(LEX.heart.angle[f.heart&&f.heart.angle]||['']);if(ha)heart+=' '+ha;const he=pick(LEX.heart.end[f.heart&&f.heart.end]||['']);if(he)heart+=' '+he;
-  parts.push({h:'❤️ 感情线 · 情绪',p:heart||'感情线不太清晰。'});
-  parts.push({h:'💼 事业线 · 成就',p:pick(LEX.fate[f.fate]||LEX.fate['不清'])});
-  const sp=(f.special||[]).map(s=>LEX.special[s]).filter(Boolean);
-  if(sp.length)parts.push({h:'🔮 特殊纹路',p:sp.join('\n')});
+  let head=pickR(LEX.head.length[f.head.length]||[''],rng);const hc=pickR(LEX.head.curve[f.head.curve]||[''],rng);if(hc)head+=' '+hc;const hj=pickR(LEX.head.joined[f.head.joined]||[''],rng);if(hj)head+=' '+hj;
+  if(g.head)head=g.head;
+  parts.push({h:'🧠 智慧线 · 思维',p:head||'智慧线藏得深,像你没打算让人轻易看懂。'});
+  let heart=pickR(LEX.heart.length[f.heart.length]||[''],rng);const ha=pickR(LEX.heart.angle[f.heart.angle]||[''],rng);if(ha)heart+=' '+ha;const he=pickR(LEX.heart.end[f.heart.end]||[''],rng);if(he)heart+=' '+he;
+  if(g.heart)heart=g.heart;
+  parts.push({h:'❤️ 感情线 · 情绪',p:heart||'感情线收得敛,情绪都锁在你自己那儿。'});
+  parts.push({h:'💼 事业线 · 成就',p:g.fate||pickR(LEX.fate[f.fate]||LEX.fate['清晰'],rng)});
+  const sp=(f.special||[]);
+  if(sp.length){const p=g.special||sp.map(s=>LEX.special[s]).filter(Boolean).join('\n');if(p)parts.push({h:'🔮 特殊纹路',p});}
   return {sub:hl.txt,parts};
 }
-function render(f){
-  const r=assemble(f),sc=scores(f),tag=tagOf(f);
+function renderReport(f,rng,gen,sig){
+  const r=assemble(f,rng,gen),sc=scores(f,sig),tag=tagOf(f);
   lastTag=tag;lastScore=sc.total;
   $('rtag').textContent=tag;$('rsub').textContent=r.sub;$('rscore').textContent=sc.total;
   $('rdims').innerHTML=[['🌿生命力',sc.life],['🧠思维',sc.mind],['❤️情绪',sc.emo],['💼事业',sc.career]].map(d=>`<div class="dim"><span class="n">${d[1]}</span>${d[0]}</div>`).join('');
@@ -294,24 +343,30 @@ $('sample').onclick=()=>{
   dom=rand(['right','left']);hand=rand(['left','right']);      // 示例也随机惯用手/这只手
   $('segDom').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===dom));
   $('segHand').querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.v===hand));
-  render({life:{vitality:rand(['旺','弱']),travel:Math.random()<.4,multiple:Math.random()<.25},head:{length:rand(['长','短']),curve:rand(['直','弯','很弯']),joined:rand(['连','不连'])},heart:{length:rand(['长','短']),angle:rand(['上扬','平缓']),end:rand(['下弯','分叉','普通'])},fate:rand(['清晰','下半','上半','断续','无']),special:Math.random()<.45?[rand(['神秘十字线','断掌','霸王线','佛之眼','所罗门之星'])]:[]});
+  let h='';for(let i=0;i<128;i++)h+=Math.random()<0.5?'0':'1';   // 示例:随机命格,本地库(不调 API)
+  fromHash(h,null,{});
 };
 
 async function analyze(){
   if(!imgB64){setErr('先上传一张手掌照');return;}
   setErr('');$('actions').style.display='none';$('loading').style.display='block';
-  const dataUri=imgB64,b64=imgB64.split(',')[1];
   try{
-    let content;
-    if(PROXY){const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:b64})});const j=await r.json();if(!r.ok)throw new Error(j.error||'服务异常');content=j.text;}
-    else{const key=GLM_KEY||$('key').value.trim();if(!key){$('loading').style.display='none';$('actions').style.display='flex';$('keybox').open=true;setErr('先在下方「测试设置」粘贴智谱 Key(或点上面「看示例报告」)');return;}
-      const r=await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:MODEL,temperature:0.6,messages:[{role:'user',content:[{type:'text',text:EXTRACT_PROMPT},{type:'image_url',image_url:{url:dataUri}}]}]})});
-      const j=await r.json();if(!r.ok)throw new Error((j.error&&j.error.message)||('HTTP '+r.status));content=j.choices&&j.choices[0]&&j.choices[0].message.content;}
-    if(!content)throw new Error('模型没返回内容,换张更清晰的手掌照');
-    const m=content.match(/\{[\s\S]*\}/);if(!m)throw new Error('识别结果解析失败,重试或换张照片');
-    const f=JSON.parse(m[0]);
-    if(f.is_hand===false){$('loading').style.display='none';$('actions').style.display='flex';setErr('没看清手掌 🖐 请手心朝上、五指张开、光线足一点再拍');return;}
-    render(f);
+    const b64=imgB64.split(',')[1];
+    const hash=await imgHash(imgB64);                       // 图像内容 → 命格,同图恒定
+    const ckey='palm_g_'+hash.slice(0,40);
+    let gen=null,sig={},cached=null;
+    try{cached=localStorage.getItem(ckey);}catch(e){}
+    if(cached){try{const o=JSON.parse(cached);gen=o.gen;sig=o.sig||{};}catch(e){}}
+    else{
+      sig=await liteExtract(b64);                           // 门控 + 2个半真信号(挂了返回{})
+      if(sig&&sig.is_hand===false){$('loading').style.display='none';$('actions').style.display='flex';setErr('没看清手掌 🖐 请手心朝上、五指张开、光线足一点再拍');return;}
+      const rng=mulberry32(xmur3(hash)());
+      const f=seededFeatures(rng);
+      const persona=buildPersona(f,scores(f,sig),tagOf(f));
+      gen=await genText(persona,f);                         // 毒舌文案;失败=null→回退本地库
+      try{localStorage.setItem(ckey,JSON.stringify({gen,sig}));}catch(e){}
+    }
+    fromHash(hash,gen,sig);
   }catch(e){$('loading').style.display='none';$('actions').style.display='flex';setErr('解读失败:'+e.message);}
 }
 $('go').onclick=analyze;
