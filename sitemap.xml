@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://qizh.space/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://qizh.space/tool/</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://qizh.space/join/</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://qizh.space/prompt/</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://qizh.space/palm/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
   <url><loc>https://qizh.space/play/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
