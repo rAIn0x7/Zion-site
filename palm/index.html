@@ -334,8 +334,10 @@ $('redo').onclick=reset;$('again').onclick=()=>{reset();scrollTo({top:0,behavior
 // ── 分享卡:canvas 生成竖版海报 ──
 function _rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
 function _wrap(x,t,max){const out=[];let line='';for(const ch of t){if(x.measureText(line+ch).width>max&&line){out.push(line);line=ch;}else line+=ch;}if(line)out.push(line);return out;}
-function drawCard(){
-  const S=2,W=540,H=650,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
+let _wxqr;  // undefined=没试过, null=没有图, Image=已加载。把公众号二维码存成 /wechat-qr.png 即自动出现在分享卡上
+function loadWxQR(){return new Promise(res=>{if(_wxqr!==undefined)return res(_wxqr);const im=new Image();im.onload=()=>{_wxqr=im;res(im);};im.onerror=()=>{_wxqr=null;res(null);};im.src='/wechat-qr.png';});}
+function drawCard(qrImg){
+  const S=2,W=540,H=qrImg?740:650,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
   const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';
   x.fillStyle='#0a0908';x.fillRect(0,0,W,H);
   const g=x.createRadialGradient(W/2,210,40,W/2,210,430);g.addColorStop(0,'rgba(201,168,76,.15)');g.addColorStop(1,'rgba(201,168,76,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
@@ -353,8 +355,11 @@ function drawCard(){
   x.fillStyle='#d9c48a';x.font='14px "Noto Serif SC",sans-serif';
   let hk=lastHook||'';if(hk.length>58)hk=hk.slice(0,58)+'…';
   _wrap(x,hk,W-96).slice(0,3).forEach(l=>{x.fillText(l,W/2,Y);Y+=25;});
-  x.fillStyle='#c9a84c';x.font='12.5px monospace';x.fillText('微信搜「Zion降噪」回复「手相」测你的手',W/2,H-58);
-  x.fillStyle='#6b655c';x.font='11px monospace';x.fillText('qizh.space/palm · 仅供娱乐',W/2,H-36);
+  if(qrImg){const q=112;x.drawImage(qrImg,(W-q)/2,H-188,q,q);
+    x.fillStyle='#c9a84c';x.font='12px monospace';x.fillText('↑ 扫码关注「Zion降噪」· 回复「手相」解锁',W/2,H-52);
+    x.fillStyle='#6b655c';x.font='11px monospace';x.fillText('qizh.space/palm · 仅供娱乐',W/2,H-30);}
+  else{x.fillStyle='#c9a84c';x.font='12.5px monospace';x.fillText('微信搜「Zion降噪」回复「手相」测你的手',W/2,H-58);
+    x.fillStyle='#6b655c';x.font='11px monospace';x.fillText('qizh.space/palm · 仅供娱乐',W/2,H-36);}
   return c;
 }
 async function shareCard(){
