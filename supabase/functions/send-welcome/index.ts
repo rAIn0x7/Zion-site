@@ -1,18 +1,28 @@
 // Supabase Edge Function: send-welcome
 // 作用:新订阅者进池即发一封欢迎邮件(经 Resend),把"只进不出"的死邮件池变成能触达的资产。
 //
+// ⚠️ 防滥用:本函数会用你已验证的域名发真信,若裸奔=开放邮件轰炸口(任何人 POST 任意邮箱→用你的域名发信→
+//   烧额度 + 域名进黑名单)。因此**必须带共享密钥**:请求头 `x-webhook-secret` 要等于 secret WEBHOOK_SECRET,否则 401。
+//   **只走 Supabase DB Webhook,不要从前端直接调用**(前端一调 URL 就暴露)。
+//
 // 部署:
 //   supabase functions deploy send-welcome --project-ref uzvguynixndzusrlqryo
-//   supabase secrets set RESEND_API_KEY=你的resendkey FROM_EMAIL="Zion <hi@qizh.space>" --project-ref uzvguynixndzusrlqryo
-// 推荐接法(全自动、无需改前端):
-//   Supabase Dashboard → Database → Webhooks → 新建,表 subscribers、事件 INSERT → 调用本函数(HTTP POST)。
-//   新增一行订阅 → 自动触发 → 发欢迎信。
-// 备用接法:前端订阅成功后 POST {"email":"..."} 到本函数(会暴露 URL,酌情)。
+//   supabase secrets set RESEND_API_KEY=你的resendkey FROM_EMAIL="Zion <hi@qizh.space>" WEBHOOK_SECRET=一串随机长密钥 --project-ref uzvguynixndzusrlqryo
+// 接法(全自动):Supabase 后台 → Database → Webhooks → 表 subscribers、事件 INSERT → HTTP 调用本函数,
+//   并在 webhook 的 HTTP Headers 里加一条 `x-webhook-secret: <同一串密钥>`。
+// (Resend 免费 3000 封/月;hi@qizh.space 需在 Resend 验证域名,或先用默认 onboarding@resend.dev 测。)
 
 const RESEND = "https://api.resend.com/emails";
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") return new Response("POST only", { status: 405 });
+
+  const secret = Deno.env.get("WEBHOOK_SECRET");
+  if (!secret || req.headers.get("x-webhook-secret") !== secret) {
+    return new Response("unauthorized", { status: 401 });
+  }
+
   const apiKey = Deno.env.get("RESEND_API_KEY");
   const from = Deno.env.get("FROM_EMAIL") || "Zion <onboarding@resend.dev>";
   if (!apiKey) return new Response("no resend key", { status: 500 });
@@ -20,9 +30,9 @@ Deno.serve(async (req) => {
   let email = "";
   try {
     const p = await req.json();
-    email = p?.record?.email || p?.email || ""; // 兼容 DB webhook 的 {record:{email}} 与直接 {email}
+    email = (p?.record?.email || p?.email || "").trim().toLowerCase(); // 兼容 DB webhook 的 {record:{email}} 与 {email}
   } catch { /* ignore */ }
-  if (!email) return new Response("no email", { status: 400 });
+  if (!EMAIL_RE.test(email)) return new Response("invalid email", { status: 400 });
 
   const r = await fetch(RESEND, {
     method: "POST",

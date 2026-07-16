@@ -365,7 +365,8 @@ function drawCard(qrImg){
 async function shareCard(){
   if(!lastTag){toast('先测一张再分享');return;}
   try{await document.fonts.ready;}catch(e){}
-  const canvas=drawCard(),dataUrl=canvas.toDataURL('image/png');
+  const qr=await loadWxQR();
+  const canvas=drawCard(qr),dataUrl=canvas.toDataURL('image/png');
   const txt='我的手相人设是'+lastTag+',综合 '+lastScore+' 分!来测测你的 👉 qizh.space/palm';
   try{
     const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
