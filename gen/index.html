@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 资料生成器 · 一键产出原创学习资料 — qizh.space</title>
+<meta name="description" content="选赛道+主题,AI 一键生成结构完整、原创、可直接使用的学习资料(考研/考公/教资/中小学/职场)。Markdown 输出,复制即用。">
+<link rel="canonical" href="https://qizh.space/gen/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0908;--bg2:#12100d;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);--panel:#15130f;--display:'Bebas Neue',sans-serif;--body:'Outfit','Noto Serif SC',sans-serif;--mono:'DM Mono',monospace;--radius:12px}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.7;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:820px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:24px;letter-spacing:.16em}.logo span{color:var(--gold)}
+.nav-r{display:flex;gap:18px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r a:hover{color:var(--gold)}
+header{text-align:center;padding:46px 20px 8px}
+header h1{font-family:var(--display);font-size:clamp(38px,9vw,60px);letter-spacing:.03em;color:var(--gold-lt)}
+header .sub{color:var(--muted);font-size:14px;margin-top:6px}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-top:20px}
+label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin:14px 0 6px}
+label:first-child{margin-top:0}
+select,input,textarea{width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--body);font-size:14px;padding:11px 13px;outline:none;transition:border-color .2s}
+select:focus,input:focus,textarea:focus{border-color:rgba(201,168,76,.5)}
+select option{background:#111}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{font-family:var(--mono);font-size:13px;letter-spacing:.06em;padding:12px 22px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--white);transition:.2s}
+.btn:hover{border-color:var(--gold)}
+.btn.g{background:var(--gold);color:var(--black);border-color:var(--gold);font-weight:600}.btn.g:hover{background:var(--gold-lt)}
+.btn:disabled{opacity:.5;cursor:default}
+.loading{display:none;text-align:center;padding:24px}
+.spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;margin:0 auto;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.loading p{color:var(--muted);font-size:13px;margin-top:12px;font-family:var(--mono)}
+.err{color:#ff8a8a;font-size:13px;text-align:center;margin-top:12px;font-family:var(--mono)}
+.doc{display:none;background:#0c0b09;border:1px solid var(--border);border-radius:var(--radius);padding:24px 22px;margin-top:8px}
+.doc h1{font-family:var(--body);font-weight:700;font-size:22px;color:var(--gold-lt);margin:0 0 10px;line-height:1.35}
+.doc h2,.doc h3{font-family:var(--body);font-weight:600;font-size:16px;color:var(--gold-lt);margin:18px 0 6px}
+.doc h4{font-weight:600;font-size:15px;color:var(--white);margin:14px 0 4px}
+.doc p{font-size:14.5px;color:var(--white);margin:6px 0}
+.doc li{font-size:14.5px;color:var(--white);margin:3px 0 3px 20px}
+.doc strong{color:var(--gold-lt)}
+.doc hr{border:none;border-top:1px dashed var(--border);margin:16px 0}
+.doc table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
+.doc th,.doc td{border:1px solid var(--border);padding:7px 10px;text-align:left}
+.doc th{color:var(--gold);font-weight:600}
+.docbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+.keybox{margin-top:16px;font-family:var(--mono);font-size:12px}
+.keybox summary{color:var(--muted);cursor:pointer}
+.keybox input{margin-top:10px;font-family:var(--mono);font-size:12px}
+.keybox .kh{color:var(--dim);margin-top:8px;line-height:1.6}
+.toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--black);font-family:var(--mono);font-size:12px;padding:9px 18px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+footer{border-top:1px solid var(--border);padding:22px 20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:36px}
+footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/tool/">工具</a><a href="/prompt/">prompt</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>AI 资料生成器</h1>
+  <div class="sub">选赛道 + 主题 → 一键产出结构完整、原创、可直接用的学习资料</div>
+</header>
+<div class="wrap">
+  <div class="card">
+    <div class="grid2">
+      <div><label>赛道</label>
+        <select id="track">
+          <option>考研</option><option>考公(申论/行测)</option><option>教师资格</option><option>事业编</option>
+          <option>英语四六级</option><option>中小学(K12)</option><option>职场办公</option><option>自定义</option>
+        </select>
+      </div>
+      <div><label>资料类型</label>
+        <select id="type">
+          <option>高频考点速记</option><option>答题模板与万能句</option><option>学习计划表</option>
+          <option>易错点清单</option><option>作文素材库</option><option>面试问答</option><option>知识点大纲</option><option>自定义</option>
+        </select>
+      </div>
+    </div>
+    <label>主题 / 科目(越具体越好)</label>
+    <input id="topic" placeholder="例:考研英语二 大作文 / 教资中学《综合素质》材料分析题 / 初中物理 力学">
+    <div class="grid2">
+      <div><label>篇幅</label>
+        <select id="len"><option value="精简">精简(约 800 字)</option><option value="标准" selected>标准(约 1500 字)</option><option value="详尽">详尽(2500 字+)</option></select>
+      </div>
+      <div><label>自定义赛道/类型(选了"自定义"才填)</label>
+        <input id="custom" placeholder="如:雅思写作 / 简历模板">
+      </div>
+    </div>
+    <div class="row">
+      <button class="btn g" id="go">⚡ 生成资料</button>
+      <button class="btn" id="sample">📄 看示例(免 key)</button>
+    </div>
+    <div class="loading" id="loading"><div class="spin"></div><p>AI 正在编写这份资料…(约 10-30 秒)</p></div>
+    <div class="err" id="err"></div>
+    <details class="keybox" id="keybox">
+      <summary>⚙︎ 测试设置(可选:粘你自己的 智谱 Key 直连)</summary>
+      <input id="key" type="password" placeholder="智谱 API Key · 仅存本地;留空则走 Worker">
+      <div class="kh">默认走已部署的 Worker(不用填 key)。填 key = 直连智谱测试(需 CORS 允许)。「看示例」不需要任何 key。</div>
+    </details>
+  </div>
+
+  <div class="doc" id="doc"></div>
+  <div class="docbar" id="docbar" style="display:none">
+    <button class="btn g" id="copy">📋 复制 Markdown</button>
+    <button class="btn" id="dl">⬇ 下载 .md</button>
+    <button class="btn" id="regen">再生成一份</button>
+  </div>
+</div>
+<footer>AI 资料生成器 · 原创产出 · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+<div class="toast" id="toast">已复制</div>
+<script>
+const PROXY='https://palm-proxy.1733680684.workers.dev';  // 通用智谱代理(升级后同时支持文本生成)
+const $=id=>document.getElementById(id);
+const TOAST=$('toast');function toast(m){TOAST.textContent=m;TOAST.classList.add('show');setTimeout(()=>TOAST.classList.remove('show'),1300);}
+let lastMd='';
+
+function buildPrompt(){
+  let track=$('track').value,type=$('type').value;
+  const custom=$('custom').value.trim();
+  if(track==='自定义'&&custom)track=custom;
+  if(type==='自定义'&&custom)type=custom;
+  const topic=$('topic').value.trim()||track;
+  const len=$('len').value;
+  const words={'精简':'约 800 字','标准':'约 1500 字','详尽':'2500 字以上'}[len];
+  return `你是一位深耕【${track}】的资深老师兼资料编写者。请为主题【${topic}】编写一份【${type}】,面向正在备考/学习的用户。要求:
+- 原创:用你自己的话重新组织,绝不照抄任何教材或他人资料的原文(规避版权),但内容要专业准确;
+- 干货密度高、具体、拿来即用,不要正确的废话和空泛套话;
+- 用 Markdown 输出:一级标题(#)= 资料名;开头写一小段「使用说明」;正文分若干模块,每模块有小标题(##);合适处用有序/无序列表、表格、模板填空([括号]占位)、示例;
+- 篇幅 ${words};
+- 结尾另起一行写:「—— 本资料由 AI 原创生成,仅供学习参考」。
+现在直接输出这份资料,不要任何额外解释或开场白。`;
+}
+// 极简 Markdown 渲染
+function mdRender(md){
+  const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const inline=s=>esc(s).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
+  const lines=md.split('\n');let html='',i=0;
+  while(i<lines.length){
+    let ln=lines[i];
+    if(/^\|(.+)\|\s*$/.test(ln)&&/^\|[\s:|-]+\|\s*$/.test(lines[i+1]||'')){
+      const head=ln.split('|').slice(1,-1).map(c=>`<th>${inline(c.trim())}</th>`).join('');
+      let rows='';i+=2;
+      while(i<lines.length&&/^\|(.+)\|\s*$/.test(lines[i])){rows+='<tr>'+lines[i].split('|').slice(1,-1).map(c=>`<td>${inline(c.trim())}</td>`).join('')+'</tr>';i++;}
+      html+=`<table><tr>${head}</tr>${rows}</table>`;continue;
+    }
+    if(/^#\s/.test(ln))html+=`<h1>${inline(ln.slice(2))}</h1>`;
+    else if(/^##\s/.test(ln))html+=`<h2>${inline(ln.slice(3))}</h2>`;
+    else if(/^###\s/.test(ln))html+=`<h4>${inline(ln.slice(4))}</h4>`;
+    else if(/^(-|\*)\s/.test(ln))html+=`<li>${inline(ln.replace(/^(-|\*)\s/,''))}</li>`;
+    else if(/^\d+\.\s/.test(ln))html+=`<li>${inline(ln.replace(/^\d+\.\s/,''))}</li>`;
+    else if(/^(-{3,}|—+)\s*$/.test(ln))html+='<hr>';
+    else if(ln.trim())html+=`<p>${inline(ln)}</p>`;
+    i++;
+  }
+  return html;
+}
+function show(md){lastMd=md;$('doc').innerHTML=mdRender(md);$('doc').style.display='block';$('docbar').style.display='flex';$('doc').scrollIntoView({behavior:'smooth',block:'start'});}
+$('copy').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(lastMd);toast('Markdown 已复制');};
+$('dl').onclick=()=>{const b=new Blob([lastMd],{type:'text/markdown'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='资料_'+Date.now()+'.md';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),3000);};
+$('regen').onclick=()=>generate();
+$('sample').onclick=()=>show(SAMPLE);
+
+async function generate(){
+  $('err').textContent='';$('loading').style.display='block';$('go').disabled=true;
+  const prompt=buildPrompt();
+  try{
+    let text;const key=$('key').value.trim();
+    if(key){
+      const r=await fetch('https://open.bigmodel.cn/api/paas/v4/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:'glm-4-flash',temperature:0.85,max_tokens:4096,messages:[{role:'user',content:prompt}]})});
+      const jj=await r.json();if(!r.ok)throw new Error((jj.error&&jj.error.message)||('HTTP '+r.status));text=jj.choices[0].message.content;
+    }else{
+      const r=await fetch(PROXY,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});
+      const jj=await r.json();if(!r.ok)throw new Error(jj.error||'服务异常');text=jj.text;
+    }
+    if(!text)throw new Error('没有返回内容,重试一次');
+    show(text);
+  }catch(e){$('err').textContent='生成失败:'+e.message;}
+  finally{$('loading').style.display='none';$('go').disabled=false;}
+}
+$('go').onclick=generate;
+
+const SAMPLE=`# 考研英语(二)大作文 · 图表作文万能模板包
+
+本包适用于考研英语(二)Section B 大作文(图表描述)。按「三段式」套用,考场上把 [方括号] 里的内容换成当年图表的具体信息即可。考前用 2-3 套真题套写练熟。
+
+## 一、三段式结构总纲
+- 第一段(描述图表):概括图表内容 + 点出最突出的数据/趋势。
+- 第二段(分析原因):给出 2 个原因,每个一句主题句 + 一句展开。
+- 第三段(结论):总结 + 展望或建议。
+
+## 二、第一段模板(描述)
+The chart above clearly illustrates the changes in [主题] over the period from [起] to [止]. According to the data, [最突出项] accounts for the largest share, reaching [数字], while [最低项] ranks the lowest at [数字]. Such a contrast is worth our attention.
+
+可替换开头:As is vividly depicted in the chart, … / What stands out in the graph is that …
+
+## 三、第二段模板(原因)
+There are, in my view, at least two factors contributing to this phenomenon. To begin with, [原因一主题句]. For instance, [举例]. In addition, [原因二主题句], which further explains why [呼应图表].
+
+万能原因(套任何话题):the improvement of living standards;the rapid development of technology;the shift in people's values;increasing pressure from work and study.
+
+## 四、第三段模板(结论)
+In conclusion, the trend reflects [一句意义]. It is predictable that [预测] in the years to come. Therefore, [一句建议]. Only in this way can we [升华].
+
+## 五、高分替换句型
+| 低级表达 | 高分替换 |
+| --- | --- |
+| show | illustrate / reveal / demonstrate |
+| more and more | a growing number of |
+| I think | from my perspective |
+| important | play a pivotal role in |
+| because | owing to the fact that |
+| many people | a considerable proportion of the population |
+
+## 六、易错提醒
+- 时态:描述图表用一般现在时。
+- 字数:150 词左右,别超太多。
+- 首句别照抄图表标题原文,用自己的话概括。
+
+—— 本资料由 AI 原创生成,仅供学习参考`;
+</script>
+</body>
+</html>
