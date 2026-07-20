@@ -127,7 +127,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <div class="t">点击上传 / 拍摄你的手掌</div>
       <div class="h">手心朝上 · 五指自然张开 · 光线充足</div>
     </div>
-    <input type="file" id="file" accept="image/*" capture="environment" hidden>
+    <input type="file" id="file" accept="image/*" hidden>
     <div class="preview" id="preview"><img id="pimg" alt="手掌预览"></div>
     <div class="row" id="actions" style="display:none">
       <button class="btn g" id="go">🔮 开始解读</button>
@@ -153,8 +153,9 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
     </div>
     <div id="rbody"></div>
     <div class="cta">
-      <div class="ct">✨ 想看更深 / 每天一条降噪信号</div>
-      <div class="cb">微信搜公众号 <b>「Zion降噪」</b> · 回复 <b>「手相」</b></div>
+      <div class="ct">🔮 想知道你未来 3 个月的势?</div>
+      <a class="btn g" href="/join/" style="display:inline-block;margin:8px 0 4px;text-decoration:none">加入「降噪 · 静音舱」→</a>
+      <div class="cb">或微信搜公众号 <b>「Zion降噪」</b>,每天一条降噪信号</div>
     </div>
     <div class="row">
       <button class="btn g" id="shot">📤 甩给最该看的人</button>
@@ -367,12 +368,16 @@ async function shareCard(){
   try{await document.fonts.ready;}catch(e){}
   const qr=await loadWxQR();
   const canvas=drawCard(qr),dataUrl=canvas.toDataURL('image/png');
+  localStorage.setItem('palm_unlocked','1');applyLock();   // 分享即解锁:点了分享=解锁完整解读
   const txt='我的手相人设是'+lastTag+',综合 '+lastScore+' 分!来测测你的 👉 qizh.space/palm';
   try{
     const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
     if(blob&&navigator.canShare){const file=new File([blob],'palm.png',{type:'image/png'});if(navigator.canShare({files:[file]})){await navigator.share({files:[file],text:txt});return;}}
   }catch(e){}
+  const wx=/MicroMessenger/i.test(navigator.userAgent);
   $('shareimg').src=dataUrl;$('shareov').classList.add('on');
+  if($('svtip'))$('svtip').textContent=wx?'长按图片保存,发朋友圈 📲':'长按图片保存,或点下方下载';
+  $('svdl').style.display=wx?'none':'';
   $('svdl').onclick=()=>{const a=document.createElement('a');a.href=dataUrl;a.download='我的手相人设.png';a.click();};
 }
 $('shot').onclick=shareCard;
@@ -407,10 +412,9 @@ function renderReport(f,rng,gen,sig){
   const secHTML=x=>`<div class="sec"><h4>${x.h}</h4><p>${x.p.replace(/</g,'&lt;').replace(/\n/g,'<br>')}</p></div>`;
   const first=r.parts[0],rest=r.parts.slice(1);
   $('rbody').innerHTML=secHTML(first)
-    +`<div class="lockcta" id="lockCta">🔒 关注公众号 <b>「Zion降噪」</b> 回复 <b>「手相」</b> 拿口令,解锁 智慧线 / 感情线 / 事业线 + 特殊纹 完整解读<div class="lr"><input id="lockInput" placeholder="解锁口令" autocomplete="off"><button class="btn g" id="lockBtn">解锁</button></div></div>`
+    +`<div class="lockcta" id="lockCta">🔒 完整解读(智慧线 / 感情线 / 事业线 + 特殊纹)还锁着<br>📤 <b>分享你的手相卡</b>,即可解锁全部<div class="lr"><button class="btn g" id="lockShareBtn">📤 分享并解锁</button></div><div style="color:var(--muted);font-size:11px;margin-top:10px">分享/保存后自动解锁 · 也欢迎微信搜「Zion降噪」关注我</div></div>`
     +`<div class="lockZone" id="lockZone">`+rest.map(secHTML).join('')+`<div class="philo">${PHILO}</div>`+`</div>`;
-  $('lockBtn').onclick=tryUnlock;
-  $('lockInput').addEventListener('keydown',e=>{if(e.key==='Enter')tryUnlock();});
+  $('lockShareBtn').onclick=shareCard;
   applyLock();
   $('stage').style.display='none';                       // 隐藏上传区 → 报告是干净的可截图单元
   $('loading').style.display='none';$('report').style.display='block';$('report').scrollIntoView({behavior:'smooth',block:'start'});
