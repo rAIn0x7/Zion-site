@@ -16,11 +16,29 @@
 <link rel="preconnect" href="https://fonts.loli.net">
 <link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/ce/ce.css">
+<style>
+/* ── 三张牌面(真·韦特塔罗牌图)── */
+.tarot-spread{display:flex;gap:12px;justify-content:center;align-items:flex-start;margin:20px 0 6px;perspective:900px}
+.tarot-spread .tcard{flex:1 1 0;max-width:154px;min-width:0;text-align:center;opacity:0;transform:translateY(16px) rotateY(28deg);animation:tflip .62s cubic-bezier(.2,.7,.2,1) forwards}
+.tarot-spread .tcard:nth-child(2){animation-delay:.14s}
+.tarot-spread .tcard:nth-child(3){animation-delay:.28s}
+@keyframes tflip{to{opacity:1;transform:none}}
+.tpos{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted);margin-bottom:8px}
+.tframe{position:relative;border-radius:10px;padding:4px;background:linear-gradient(155deg,#f0d488 0%,#c9a84c 42%,#7d6427 100%);box-shadow:0 8px 26px rgba(0,0,0,.55),0 0 0 1px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,240,200,.25)}
+.tframe::after{content:"";position:absolute;inset:4px;border-radius:6px;box-shadow:inset 0 0 22px rgba(0,0,0,.45);pointer-events:none}
+.tframe img{display:block;width:100%;border-radius:6px;aspect-ratio:350/600;object-fit:cover;background:#0c0b09}
+.tframe img.rev{transform:rotate(180deg)}
+.trev{position:absolute;top:8px;right:8px;z-index:2;font-family:var(--mono);font-size:9px;letter-spacing:.05em;color:#0a0908;background:linear-gradient(#f0d488,#c9a84c);border-radius:99px;padding:2px 7px;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.tname{margin-top:10px;font-family:var(--body);font-weight:700;font-size:14px;color:var(--white);line-height:1.2}
+.tname span{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:.06em;margin-top:3px}
+.to-up{color:var(--gold)}.to-rev{color:#d69a78}
+@media(max-width:420px){.tarot-spread{gap:7px}.tname{font-size:12.5px}.tpos{font-size:10px;letter-spacing:.08em}.trev{font-size:8px;padding:1px 5px}}
+</style>
 </head>
 <body>
 <nav>
   <a href="/" class="logo">ZI<span>O</span>N</a>
-  <div class="nav-r"><a href="/ce/">测测</a><a href="/palm/">手相</a><a href="/">← 主站</a></div>
+  <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
 </nav>
 <header>
   <h1>塔罗抽牌</h1>
@@ -71,6 +89,8 @@ const CARDS=[
   {n:'审判',    up:'觉醒、重新出发、你听见了内心的召唤', rev:'过度自我批判、错过了时机、放不下过去'},
   {n:'世界',    up:'圆满、通关、一个阶段的完美收官', rev:'差最后一口气、收尾在拖延、还没真正结束'}
 ];
+/* 牌名 → 韦特塔罗大阿卡纳牌面图(本地自托管·公有领域 RWS 1909)。数组顺序即牌号 0–21。 */
+CARDS.forEach((c,i)=>{c.img='cards/'+String(i).padStart(2,'0')+'.jpg';});
 
 /* ── 三个位置:引子 + 收尾语 ── */
 const POS=[
@@ -111,6 +131,26 @@ const TAGS=['顺势而为','向内看','该断就断','稳住别慌','大胆一�
 
 const cfg={ id:'tarot', 名字:'塔罗抽牌', 图标:'🔮' };
 
+/* 在结果卡顶部注入三张真实牌面图(逆位图片旋转 180°) */
+function injectSpread(shown){
+  const body=document.getElementById('ce-body');
+  if(!body)return;
+  const old=document.getElementById('tarot-spread');if(old)old.remove();
+  const wrap=document.createElement('div');
+  wrap.className='tarot-spread';wrap.id='tarot-spread';
+  wrap.innerHTML=shown.map(c=>{
+    const oc=c.rev?'to-rev':'to-up';
+    return '<figure class="tcard">'
+      +'<figcaption class="tpos">'+c.pos+'</figcaption>'
+      +'<div class="tframe">'+(c.rev?'<span class="trev">逆位</span>':'')
+      +'<img src="'+c.img+'" alt="'+c.name+'"'+(c.rev?' class="rev"':'')+' loading="eager">'
+      +'</div>'
+      +'<div class="tname">'+c.name+'<span class="'+oc+'">'+c.orient+'</span></div>'
+      +'</figure>';
+  }).join('');
+  body.parentNode.insertBefore(wrap,body);
+}
+
 $('go').onclick=()=>{
   const q=$('q').value.trim();
   const hasQ=!!q;
@@ -126,7 +166,8 @@ $('go').onclick=()=>{
     // 首段:总览
     const over=CE.wpick(rng,OVER);
     const parts=[{h:'🔮 牌阵总览 · 核心指引', p:over}];
-    // 三张逐位解读(锁区)
+    // 三张逐位解读(锁区)+ 牌面图数据
+    const shown=[];
     three.forEach((card,i)=>{
       const pos=POS[i];
       const rev=rng()<0.45;                 // 正位略多一点
@@ -134,6 +175,7 @@ $('go').onclick=()=>{
       const mean=rev?card.rev:card.up;
       const lead=CE.pick(rng,pos.lead);
       const tail=CE.pick(rng,pos.tail);
+      shown.push({pos:pos.key, name:card.n, rev, orient, img:card.img});
       parts.push({h:pos.icon+' '+pos.key+'位 · '+card.n+'('+orient+')',
         p:lead+'你翻开的是「'+card.n+' · '+orient+'」——'+mean+'。'+tail});
     });
@@ -154,11 +196,14 @@ $('go').onclick=()=>{
     const result={
       heading:'你的塔罗三牌阵', tag, sub,
       big:energy, bigLabel:'能量指数', dims, parts,
-      card:{kicker:'🔮 塔罗抽牌', title:kw, sub:spread, big:energy, bigLabel:'能量指数', dims, hook:over},
+      card:{kicker:'🔮 塔罗抽牌', title:kw, sub:spread, big:energy, bigLabel:'能量指数', dims, hook:over,
+            cards:shown.map(c=>({pos:c.pos, name:c.name, rev:c.rev, img:c.img}))},
       shareText:'我抽到的塔罗指引是「'+kw+'」,来抽你的 👉 qizh.space/ce/tarot'
     };
     $('loading').style.display='none';
     CE.render(cfg, result);
+    // 结果页顶部插入真·牌面三张(不进锁区,先给"看图"的爽点)
+    injectSpread(shown);
   },600);
 };
 </script>

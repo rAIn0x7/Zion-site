@@ -16,11 +16,17 @@
 <link rel="preconnect" href="https://fonts.loli.net">
 <link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/ce/ce.css">
+<style>
+.xz-sign{text-align:center;margin:4px 0 -2px}
+.xz-sign .g{display:inline-flex;align-items:center;justify-content:center;width:76px;height:76px;border-radius:50%;font-size:38px;color:var(--gold-lt);background:radial-gradient(circle at 34% 28%,rgba(240,212,136,.22),rgba(201,168,76,.04));box-shadow:inset 0 0 0 1px rgba(201,168,76,.35),0 8px 26px -8px rgba(201,168,76,.5);text-shadow:0 2px 12px rgba(201,168,76,.5);animation:xzin .6s ease both}
+.xz-sign .nm{display:block;margin-top:8px;font-family:var(--mono);font-size:11px;letter-spacing:.22em;color:var(--muted)}
+@keyframes xzin{from{opacity:0;transform:scale(.7) rotate(-20deg)}to{opacity:1;transform:none}}
+</style>
 </head>
 <body>
 <nav>
   <a href="/" class="logo">ZI<span>O</span>N</a>
-  <div class="nav-r"><a href="/ce/">测测</a><a href="/palm/">手相</a><a href="/">← 主站</a></div>
+  <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
 </nav>
 <header>
   <h1>星座今日运势</h1>
@@ -101,6 +107,16 @@ const JI=['熬夜','冲动消费','翻旧账','emo内耗','硬刚','钻牛角尖
 /* ── 稀有彩蛋(加权,极低概率)── */
 const RARE=[['天选锦鲤日·万事皆宜',0.03],['小宇宙暴击·今日气运封顶',0.04],['贵人绕身·好事成双',0.05]];
 
+/* 星座 → Unicode 星座符号(公有领域字符,无需外链图) */
+const SGN={白羊座:'♈',金牛座:'♉',双子座:'♊',巨蟹座:'♋',狮子座:'♌',处女座:'♍',天秤座:'♎',天蝎座:'♏',射手座:'♐',摩羯座:'♑',水瓶座:'♒',双鱼座:'♓'};
+function injectSign(s){
+  const body=document.getElementById('ce-body');if(!body)return;
+  const old=document.getElementById('xz-sign');if(old)old.remove();
+  const d=document.createElement('div');d.className='xz-sign';d.id='xz-sign';
+  d.innerHTML='<div class="g">'+(SGN[s]?SGN[s]+'︎':'⭐')+'</div><span class="nm">'+s+'</span>';
+  body.parentNode.insertBefore(d,body);
+}
+
 $('go').onclick=()=>{
   $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
   setTimeout(()=>{
@@ -138,6 +154,7 @@ $('go').onclick=()=>{
     };
     $('loading').style.display='none';
     CE.render(cfg, result);
+    injectSign(sign);
   },600);
 };
 </script>

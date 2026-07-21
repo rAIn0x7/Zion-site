@@ -51,7 +51,9 @@ window.CE = (function () {
   function _rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
   function _wrap(x,t,max){const o=[];let l='';for(const ch of String(t)){if(x.measureText(l+ch).width>max&&l){o.push(l);l=ch;}else l+=ch;}if(l)o.push(l);return o;}
   function drawCard(model, qr){
-    const S=2,W=540,H=qr?740:650,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
+    const cards=(Array.isArray(model.cards)&&model.cards.length)?model.cards:null; // 可选:牌面小图(塔罗用)
+    const cardsH=cards?228:0;
+    const S=2,W=540,H=(qr?740:650)+cardsH,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
     const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';
     x.fillStyle='#0a0908';x.fillRect(0,0,W,H);
     const g=x.createRadialGradient(W/2,210,40,W/2,210,430);g.addColorStop(0,'rgba(201,168,76,.15)');g.addColorStop(1,'rgba(201,168,76,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
@@ -60,6 +62,20 @@ window.CE = (function () {
     let Y=114;x.fillStyle='#f0d488';x.font='bold 33px "Noto Serif SC",sans-serif';
     _wrap(x,model.title,W-90).slice(0,2).forEach(l=>{x.fillText(l,W/2,Y);Y+=42;});
     if(model.sub){Y+=2;x.fillStyle='#8a8378';x.font='12px monospace';x.fillText(model.sub,W/2,Y);}Y+=46;
+    if(cards){
+      const n=cards.length,cw=92,ch=158,gap=16,totW=n*cw+(n-1)*gap,sx=(W-totW)/2,ly=Y,iy=Y+18;
+      cards.forEach((cd,i)=>{
+        const ix=sx+i*(cw+gap),mx=ix+cw/2;
+        x.fillStyle='#8a8378';x.font='11px "Noto Serif SC",sans-serif';x.fillText(cd.pos||'',mx,ly+8);
+        x.fillStyle='#c9a84c';_rr(x,ix-2,iy-2,cw+4,ch+4,8);x.fill();                 // 金框
+        x.save();_rr(x,ix,iy,cw,ch,6);x.clip();x.translate(mx,iy+ch/2);if(cd.rev)x.rotate(Math.PI);
+        if(cd.el)x.drawImage(cd.el,-cw/2,-ch/2,cw,ch);else{x.fillStyle='#15130f';x.fillRect(-cw/2,-ch/2,cw,ch);}
+        x.restore();
+        x.fillStyle='#f0d488';x.font='12px "Noto Serif SC",sans-serif';x.fillText(cd.name||'',mx,iy+ch+18);
+        x.fillStyle=cd.rev?'#d69a78':'#8a8378';x.font='10px monospace';x.fillText(cd.rev?'逆位':'正位',mx,iy+ch+32);
+      });
+      Y=iy+ch+32+20;
+    }
     if(model.big!=null){x.fillStyle='#8a8378';x.font='13px monospace';x.fillText(model.bigLabel||'',W/2,Y);Y+=54;
       x.fillStyle='#f0d488';x.font='700 70px "Bebas Neue",sans-serif';x.fillText(String(model.big),W/2,Y);Y+=44;}
     (model.dims||[]).forEach((d,i,a)=>{const cx=W*(i+0.5)/a.length;x.fillStyle='#f0d488';x.font='700 24px "Bebas Neue",sans-serif';x.fillText(String(d[1]),cx,Y);x.fillStyle='#8a8378';x.font='10.5px "Noto Serif SC",sans-serif';x.fillText(d[0],cx,Y+18);});
@@ -77,6 +93,13 @@ window.CE = (function () {
   async function shareCard(){
     if(!_last)return;
     try{await document.fonts.ready;}catch(e){}
+    // 可选:预加载分享卡上的牌面小图(同源本地图,不污染 canvas → toDataURL 正常)
+    if(_last.card&&Array.isArray(_last.card.cards)&&_last.card.cards.length){
+      await Promise.all(_last.card.cards.map(c=>new Promise(r=>{
+        if(!c||!c.img||c.el)return r();
+        const im=new Image();im.onload=()=>{c.el=im;r();};im.onerror=()=>r();im.src=c.img;
+      })));
+    }
     const qr=await loadWxQR(); const canvas=drawCard(_last.card,qr),dataUrl=canvas.toDataURL('image/png');
     localStorage.setItem('ce_unlocked_'+_last.toolId,'1');applyLock();
     const txt=_last.shareText||('我测了「'+_last.toolName+'」,来测测你的 👉 qizh.space');
