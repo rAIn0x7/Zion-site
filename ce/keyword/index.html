@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>本命关键词 · 测你的年度关键词与人设 — qizh.space</title>
+<meta name="description" content="答 4 道趣味小题,测出属于你的本命/年度关键词 + 人设标签 + 四维能量。不采集生日隐私,好玩又走心,分享解锁完整解读。">
+<link rel="canonical" href="https://qizh.space/ce/keyword/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%94%AE%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="本命关键词 · 测你的年度关键词与人设">
+<meta property="og:description" content="答 4 道趣味小题,测出属于你的本命/年度关键词 + 人设标签。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/keyword/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/palm/">手相</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>本命关键词</h1>
+  <p>答 4 道小题,测出属于你的年度/本命关键词 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>1 · 最近的你,更像哪种动物?</label><div class="ce-opts" id="q1">
+      <button class="ce-opt on" data-v="猫">🐱 猫 · 高冷又黏人</button><button class="ce-opt" data-v="狗">🐶 狗 · 热情满格</button><button class="ce-opt" data-v="熊">🐻 熊 · 只想冬眠</button><button class="ce-opt" data-v="鲨">🦈 鲨鱼 · 不进则退</button><button class="ce-opt" data-v="水母">🪼 水母 · 随波漂着</button><button class="ce-opt" data-v="仓鼠">🐹 仓鼠 · 疯狂囤积</button>
+    </div></div>
+    <div class="ce-field"><label>2 · 今年最想要的是?</label><div class="ce-opts" id="q2">
+      <button class="ce-opt on" data-v="搞钱">💰 搞钱</button><button class="ce-opt" data-v="躺平">🛋️ 躺平回血</button><button class="ce-opt" data-v="脱单">💗 脱单/桃花</button><button class="ce-opt" data-v="变强">🔥 变强/成长</button><button class="ce-opt" data-v="自由">🕊️ 自由/说走就走</button><button class="ce-opt" data-v="安稳">🌱 安稳踏实</button>
+    </div></div>
+    <div class="ce-field"><label>3 · 此刻你的电量?</label><div class="ce-opts" id="q3">
+      <button class="ce-opt on" data-v="满电">🔋 满电 100%</button><button class="ce-opt" data-v="够用">🔋 60% · 够用</button><button class="ce-opt" data-v="红电">🪫 20% · 红电预警</button><button class="ce-opt" data-v="边充边用">⚡ 边充边用</button>
+    </div></div>
+    <div class="ce-field"><label>4 · 遇到烂事,你的第一反应?</label><div class="ce-opts" id="q4">
+      <button class="ce-opt on" data-v="硬刚">⚔️ 硬刚到底</button><button class="ce-opt" data-v="先跑">🏃 先溜为敬</button><button class="ce-opt" data-v="装死">🫥 装死冷处理</button><button class="ce-opt" data-v="吐槽">🗣️ 拉人狂吐槽</button><button class="ce-opt" data-v="复盘">🧠 冷静复盘</button><button class="ce-opt" data-v="一笑">😌 一笑而过</button>
+    </div></div>
+    <button class="ce-btn g ce-go" id="go">🔮 测我的本命关键词</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在为你捕捉本命关键词…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>本命关键词 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const sel={q1:'猫',q2:'搞钱',q3:'满电',q4:'硬刚'};
+['q1','q2','q3','q4'].forEach(q=>{
+  $(q).querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    $(q).querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');sel[q]=b.dataset.v;
+  });
+});
+
+/* ── 本命关键词库(加权,首段截图用)── */
+const KW=[
+  ['野生生命力',3],['清醒搞钱',3],['松弛感本命',3],['破局者',2],['稳中带浪',2],
+  ['温柔一刀',2],['向阳而生',3],['闷声干大事',2],['反脆弱',2],['回血中',2],
+  ['独狼美学',2],['小宇宙待爆发',2],['主角光环',2],['暗涌',1.5],['长期主义',2],
+  ['热血续航',2],['先松弛后发力',2],['野心藏不住',2],['自愈体质',2],['风口体质',1.5]];
+
+/* ── 分段内容库 ── */
+const cfg={ id:'keyword', 名字:'本命关键词', 图标:'🔮',
+  sections:[
+    {h:'🌤️ 今年的你', pools:[[
+      ['今年你处在一个"外面看着稳、里面正偷偷升级"的阶段——别急,火候到了自然跳级。',3],
+      ['今年是你的"重启年",很多旧的东西该断的会断,腾出来的地方全是新剧本。',3],
+      ['今年你像开了倍速,想法多、动作快,唯一要防的是把自己熬空,记得留油。',2],
+      ['今年你从"取悦别人"慢慢切到"取悦自己",这个转变,是今年最值钱的成长。',3],
+      ['今年表面平静,水下暗流很足——一件憋了很久的事,会在下半年冒头。',2],
+      ['今年你在"想很多"和"做一点"之间反复横跳,别自责,先做的那一点才算数。',2],
+      ['今年你的关键词是"筛选":筛人、筛事、筛信息,留下的都是真正对你好的。',2],
+      ['今年你终于愿意对自己诚实一点,承认想要什么、不想忍什么——这就是转运的开始。',2]]]},
+    {h:'🧭 运势提点', pools:[[
+      ['贵人在"弱关系"里——那个你不常联系、点头之交的人,今年可能给你递把梯子。',3],
+      ['财气跟着"作品"走:把你会的东西做成能被看见的成果,钱是结果不是目标。',3],
+      ['桃花藏在"共同做一件事"里,别硬社交,去做你真喜欢的事,人自然对上频。',2],
+      ['最大的坑是"内耗":你想三天不如做一次,把纠结的能量挪去行动,运势立刻回正。',3],
+      ['今年宜"减法":砍掉一个一直在耗你的人/事,空出来的运气会补到该来的地方。',2],
+      ['机会来的时候不会敲门,是擦肩而过——今年练一个本事:看到就先接住,再慢慢想。',2],
+      ['别在低电量时做大决定。等你回满血,同一件事的答案可能完全不一样。',2],
+      ['今年你越"松",反而越顺;越"用力证明",越容易拧巴。松弛是你的隐藏运势加成。',2]]]},
+    {h:'💌 给你的一句话', pools:[[
+      ['你不是慢,你是在攒一个别人偷不走的底盘——沉住气,后半程是你的。',3],
+      ['你已经比你以为的更勇敢了,继续往前走,别回头找那些不值得的人确认。',3],
+      ['把"我可以"说给自己听,别等别人发许可证——你的人生不用审批。',2],
+      ['允许自己慢一点、废一会儿,你不是机器,回血也是正经事。',2],
+      ['你想要的那个版本的自己,不是变成别人,是把本来的你放大——继续。',3],
+      ['凡是没被明确禁止的,都是允许的。今年,大胆去试那件你一直不敢的事。',2],
+      ['别把光都照给别人,记得也留一束给自己——你值得被自己好好对待。',2],
+      ['你不需要所有人都懂你,一个真正看见你的人,顶过一百个点赞。',2]]]}
+  ]};
+
+const TAG1=['清醒','松弛','野生','温柔','热血','佛系','搞钱','自由','元气','内核稳'];
+const TAG2=['行动派','理想家','实干家','浪漫家','独行侠','破局者','氛围组','守护者','冒险家','长期主义者'];
+const RARE=[['万里挑一·天选气运',0.04],['隐藏款·大器晚成',0.05],['本命暴击·风口体质',0.05]];
+
+$('go').onclick=()=>{
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    const seed=[sel.q1,sel.q2,sel.q3,sel.q4].join('|');
+    const rng=CE.rngFrom(seed);
+    const keyword=CE.wpick(rng,KW);
+    const parts=CE.buildParts(cfg,rng);
+    parts.unshift({h:'🔑 你的本命关键词', p:'「'+keyword+'」'});
+    // 稀有特殊(加权)
+    let rare='';RARE.forEach(r=>{if(!rare&&rng()<r[1])rare=r[0];});
+    if(rare)parts.push({h:'✨ 隐藏彩蛋', p:'你抽到了「'+rare+'」——这个组合不多见,今年请对自己更狠一点(褒义)。'});
+    const tag='【'+CE.pick(rng,TAG1)+CE.pick(rng,TAG2)+'】';
+    const base=rare?Math.round(90+rng()*9):Math.round(62+rng()*35);
+    const score=Math.min(99,base);
+    const dims=[
+      ['🔋能量',Math.min(99,60+Math.round(rng()*39))],
+      ['🍀运势',Math.min(99,60+Math.round(rng()*39))],
+      ['💗桃花',Math.min(99,58+Math.round(rng()*41))],
+      ['💰财气',Math.min(99,60+Math.round(rng()*39))]];
+    const summary='像'+sel.q1+' · 想要'+sel.q2+' · 电量'+sel.q3;
+    const result={
+      heading:'你的本命关键词', tag, sub:summary,
+      big:score, bigLabel:'本命指数', dims, parts,
+      card:{kicker:'🔮 本命关键词', title:'「'+keyword+'」', sub:tag, big:score, bigLabel:'本命指数', dims, hook:'「'+keyword+'」'},
+      shareText:'我的本命关键词是「'+keyword+'」!'+tag+' 来测测你的 👉 qizh.space/ce/keyword'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+  },600);
+};
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

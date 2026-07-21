@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 起名 · 给宝宝取个好名字 — qizh.space</title>
+<meta name="description" content="输入姓氏、性别与风格,AI 结合音律与寓意为你取名:诗意/大气/清新/国风/中性任选,给出 3–5 个含姓好名 + 寓意点评。免费趣味起名,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/qiming/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%E2%9C%8D%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="AI 起名 · 给宝宝取个好名字">
+<meta property="og:description" content="输入姓氏与风格,AI 结合音律寓意为你取名,给出含姓好名 + 寓意点评。免费趣味起名。">
+<meta property="og:url" content="https://qizh.space/ce/qiming/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/palm/">手相</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>AI 起名</h1>
+  <p>说出姓氏与心意,AI 为你取一个有音律、有寓意的好名 · 仅供参考</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>姓氏</label><input id="xing" maxlength="4" placeholder="如:齐 / 欧阳" autocomplete="off"></div>
+    <div class="ce-field"><label>性别</label><div class="ce-opts" id="gender">
+      <button class="ce-opt" data-v="男">男孩</button><button class="ce-opt" data-v="女">女孩</button><button class="ce-opt on" data-v="不限">不限</button>
+    </div></div>
+    <div class="ce-field"><label>风格</label><div class="ce-opts" id="style">
+      <button class="ce-opt on" data-v="诗意">诗意</button><button class="ce-opt" data-v="大气">大气</button><button class="ce-opt" data-v="清新">清新</button><button class="ce-opt" data-v="国风">国风</button><button class="ce-opt" data-v="中性">中性</button>
+    </div></div>
+    <div class="ce-field"><label>期望寓意 · 选填</label><input id="meaning" maxlength="24" placeholder="如:平安喜乐 / 志向远大(不填也行)" autocomplete="off"></div>
+    <button class="ce-btn g ce-go" id="go">✍️ 为我取名</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在斟酌音律与寓意,为你取名…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>AI 起名 · 趣味参考 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let gender='不限', style='诗意';
+function bindOpts(wrapId,set){const w=$(wrapId);w.querySelectorAll('button').forEach(b=>b.onclick=()=>{w.querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');set(b.dataset.v);});}
+bindOpts('gender',v=>gender=v);
+bindOpts('style',v=>style=v);
+
+const cfg={ id:'qiming', 名字:'AI 起名', 图标:'✍️' };
+
+/* ── 本地好字库(兜底用):按风格 + 性别拼名,绝不白屏 ── */
+const FB_STYLE={
+  诗意:['疏','竹','砚','棠','清','霁','归','苓','岫','翎'],
+  大气:['昊','宇','鸿','泽','睿','峻','乾','川','鹏','翀'],
+  清新:['悦','晴','朗','禾','苒','宜','然','屿','汀','沐'],
+  国风:['墨','砚','珩','澜','琅','珏','之','琮','翀','翎'],
+  中性:['之','和','安','宁','叙','言','亦','识','朴','怀']
+};
+const FB_GENDER={
+  男:['轩','屿','珩','骁','峻','野','烨','宸','翊','铮'],
+  女:['昭','棠','姝','窈','黎','予','晚','宜','苑','莹'],
+  不限:['之','安','和','宁','叙','言','清','亦','岚','识']
+};
+const FB_MEAN={
+  诗意:'二字自带书卷与山水气,盼其人淡如菊、心中常存诗意与从容。',
+  大气:'二字气象堂堂、格局开阔,盼其胸怀天地、行事有担当、走得远。',
+  清新:'二字清爽明朗、不落俗套,盼其如晨光草木般干净、通透、有生气。',
+  国风:'二字古韵温润、含蓄有底蕴,盼其守正持中、温而有力、待人厚道。',
+  中性:'二字不偏不倚、耐读耐品,男女皆宜,随岁月愈见其味、愈显其正。'
+};
+function pickR(arr){return arr[Math.floor(Math.random()*arr.length)];}
+function fallbackNames(xing){
+  const sp=(FB_STYLE[style]&&FB_STYLE[style].length?FB_STYLE[style]:FB_STYLE['中性']);
+  const gp=(gender==='不限'?sp:(FB_GENDER[gender]&&FB_GENDER[gender].length?FB_GENDER[gender]:FB_GENDER['不限']));
+  const out=[],used={};let t=0;
+  while(out.length<3&&t<80){
+    t++;
+    const c1=pickR(sp),c2=pickR(gp);
+    if(c1===c2)continue;
+    const g=c1+c2;if(used[g])continue;used[g]=1;
+    out.push({
+      name:xing+g,
+      寓意:'「'+c1+c2+'」'+(FB_MEAN[style]||FB_MEAN['中性']),
+      点评:'「'+xing+c1+c2+'」三字读来顺口、平仄相谐,字形也匀称,是稳妥大方的搭配。'
+    });
+  }
+  return out;
+}
+
+function normalize(list,xing){
+  const out=[];
+  (list||[]).forEach(it=>{
+    if(!it)return;
+    if(typeof it==='string')it={name:it};        // 兼容模型返回纯字符串数组 ["齐星辰",...]
+    let nm=(it.name||it.名字||'').toString().trim();
+    if(!nm)return;
+    if(xing&&nm[0]!==xing[0])nm=xing+nm; // 模型偶尔只给名,补上姓
+    out.push({
+      name:nm,
+      寓意:(it.寓意||it.meaning||'寓意温润美好。').toString().trim(),
+      点评:(it.点评||it.comment||'音律顺口,字形匀称。').toString().trim()
+    });
+  });
+  return out;
+}
+
+$('go').onclick=async()=>{
+  const xing=$('xing').value.trim();
+  const meaning=$('meaning').value.trim();
+  if(!xing){$('err').textContent='先填上姓氏呀 ✍️';return;}
+  if(xing.length>4){$('err').textContent='姓氏太长啦,填 1~4 个字';return;}
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+
+  const prompt=`你是一位精通中文姓名学与古典文学的起名大师。请为一个姓「${xing}」的孩子取名。
+要求:
+1. 性别:${gender==='不限'?'不限,男女皆宜':(gender==='男'?'男孩':'女孩')}。
+2. 风格:${style}(严格贴合该风格特有的用字气质与意境)。
+${meaning?`3. 期望寓意:请尽量围绕「${meaning}」来立意、选字。`:'3. 若无特别寓意要求,取积极向上、格局开阔之意。'}
+严格遵守:
+- 每个名字都必须以姓「${xing}」开头(格式如「${xing}XX」),名为一到两个字,整体二到三个字。
+- 必须结合姓与名的整体音律(平仄起伏、声母韵母搭配),读起来顺口、不拗口、无不雅谐音。
+- 寓意要具体、有画面感或典故支撑,落到某个字上,不要空泛套话(避免"寓意美好""前程似锦""聪明伶俐"这类)。
+- 用字避免生僻到打不出来,也避免烂大街的重名字。
+- 只返回一个 JSON 数组,给 3 到 5 个,不要任何多余文字、前后缀、解释或 markdown 代码块。
+返回格式:[{"name":"完整名字(含姓)","寓意":"一句具体寓意","点评":"一句音律与字形搭配点评"}]`;
+
+  let names=[], degraded=false;
+  try{
+    const raw=await CE.llm(prompt,{json:true});
+    names=normalize(Array.isArray(raw)?raw:(raw&&Array.isArray(raw.names)?raw.names:[]),xing);
+  }catch(e){names=[];}
+  if(!names.length){names=fallbackNames(xing);degraded=true;}
+  names=names.slice(0,5);
+
+  const first=names[0], rest=names.slice(1);
+  const parts=[];
+  parts.push({h:'✨ '+first.name, p:first.寓意+(first.点评?'\n音律点评:'+first.点评:'')});
+  rest.forEach(n=>parts.push({h:n.name, p:n.寓意+(n.点评?'\n音律点评:'+n.点评:'')}));
+
+  const styleLabel=style+'风';
+  const genderLabel=gender==='男'?'男孩':(gender==='女'?'女孩':'不限');
+  let sub='姓'+xing+' · '+styleLabel+' · '+genderLabel;
+  if(degraded)sub+=' · 网络不稳,先给你一版基础版';
+
+  const result={
+    heading:'为你取的名',
+    tag:'【姓'+xing+' · '+styleLabel+'】',
+    sub,
+    parts,
+    card:{ kicker:'✍️ AI 起名', title:first.name, sub:'姓'+xing+' · '+styleLabel, hook:first.寓意 },
+    shareText:'AI 给我取的名是「'+first.name+'」!来给你也取一个 👉 qizh.space/ce/qiming'
+  };
+
+  $('loading').style.display='none';
+  CE.render(cfg, result);
+};
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

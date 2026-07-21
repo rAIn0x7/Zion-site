@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 合婚 · 测你俩的配对度 — qizh.space</title>
+<meta name="description" content="输入两个人的名字,AI 测你俩的缘分配对度:总分 + 人设标签 + 性格契合/沟通雷区/旺不旺。趣味测试,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/hehun/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%92%9E%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="AI 合婚 · 测你俩的配对度">
+<meta property="og:description" content="输入两个名字,AI 测你俩的缘分配对度 + 人设标签。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/hehun/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/palm/">手相</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>AI 合婚</h1>
+  <p>输入两个名字,测你俩的缘分配对度 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-two">
+      <div class="ce-field"><label>你的名字</label><input id="na" maxlength="12" placeholder="如:小齐" autocomplete="off"></div>
+      <div class="ce-field"><label>TA 的名字</label><input id="nb" maxlength="12" placeholder="如:阿降" autocomplete="off"></div>
+    </div>
+    <div class="ce-field"><label>你们的关系</label><div class="ce-opts" id="rel">
+      <button class="ce-opt on" data-v="情侣">情侣</button><button class="ce-opt" data-v="暧昧">暧昧中</button><button class="ce-opt" data-v="朋友">朋友</button><button class="ce-opt" data-v="闺蜜基友">闺蜜/基友</button><button class="ce-opt" data-v="搭子">搭子</button>
+    </div></div>
+    <button class="ce-btn g ce-go" id="go">💞 测我俩的配对度</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在算你俩的缘分频率…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>AI 合婚 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let rel='情侣';
+$('rel').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('rel').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');rel=b.dataset.v;});
+
+const cfg={ id:'hehun', 名字:'AI 合婚', 图标:'💞',
+  sections:[
+    {h:'💘 缘分总览', pools:[[
+      ['你俩这组合,一见面空气里就有电流——不是一般的对眼。',3],['缘分是有的,但属于"慢炖型",越处越香那种。',3],
+      ['第一眼可能不惊艳,可越看越顺眼,后劲大。',2],['你俩像磁铁的两极,离不开也常互相拉扯。',2],
+      ['天生自带默契频道,很多话不用说完对方就懂。',2],['属于"欢喜冤家"款,吵吵闹闹反而黏得更紧。',2]]]},
+    {h:'🧩 性格契合', pools:[[
+      ['一个爱冲、一个能稳,正好互补,谁也别嫌谁。',3],['两个都是有主意的人,好处是聊得来,坏处是都不爱先低头。',3],
+      ['一个负责制造快乐、一个负责踩刹车,搭配起来日子不会翻车。',2],['性格像得吓人,优点缺点都同款——爽起来很爽,踩雷也一起踩。',2],
+      ['一个外放一个内敛,刚好一个把话说出口、一个把事放心里。',2]]]},
+    {h:'⚡ 沟通雷区', pools:[[
+      ['最大的雷是"我以为你懂",别猜,把话讲明白就没事。',3],['冷战是你俩的头号杀手——谁先服软谁就是赢家。',3],
+      ['容易在小事上较真,记住:赢了道理输了感情不划算。',2],['一个想聊、一个想静,给彼此留点独处的空当会更顺。',2],
+      ['翻旧账是禁区,一翻就炸,就事论事能救很多次架。',2]]]},
+    {h:'🔥 旺不旺 · 给你的建议', pools:[[
+      ['你俩互相旺——TA 会把你往更好的方向带,值得用心。',3],['这段关系旺事业也旺心态,是那种"越处越像样"的组合。',2],
+      ['旺是旺,但得两个人都往里投入,单方面使劲会累。',2],['短期火花足,长期靠的是"把浪漫落进日常"的本事。',2],
+      ['缘分给了开头,能走多远看你俩愿不愿意为对方改一点点。',2]]]}
+  ]};
+
+const TAG1=['互补','同频','冰火','欢喜冤家','细水长流','一见如故','命中注定'];
+const TAG2=['拉扯型','治愈型','黄金搭子','注定款','冒险家','过命之交','慢热型'];
+const RARE=[['天生一对(万里挑一)',0.04],['前世冤家·相爱相杀',0.05],['贵人式姻缘',0.06]];
+
+$('go').onclick=()=>{
+  const a=$('na').value.trim(), b=$('nb').value.trim();
+  if(!a||!b){$('err').textContent='把两个名字都填上呀 💞';return;}
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    const seed=[a,b].sort().join('&')+'|'+rel;
+    const rng=CE.rngFrom(seed);
+    const parts=CE.buildParts(cfg,rng);
+    // 稀有特殊(加权)
+    let rare='';RARE.forEach(r=>{if(!rare&&rng()<r[1])rare=r[0];});
+    if(rare)parts.push({h:'✨ 特殊缘分', p:'你俩测出了「'+rare+'」——这种组合不多见,珍惜。'});
+    const tag='【'+CE.pick(rng,TAG1)+CE.pick(rng,TAG2)+'】';
+    const base=rare?Math.round(88+rng()*11):Math.round(62+rng()*34);
+    const score=Math.min(99,base);
+    const dims=[['💘心动',Math.min(99,60+Math.round(rng()*39))],['🤝默契',Math.min(99,60+Math.round(rng()*39))],['⚡磨合',Math.min(99,55+Math.round(rng()*40))],['💍长久',Math.min(99,60+Math.round(rng()*39))]];
+    const result={
+      heading:'你俩的配对度', tag, sub:a+' × '+b+' · '+rel,
+      big:score, bigLabel:'配对度', dims, parts,
+      card:{kicker:'💞 AI 合婚 · 配对度', title:tag, sub:a+' × '+b, big:score, bigLabel:'配对度', dims, hook:(parts[0]&&parts[0].p)||''},
+      shareText:'我和 TA 的配对度是 '+score+' 分!'+tag+' 来测测你俩的 👉 qizh.space/ce/hehun'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+  },600);
+};
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

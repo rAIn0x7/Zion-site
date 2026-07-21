@@ -1,0 +1,59 @@
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0908;--bg2:#12100d;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);--panel:#15130f;--display:'Bebas Neue',sans-serif;--body:'Outfit','Noto Serif SC',sans-serif;--mono:'DM Mono',monospace;--radius:14px}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.7;min-height:100vh}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:640px;margin:0 auto;padding:0 20px}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:24px;letter-spacing:.16em}.logo span{color:var(--gold)}
+.nav-r{display:flex;gap:16px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--muted)}.nav-r a:hover{color:var(--gold)}
+header{text-align:center;padding:44px 20px 8px}
+header h1{font-family:var(--display);font-size:clamp(38px,9vw,60px);letter-spacing:.03em;color:var(--gold-lt)}
+header p{color:var(--muted);font-size:14px;margin-top:6px}
+/* 输入区 */
+.ce-stage{max-width:520px;margin:20px auto 0}
+.ce-field{margin-bottom:16px}
+.ce-field label{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);margin-bottom:7px}
+.ce-field input,.ce-field select{width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:var(--body);font-size:16px;padding:13px 14px;outline:none;transition:border-color .2s}
+.ce-field input:focus,.ce-field select:focus{border-color:rgba(201,168,76,.5)}
+.ce-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ce-opts{display:flex;gap:8px;flex-wrap:wrap}
+.ce-opt{font-family:var(--mono);font-size:13px;color:var(--muted);border:1px solid var(--border);border-radius:99px;padding:9px 15px;cursor:pointer;background:var(--panel);transition:.2s}
+.ce-opt.on{color:var(--black);background:var(--gold);border-color:var(--gold);font-weight:600}
+.ce-opt:hover{border-color:var(--gold)}
+.ce-btn{font-family:var(--mono);font-size:13px;letter-spacing:.04em;padding:12px 22px;border-radius:99px;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--white);transition:.2s}
+.ce-btn:hover{border-color:var(--gold)}
+.ce-btn.g{background:var(--gold);color:var(--black);border-color:var(--gold);font-weight:600}.ce-btn.g:hover{background:var(--gold-lt)}
+.ce-go{width:100%;font-size:16px;padding:15px;margin-top:6px}
+.ce-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.ce-err{color:#e08b7a;font-family:var(--mono);font-size:12.5px;text-align:center;margin-top:12px;min-height:16px}
+.ce-loading{display:none;text-align:center;padding:30px}
+.ce-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;margin:0 auto;animation:cesp 1s linear infinite}@keyframes cesp{to{transform:rotate(360deg)}}
+/* 报告 */
+.ce-report{display:none;max-width:560px;margin:20px auto 0;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px}
+.ce-rt{text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.ce-tag{text-align:center;font-family:var(--body);font-weight:700;font-size:clamp(23px,6vw,31px);color:var(--gold-lt);margin:8px 0 4px;line-height:1.25;text-shadow:0 2px 10px rgba(201,168,76,.25)}
+.ce-sub{text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:12px}
+.ce-score{text-align:center;margin:14px 0}
+.ce-score .big{font-family:var(--mono);font-size:13px;color:var(--muted)}.ce-score .big b{font-family:var(--display);font-size:44px;color:var(--gold-lt);letter-spacing:.02em;vertical-align:-6px;margin-left:6px}
+.ce-dims{display:flex;justify-content:center;gap:18px;flex-wrap:wrap;margin-top:12px}
+.ce-dim{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:center}.ce-dim .n{display:block;font-family:var(--display);font-size:24px;color:var(--gold-lt)}
+.ce-sec{margin:16px 0}.ce-sec h4{font-size:14.5px;color:var(--white);margin-bottom:5px}.ce-sec p{color:#c7c2b8;font-size:14px;line-height:1.75}
+.ce-lockcta{margin:16px 0;border:1px solid rgba(201,168,76,.42);border-radius:12px;padding:16px;background:rgba(201,168,76,.06);text-align:center;font-size:13.5px;line-height:1.7}.ce-lockcta b{color:var(--gold-lt)}
+.ce-lockZone{transition:filter .3s}.ce-lockZone.ce-blur{filter:blur(6px);pointer-events:none;user-select:none}
+.ce-cta{margin:18px 0 4px;text-align:center;border-top:1px solid var(--border);padding-top:18px}.ce-cta .ct{color:var(--gold-lt);font-size:14px}.ce-cta .cb{color:var(--muted);font-size:12px;margin-top:6px}
+.ce-wm{text-align:center;color:var(--dim);font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;margin-top:16px}
+/* 分享浮层 */
+.ce-shareov{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:14px}
+.ce-shareov.on{display:flex}
+.ce-shareov img{max-width:min(86vw,340px);max-height:70vh;border-radius:14px;box-shadow:0 10px 44px rgba(0,0,0,.6)}
+.ce-shareov .svtip{color:var(--gold-lt);font-family:var(--mono);font-size:12.5px;text-align:center}
+.ce-shareov .svbtns{display:flex;gap:10px}
+/* 聚合页卡片墙 */
+.ce-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:640px;margin:24px auto;padding:0 20px}
+.ce-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:.2s;cursor:pointer;display:block}
+.ce-card:hover{border-color:var(--gold);transform:translateY(-2px)}
+.ce-card .ci{font-size:26px}.ce-card h3{font-size:16px;font-weight:600;color:var(--white);margin:8px 0 4px}.ce-card p{color:var(--muted);font-size:12.5px;line-height:1.55}
+footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:40px}footer a{color:var(--muted)}
+@media(max-width:520px){.ce-grid{grid-template-columns:1fr}}
+@media(max-width:360px){.ce-two{grid-template-columns:1fr}}
