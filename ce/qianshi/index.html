@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>前世今生 · 测你的前世身份与今生功课 — qizh.space</title>
+<meta name="description" content="输入名字与性别,测出你的前世身份、前世的故事、带到今生的天赋、今生要还的功课与贵人方位。趣味测试,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/qianshi/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%AA%B7%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="前世今生 · 测你的前世身份与今生功课">
+<meta property="og:description" content="输入名字与性别,测出你的前世身份 + 前世故事 + 今生天赋与功课。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/qianshi/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/palm/">手相</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>前世今生</h1>
+  <p>输入名字,看看你的前世是谁 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>你的名字</label><input id="nm" maxlength="12" placeholder="如:小齐" autocomplete="off"></div>
+    <div class="ce-field"><label>性别</label><div class="ce-opts" id="sex">
+      <button class="ce-opt on" data-v="男">👦 男</button><button class="ce-opt" data-v="女">👧 女</button><button class="ce-opt" data-v="不限">✨ 不限</button>
+    </div></div>
+    <button class="ce-btn g ce-go" id="go">🪷 测我的前世</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在拨开三生迷雾,回溯你的前世…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>前世今生 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let sex='男';
+$('sex').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('sex').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');sex=b.dataset.v;});
+
+/* ── 前世身份池(加权;m男/f女/n不限 三种用词;rare=稀有魂种)── */
+const ROLES=[
+  [{m:'江湖游医',f:'悬壶女医',n:'江湖游医',tale:'那一世你背着一只旧药箱走南闯北,哪里有瘟疫伤病就往哪里去,救过的人多到自己都数不清。'},3],
+  [{m:'西域商队首领',f:'西域商队女掌柜',n:'西域商队首领',tale:'那一世你带着驼队穿越大漠,一头连着长安的绸缎,一头连着遥远的异国,在风沙里谈过无数笔惊险的买卖。'},3],
+  [{m:'深宫画师',f:'深宫女画师',n:'深宫画师',tale:'那一世你在森严的宫墙里替帝王将相描摹容颜,见过最尊贵的排场,也看透了最凉薄的人心。'},2.5],
+  [{m:'边关戍将',f:'巾帼戍将',n:'边关戍将',tale:'那一世你镇守在苦寒的边关,多少个不眠之夜握刀听风雪,把整个青春和一腔热血都留给了那道城墙。'},2.5],
+  [{m:'山中隐士',f:'山中女冠',n:'山中隐士',tale:'那一世你避开尘世独居深山,与云雾松涛为伴,参悟天地,看破了许多别人一辈子都想不明白的事。'},2],
+  [{m:'织锦匠人',f:'江南绣娘',n:'江南绣娘',tale:'那一世你守着针线与织机,一针一线里织进了半生的心事;你亲手做过的嫁衣,成全过许多人的姻缘。'},2],
+  [{m:'走江湖的说书人',f:'茶楼卖唱女伶',n:'走江湖的说书人',tale:'那一世你靠一张嘴讨生活,在茶楼酒肆里讲尽古今悲欢,台下人听你的故事落泪,你却把自己的故事咽了下去。'},2],
+  [{m:'塞外牧马人',f:'草原牧羊女',n:'塞外牧马人',tale:'那一世你生在草原,逐水草而居,与马群和长风为伴,一生没被任何一堵墙关住过。'},2],
+  [{m:'制香匠人',f:'制香女匠',n:'制香匠人',tale:'那一世你以香为业,识得百草千木的脾性,一缕香能安神、能疗愈,也能勾起某个人一生的执念。'},2],
+  [{m:'钦天监观星人',f:'夜观天象的女官',n:'钦天监观星人',tale:'那一世你夜夜登台观星,替朝廷推演天时吉凶,知道太多不该知道的秘密,也因此活得格外孤独。'},1.5],
+  [{m:'镖局镖头',f:'走镖女侠',n:'镖局镖头',tale:'那一世你保镖走货,在刀口上讨生活,讲的是一个"信"字——答应过的事,拼了命也要送到。'},2],
+  [{m:'私塾先生',f:'闺塾女师',n:'私塾先生',tale:'那一世你教书育人,清贫却自守,看着一批批孩子长大成人;桃李不言,你的名字被许多人记了一辈子。'},2],
+  [{m:'深山采药人',f:'深山采药女',n:'深山采药人',tale:'那一世你攀绝壁、涉险涧,只为寻一味能救命的药,与山川草木相处的时间,比与人还多。'},2],
+  [{m:'铸剑师',f:'铸剑女师',n:'铸剑师',tale:'那一世你以炉火为伴,千锤百炼铸就名剑,你早早懂得一个道理:真正的锋利,是熬出来的。'},1.5],
+  [{m:'落魄书生',f:'咏絮才女',n:'落魄书生',tale:'那一世你满腹诗书却时运不济,几度沉浮、几度飘零,把一腔不得志都写进了诗词里,字字都是心血。'},2],
+  [{m:'宫廷乐师',f:'琵琶乐伎',n:'宫廷乐师',tale:'那一世你以乐侍人,一曲能动帝王之心,也能引满座宾客落泪;繁华散尽后,只剩弦上余音陪你。'},1.5],
+  [{m:'渡口摆渡人',f:'渡口摆渡人',n:'渡口摆渡人',tale:'那一世你守着一条渡船,把无数人渡到对岸,听过太多离别与重逢,自己却始终留在原地。'},2],
+  [{m:'走方货郎',f:'挑担女货郎',n:'走方货郎',tale:'那一世你挑着货担走村串巷,一声吆喝就是半生营生,见惯了人间的柴米油盐、悲欢冷暖。'},2],
+  [{m:'远洋船长',f:'掌舵女船主',n:'远洋船长',tale:'那一世你把命交给大海,乘风破浪去往地图之外的地方,见过最壮阔的日出,也差点葬身鱼腹。'},1.5],
+  [{m:'游方术士',f:'占卜女巫',n:'游方术士',tale:'那一世你替人卜问吉凶、指点迷津,看得清别人的命,却算不准自己的路。'},1.5],
+  [{m:'敦煌壁画师',f:'敦煌女画工',n:'敦煌壁画师',tale:'那一世你在幽暗的洞窟里,就着一盏油灯画满整壁的飞天与佛陀,把一生献给了永不褪色的信仰。'},1],
+  [{m:'前朝史官',f:'掌书女史',n:'前朝史官',tale:'那一世你握着一支史笔,记录王朝的兴衰荣辱,你写下的每个字都要对得起后世,哪怕为此得罪当权者。'},1],
+  [{m:'云游画僧',f:'云游画尼',n:'云游画僧',rare:true,tale:'那一世你半僧半画,云游四方,以笔墨为修行,走到哪画到哪,随缘而来,随缘而去。'},0.8],
+  [{m:'开国功臣',f:'辅国女杰',n:'开国功臣',rare:true,tale:'那一世你随主起于微末,出生入死打下一片江山,功成之后却深谙"月满则亏"的道理,懂得急流勇退。'},0.8],
+  [{m:'转世高僧',f:'一代尼庵住持',n:'转世高僧',rare:true,tale:'那一世你早已勘破生死,青灯古佛,普度众生,你的一句话曾点醒过无数迷途的人——这已是你无数次乘愿再来。'},0.5],
+  [{m:'末代皇族',f:'亡国公主',n:'末代皇族',rare:true,tale:'那一世你生于钟鸣鼎食之家,享过泼天的富贵,也亲眼看着王朝倾覆、繁华成灰,从云端跌落尘埃。'},0.5]
+];
+
+/* ── 一句定性(亮眼可截图)── */
+const DINGXING=[
+  '那一世你走过的路,比这一生大多数人梦里见过的都远。',
+  '你不是第一次来人间了——这具身体是新的,灵魂却是旧的。',
+  '你身上那股"不属于此刻"的疏离感,就是从那一世带来的。',
+  '有些事你一学就会、一见如故,那是前世留下的肌肉记忆。',
+  '你总隐隐觉得该去某个地方、该成为某种人——那是旧灵魂在提醒你。',
+  '那一世你没做完的事,这一世会换一种方式,重新找上门来。',
+  '你偶尔会对某个陌生场景莫名心动,那是灵魂认出了它的来处。',
+  '你这一生的很多选择,其实早在那一世就埋下了伏笔。'
+];
+
+/* ── 前世故事的收束句 ── */
+const STORY_END=[
+  '那一世的结局并不圆满,却把一颗种子悄悄埋进了你的灵魂。',
+  '你在那一世学会的东西,如今已成了你骨子里的一部分。',
+  '这段故事你早已忘记,但你今生的每个选择里,处处是它的影子。',
+  '直到今天,你在深夜偶尔涌起的那股乡愁,就来自那里。',
+  '那一世你爱过、也失去过,这份分量,你今生仍在慢慢偿还。',
+  '尘埃落定时你才明白,那一世真正教会你的,是如何与自己和解。'
+];
+
+/* ── 你带到今生的天赋 ── */
+const TALENT=[
+  ['你天生对人心敏感,三两句话就能听出对方话里的话——这是那一世练出来的本事。',3],
+  ['你有一种"临危不乱"的定力,越是乱局越清醒,别人慌你反而稳。',3],
+  ['你的手很巧、眼光也毒,对美和细节有近乎本能的判断。',2],
+  ['你自带一种让人愿意信任、愿意跟随的气场,这是领袖型灵魂的印记。',2],
+  ['你有极强的方向感和求生欲,扔到哪儿都能活下来,还能活出个样子。',2],
+  ['你对文字、声音或图像格外敏锐,创作几乎是你灵魂的母语。',2],
+  ['你有治愈别人的能力,人待在你身边就莫名安心、莫名想倾诉。',2],
+  ['你的直觉准得吓人,那些"说不清但就是知道"的时刻,是旧灵魂在替你判断。',2],
+  ['你耐得住寂寞、扛得起长线,别人图快,你却懂得"慢就是快"。',1.5],
+  ['你天生是个讲故事的人,总能把平淡的日子说得让人愿意听下去。',1.5]
+];
+
+/* ── 今生要还的功课 ── */
+const LESSON=[
+  ['这一世你要学的,是"放下控制"——不是所有事都得攥在手里才安全。',3],
+  ['你要还的功课是"信任":那一世你被辜负过,这一世请再给世界一次机会。',3],
+  ['你这一世要练的,是"把爱说出口"——别再习惯性地把在乎藏进沉默里。',2],
+  ['你要学会"停下来":那一世你太拼了,这一世允许自己歇口气,天塌不下来。',2],
+  ['你的功课是"扎根":那一世你漂泊得太久,这一世,你值得一个真正的家。',2],
+  ['你要还的,是"原谅自己"——那件你一直耿耿于怀的事,其实早该翻篇了。',2],
+  ['你这一世要学"接受失去":抓得越紧越留不住,松开手,反而拥有更多。',2],
+  ['你的功课是"被看见":别再习惯性退到角落,你本就该站在光里。',2],
+  ['你要练的是"表达真实的自己"——那一世你太懂得隐忍,这一世不必再委屈。',1.5],
+  ['你这一世的课题是"接住机会":当年你因犹豫错过太多,这次看到就先接住。',1.5]
+];
+
+/* ── 今生贵人方位 ── */
+const DIR=[
+  ['你的贵人在东南方,多半是位比你年长、说话不紧不慢的人,遇事不妨多请教。',2],
+  ['你的贵人在正北,是个看起来清冷、实则极靠谱的人,关键时刻会拉你一把。',2],
+  ['你的贵人在西南,往往通过"朋友的朋友"出现,多走动、多社交,自然遇上。',2],
+  ['你的贵人在正东,是个比你年轻、有股冲劲的人,会给你带来意料之外的新机会。',2],
+  ['你的贵人在西北方,是位有权威、有资源的长辈型人物,值得你诚心结交。',2],
+  ['你的贵人,就藏在"你正犹豫要不要联系"的那个旧识里——主动一点,梯子就来了。',2],
+  ['你的贵人在正南,多和"你真正热爱的那件事"相关:去做喜欢的事,人自然对上频。',2],
+  ['你的贵人在东北方,是个话不多却一诺千金的人,交浅须慎言,交深则可托付终身。',1.5]
+];
+
+const cfg={ id:'qianshi', 名字:'前世今生', 图标:'🪷',
+  sections:[
+    {h:'📜 前世的故事', gen:(rng,ctx)=>ctx.role.tale+CE.pick(rng,STORY_END)},
+    {h:'🎁 你带到今生的天赋', pools:[TALENT]},
+    {h:'📿 今生要还的功课', pools:[LESSON]},
+    {h:'🧭 今生贵人方位', pools:[DIR]}
+  ]};
+
+$('go').onclick=()=>{
+  const nm=$('nm').value.trim();
+  if(!nm){$('err').textContent='先写下你的名字呀 🪷';return;}
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    const seed=nm+'|'+sex;
+    const rng=CE.rngFrom(seed);
+    const role=CE.wpick(rng,ROLES);
+    const key=sex==='女'?'f':sex==='不限'?'n':'m';
+    const ident=role[key];
+    const parts=CE.buildParts(cfg,rng,{role});
+    const dingxing=CE.pick(rng,DINGXING);
+    parts.unshift({h:'🪷 你的前世', p:'你的前世是「'+ident+'」。'+dingxing});
+    if(role.rare)parts.push({h:'✨ 灵魂印记', p:'你的前世属于"稀有魂种",万中无一——这样的灵魂重回人间,多半带着一桩未了的使命。'});
+    const tag='【'+ident+'】';
+    const soul=role.rare?Math.round(4200+rng()*5600):Math.round(600+rng()*4200);
+    const dims=[
+      ['🕯️前世羁绊',Math.min(99,60+Math.round(rng()*39))],
+      ['🎁天赋承袭',Math.min(99,60+Math.round(rng()*39))],
+      ['🍀今生福报',Math.min(99,58+Math.round(rng()*41))],
+      ['🧭贵人助力',Math.min(99,60+Math.round(rng()*39))]];
+    const sub=nm+' · '+sex+' · 一缕旧魂归来';
+    const result={
+      heading:'你的前世今生', tag, sub,
+      big:soul, bigLabel:'灵魂年龄(岁)', dims, parts,
+      card:{kicker:'🪷 前世今生', title:tag, sub:nm, big:soul, bigLabel:'灵魂年龄(岁)', dims, hook:dingxing},
+      shareText:'我的前世是「'+ident+'」!来测你的 👉 qizh.space/ce/qianshi'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+  },600);
+};
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

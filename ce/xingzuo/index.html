@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>星座今日运势 · 每日综合/爱情/财运/事业运势 — qizh.space</title>
+<meta name="description" content="选你的星座,测今日综合运势指数 + 爱情/财运/事业四维 + 今日人设 + 幸运色/幸运数字 + 今日宜忌。每天自动更新,同一天同星座结果固定。趣味测试,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/xingzuo/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%E2%AD%90%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="星座今日运势 · 每日综合/爱情/财运/事业">
+<meta property="og:description" content="选你的星座,测今日运势指数 + 四维 + 今日人设 + 幸运提示。每天自动更新。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/xingzuo/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/palm/">手相</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>星座今日运势</h1>
+  <p>选你的星座,测今日综合运势 + 爱情/财运/事业 · 每天更新 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>选择你的星座</label><div class="ce-opts" id="sign">
+      <button class="ce-opt on" data-v="白羊座">♈ 白羊座</button><button class="ce-opt" data-v="金牛座">♉ 金牛座</button><button class="ce-opt" data-v="双子座">♊ 双子座</button><button class="ce-opt" data-v="巨蟹座">♋ 巨蟹座</button><button class="ce-opt" data-v="狮子座">♌ 狮子座</button><button class="ce-opt" data-v="处女座">♍ 处女座</button><button class="ce-opt" data-v="天秤座">♎ 天秤座</button><button class="ce-opt" data-v="天蝎座">♏ 天蝎座</button><button class="ce-opt" data-v="射手座">♐ 射手座</button><button class="ce-opt" data-v="摩羯座">♑ 摩羯座</button><button class="ce-opt" data-v="水瓶座">♒ 水瓶座</button><button class="ce-opt" data-v="双鱼座">♓ 双鱼座</button>
+    </div></div>
+    <button class="ce-btn g ce-go" id="go">⭐ 看我今日运势</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在为你排今日星盘…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>星座今日运势 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let sign='白羊座';
+$('sign').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('sign').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');sign=b.dataset.v;});
+
+/* ── 今日人设 tag 池 ── */
+const TAG1=['电力全开','稳如老狗','小宇宙爆发','佛系省电','桃花缠身','闷声发财','头铁冲锋','松弛感','搞钱雷达','贵人体质','情绪回血','高光待机'];
+const TAG2=['锦鲤','显眼包','绝绝子','实干家','幸运儿','氛围担当','破局者','搞钱王','恋爱脑','清醒姐/哥','躺赢款','天选打工人'];
+
+/* ── 分段内容库(总览 + 爱情 + 财运 + 事业)── */
+const cfg={ id:'xingzuo', 名字:'星座今日运势', 图标:'⭐',
+  sections:[
+    {h:'🌈 今日一句话总览', pools:[[
+      ['今天你自带高光滤镜,走到哪都有人多看你一眼——该出手时别怂,气场就是你今天最大的本钱。',3],
+      ['今天整体运势在线,像开了个稳稳的巡航模式:不炸裂但踏实,把该做的事做完,晚上会有小确幸。',3],
+      ['今天能量有点飘,脑子里想法一堆、手上却容易分心——先挑一件最重要的做完,别让今天从指缝溜走。',2],
+      ['今天是"越松越顺"的一天,别端着、别硬撑,顺着感觉走反而处处开绿灯。',3],
+      ['今天水下暗流有点多,表面平静其实暗藏机会——留意那个不起眼的消息,可能是转机。',2],
+      ['今天你像刚满电的手机,做什么都带劲,趁状态好把拖了很久的事一口气推进。',3],
+      ['今天适合"收"不适合"放":少说多听、稳住节奏,守住的比冲出去的更值钱。',2],
+      ['今天小惊喜藏在细节里,一个久违的联系、一笔意外的小钱,都可能让你嘴角上扬。',2],
+      ['今天情绪是关键变量,状态好则事事顺、状态崩则处处堵——先照顾好自己的心情再谈其他。',2],
+      ['今天贵人运在线,别一个人闷头扛,开口求助或搭句话,可能就有人给你递梯子。',2]]]},
+    {h:'💗 今日爱情运', pools:[[
+      ['桃花今天悄悄冒头,单身的你留意那个总在你附近晃的人,主动一点缘分就接上了。',3],
+      ['有伴的今天适合"哄"而不是"讲道理",一句软话、一个小举动,比争对错管用一百倍。',3],
+      ['今天感情上容易多想,别自己脑补小剧场——想知道的直接问,答案往往没你想的那么糟。',2],
+      ['今天异性缘不错,聊得来的人会主动靠近你,但别急着上头,先把对方看清楚。',2],
+      ['今天适合和喜欢的人一起做点小事,共同经历比甜言蜜语更能拉近距离。',3],
+      ['今天感情进入"慢炖"节奏,别催、别逼,给彼此留点空间,火候到了自然香。',2],
+      ['今天旧人可能有动静,是回头还是翻篇看你自己——别被一时情绪带着走。',2],
+      ['今天你的魅力值拉满,穿件亮眼的衣服出门,好事可能就发生在不经意间。',2]]]},
+    {h:'💰 今日财运', pools:[[
+      ['今天正财稳、偏财旺,该谈的钱大胆谈,你的价值今天特别容易被看见和认可。',3],
+      ['今天财运平稳,不宜大进大出——守住钱包、管住手,别被"限时优惠"忽悠了。',3],
+      ['今天有笔小意外之财的机会:一个红包、一笔返现、一次报销,留心就能抓住。',2],
+      ['今天适合复盘账目、做个理财小规划,想清楚钱往哪流,比盲目搞钱更重要。',2],
+      ['今天花钱容易冲动,尤其对"看着划算"的东西——下单前先冷静十分钟。',2],
+      ['今天你的搞钱雷达很灵,一个被忽略的机会/副业信号今天可能对上频,别错过。',3],
+      ['今天财气跟着"作品"走:把你会的东西做出成果被看见,钱是结果不是目标。',2],
+      ['今天适合谈合作、聊分成,气场在你这边,该争取的利益别不好意思开口。',2]]]},
+    {h:'💼 今日事业/学业运', pools:[[
+      ['今天效率在线,啃硬骨头的好时机——把最难的那件放在状态最好的时段,事半功倍。',3],
+      ['今天贵人在职场里,那个平时点头之交的同事/前辈,今天可能给你关键的一句提点。',3],
+      ['今天容易被杂事打断,给自己设个"免打扰时段",专注一小时顶别人一下午。',2],
+      ['今天适合展示和表达,该汇报的汇报、该露脸的露脸,你的努力今天容易被看到。',3],
+      ['今天别急着下大决定,信息还没齐,再等等、再看看,明天答案会更清楚。',2],
+      ['今天团队协作顺,主动搭把手、多沟通一句,能省掉后面一堆麻烦。',2],
+      ['今天灵感不错,记得随手记下来——那个一闪而过的点子,可能是下一个突破口。',2],
+      ['今天适合收尾和清理:把拖着的小事一件件结掉,清爽的状态会带来好运。',2]]]}
+  ]};
+
+/* ── 幸运库 ── */
+const LUCKY_COLOR=['明黄色','雾霾蓝','奶油白','正红色','薄荷绿','香芋紫','燕麦棕','珊瑚粉','墨黑色','橄榄绿','天空蓝','焦糖橘','酒红色','银灰色'];
+const YI=['主动开口','早睡','出门走走','把想说的话说出来','断舍离一件旧物','请朋友吃饭','完成一件拖延的事','复盘总结','大胆表白/示好','投资自己','说不','独处充电'];
+const JI=['熬夜','冲动消费','翻旧账','emo内耗','硬刚','钻牛角尖','轻信小道消息','答应做不到的事','拖延','对号入座','报复性熬夜','和自己较劲'];
+
+/* ── 稀有彩蛋(加权,极低概率)── */
+const RARE=[['天选锦鲤日·万事皆宜',0.03],['小宇宙暴击·今日气运封顶',0.04],['贵人绕身·好事成双',0.05]];
+
+$('go').onclick=()=>{
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    const today=new Date().toISOString().slice(0,10);   // 当天日期 → 每天自动换
+    const seed=sign+'@'+today;                           // 星座+日期 → 同天同星座固定
+    const rng=CE.rngFrom(seed);
+    const parts=CE.buildParts(cfg,rng);
+
+    // 稀有彩蛋(加权)
+    let rare='';RARE.forEach(r=>{if(!rare&&rng()<r[1])rare=r[0];});
+
+    // 幸运提示 + 宜忌(锁区)
+    const luckyColor=CE.pick(rng,LUCKY_COLOR);
+    const luckyNum=1+Math.floor(rng()*9);
+    let yi=CE.pick(rng,YI), ji=CE.pick(rng,JI);
+    parts.push({h:'🍀 今日幸运提示', p:'幸运色:'+luckyColor+'　·　幸运数字:'+luckyNum+'\n开运方位:把注意力放回自己身上,今天你就是自己的锦鲤。'});
+    parts.push({h:'✅ 今日宜 / 🚫 今日忌', p:'【宜】'+yi+'\n【忌】'+ji});
+    if(rare)parts.push({h:'✨ 隐藏彩蛋', p:'你今天抽到了「'+rare+'」——这种日子一年没几天,大胆去做那件你一直想做的事!'});
+
+    const tag='【'+CE.pick(rng,TAG1)+'·'+CE.pick(rng,TAG2)+'】';
+    // 综合指数(有彩蛋则封顶高分)
+    const base=rare?Math.round(92+rng()*7):Math.round(62+rng()*35);
+    const score=Math.min(99,base);
+    const dims=[
+      ['💛综合',Math.min(99,60+Math.round(rng()*39))],
+      ['💗爱情',Math.min(99,60+Math.round(rng()*39))],
+      ['💰财运',Math.min(99,60+Math.round(rng()*39))],
+      ['💼事业',Math.min(99,60+Math.round(rng()*39))]];
+
+    const result={
+      heading:'今日运势', tag, sub:sign+' · '+today,
+      big:score, bigLabel:'今日运势', dims, parts,
+      card:{kicker:'⭐ 今日运势 · 星座', title:sign+' '+tag, sub:today, big:score, bigLabel:'今日运势', dims, hook:(parts[0]&&parts[0].p)||''},
+      shareText:'我今天的运势 '+score+' 分!'+tag+' 来看你的 👉 qizh.space/ce/xingzuo'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+  },600);
+};
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

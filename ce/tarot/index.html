@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>塔罗抽牌 · 三张牌读你的过去现在未来 — qizh.space</title>
+<meta name="description" content="心里默念一个问题,抽三张塔罗牌:过去/现在/未来 + 核心指引 + 正逆位解读 + 行动建议。零采集,纯趣味,分享解锁完整牌阵。">
+<link rel="canonical" href="https://qizh.space/ce/tarot/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%94%AE%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="塔罗抽牌 · 三张牌读你的过去现在未来">
+<meta property="og:description" content="默念一个问题,抽三张塔罗牌:过去/现在/未来 + 核心指引。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/tarot/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/palm/">手相</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>塔罗抽牌</h1>
+  <p>心里默念一个问题,抽三张牌读你的过去 · 现在 · 未来 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>🕯️ 心里默念一个问题(可留空)</label>
+      <textarea id="q" maxlength="60" rows="3" placeholder="如:这段感情能走下去吗?/ 该不该换工作?(留空则每次随机抽)" autocomplete="off" style="width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:var(--body);font-size:16px;padding:13px 14px;outline:none;resize:none;line-height:1.5"></textarea>
+    </div>
+    <button class="ce-btn g ce-go" id="go">🔮 抽牌</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在洗牌,把最该给你的三张翻出来…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>塔罗抽牌 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+$('q').addEventListener('focus',()=>$('q').style.borderColor='rgba(201,168,76,.5)');
+$('q').addEventListener('blur',()=>$('q').style.borderColor='var(--border)');
+
+/* ── 22 张大阿卡纳:正位/逆位寓意池 ── */
+const CARDS=[
+  {n:'愚者',    up:'纵身一跃、新副本开启、无限可能正在装载', rev:'瞎冲、想一出是一出、还没准备好就上了'},
+  {n:'魔术师',  up:'资源到位、你手里有牌、把想法变现的窗口开了', rev:'光说不练、被人套路、力气全使偏了'},
+  {n:'女祭司',  up:'直觉超准、答案早在你心里、按兵不动是智慧', rev:'忽略了内心的声音、有信息被藏着、想太多堵住了直觉'},
+  {n:'皇后',    up:'丰盛、被爱包围、创造力和桃花双开', rev:'过度付出、把自己掏空、卡在依赖里出不来'},
+  {n:'皇帝',    up:'掌控感回来了、立好规矩、稳扎稳打拿结果', rev:'太固执、控制欲爆表、硬撑着一个空架子'},
+  {n:'教皇',    up:'贵人/导师出现、走正道、老办法这次真香', rev:'被规矩绑住了、盲从别人、该打破的旧框架'},
+  {n:'恋人',    up:'心动、一个重要的选择、灵魂在共振', rev:'纠结选择、三观对不上、被诱惑带偏了方向'},
+  {n:'战车',    up:'火力全开、方向盘握在自己手里、冲就完事了', rev:'方向乱了、内耗踩着刹车、用力过猛容易翻车'},
+  {n:'力量',    up:'内在很稳、温柔而坚定、驯服了自己心里的野兽', rev:'心态有点崩、自我怀疑、被情绪牵着鼻子走'},
+  {n:'隐士',    up:'向内看、独处充电、一个人反而想明白了', rev:'过度孤立、逃避人群、钻进牛角尖出不来'},
+  {n:'命运之轮',up:'转机来了、风水轮流转、这一波要抓住', rev:'卡在同一个循环里、时运还没到、别硬逆着势来'},
+  {n:'正义',    up:'因果开始结算、公平、该你的一分跑不掉', rev:'遇到不公、想逃避责任、有笔旧账还没算清'},
+  {n:'倒吊人',  up:'换个角度看、暂停也是一种前进、主动的等待', rev:'白白牺牲、彻底卡死、该放手了还在硬扛'},
+  {n:'死神',    up:'旧的正在结束、彻底翻篇、破而后立', rev:'该断的没断干净、拖着条尾巴、在抗拒改变'},
+  {n:'节制',    up:'平衡、慢慢来、把不同的东西混搭出神效', rev:'失衡、走了极端、耐心快要耗尽'},
+  {n:'恶魔',    up:'欲望、上头的执念、看清到底是什么捆住了你', rev:'挣脱枷锁、戒断成功、你终于清醒了'},
+  {n:'高塔',    up:'突变、旧结构崩塌、一次被迫但必要的清算', rev:'憋着没炸的雷、勉强续命、躲过一劫却没真正解决'},
+  {n:'星星',    up:'希望、疗愈、你许的愿正在收到回应', rev:'信心动摇、有点迷茫、暂时还看不到那束光'},
+  {n:'月亮',    up:'情绪起伏、暂时看不清、潜意识在提醒你', rev:'雾正在散、恐惧退去、真相慢慢浮出水面'},
+  {n:'太阳',    up:'大晴天、成功、被看见的高光时刻', rev:'乐观过了头、光被云挡了一下、延迟到账的好运'},
+  {n:'审判',    up:'觉醒、重新出发、你听见了内心的召唤', rev:'过度自我批判、错过了时机、放不下过去'},
+  {n:'世界',    up:'圆满、通关、一个阶段的完美收官', rev:'差最后一口气、收尾在拖延、还没真正结束'}
+];
+
+/* ── 三个位置:引子 + 收尾语 ── */
+const POS=[
+  {key:'过去', icon:'🕰️',
+    lead:['过去这段时间,','回头看你走过的这段路,','之前悄悄埋下的伏笔是——','曾经那件让你耿耿于怀的事,'],
+    tail:['它塑造了今天的你,别急着否定那段经历。','有些账现在才看懂,那是给你的功课。','把它翻篇,养分留下、包袱扔掉。','谢谢过去的自己撑到了这里。']},
+  {key:'现在', icon:'🌗',
+    lead:['此刻的你,','眼下的处境是——','就在这个节点,','当下最真实的状态是——'],
+    tail:['顺着这股劲走,别老是自己跟自己较劲。','看清了就好办,下一步是你的选择。','沉住气,当下的每一步都算数。','别急着要答案,先把这一步走稳。']},
+  {key:'未来', icon:'🌅',
+    lead:['接下来的一段,','往前看,','未来的走向大概是——','如果保持现在这个节奏,'],
+    tail:['方向对了,剩下的交给时间。','别怕,你比自己以为的更能扛。','保持这个频率,好事已经在路上。','结局没写死,你的选择还在改写它。']}
+];
+
+/* ── 牌阵总览(首段·截图用,加权)── */
+const OVER=[
+  ['你抽到的这组牌在说:该翻篇的会翻篇,别用力去抓正在离开的东西——腾出的手,是用来接新礼物的。',3],
+  ['三张牌连成一条线:过去给了你底子,现在给了你选择,未来给了你答案。方向,其实你早就知道。',3],
+  ['牌阵的核心能量是"松而不散"——别硬扛也别躺平,顺着当下这股劲,你会走到对的地方。',2],
+  ['这次的指引很温柔也很直接:你担心的那件事,没你想得那么糟;你期待的那件事,比你以为的更近。',3],
+  ['牌面在提醒你:内耗到此为止。想清楚了就去做,你缺的从来不是运气,是"先做那一下"的勇气。',2],
+  ['整组牌透着一股转机的味道——一个卡了很久的局,接下来会松动。守住耐心,风要来了。',2],
+  ['三张牌都在指同一个方向:回到你自己。别人的节奏参考就好,你的时区只归你管。',2],
+  ['这副牌给你的不是预言,是一面镜子——它照出了你心里其实早就有的那个决定。',2]
+];
+
+/* ── 行动建议 ── */
+const ACT=[
+  '行动建议:今天做一件"未来的你会感谢现在的你"的小事,哪怕只花五分钟。',
+  '行动建议:把纠结的能量挪去做一次,做完再评价,答案会自己浮出来。',
+  '行动建议:主动联系一个人 / 结束一件拖着的事,给运势开个口子。',
+  '行动建议:今晚早点睡,回满电再上;低电量时做的决定,十有八九会后悔。',
+  '行动建议:写下你此刻最想要的那件事——写下来,它就开始成真了。',
+  '行动建议:对那件你一直不敢的事,先迈出最小的一步。凡是没被禁止的,都是允许的。'
+];
+
+const TAGS=['顺势而为','向内看','该断就断','稳住别慌','大胆一点','把握当下','慢即是快','放下执念','相信直觉','主动出击','先松弛后发力','静待风来'];
+
+const cfg={ id:'tarot', 名字:'塔罗抽牌', 图标:'🔮' };
+
+$('go').onclick=()=>{
+  const q=$('q').value.trim();
+  const hasQ=!!q;
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    // 种子:有问题→同问同牌;留空→每次随机,可反复抽
+    const seed=hasQ ? ('tarot|'+q) : ('tarot|rand|'+Date.now()+'|'+Math.random());
+    const rng=CE.rngFrom(seed);
+    // 洗牌抽 3 张(不重复)
+    const deck=CARDS.slice();
+    for(let i=deck.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=deck[i];deck[i]=deck[j];deck[j]=t;}
+    const three=deck.slice(0,3);
+    // 首段:总览
+    const over=CE.wpick(rng,OVER);
+    const parts=[{h:'🔮 牌阵总览 · 核心指引', p:over}];
+    // 三张逐位解读(锁区)
+    three.forEach((card,i)=>{
+      const pos=POS[i];
+      const rev=rng()<0.45;                 // 正位略多一点
+      const orient=rev?'逆位':'正位';
+      const mean=rev?card.rev:card.up;
+      const lead=CE.pick(rng,pos.lead);
+      const tail=CE.pick(rng,pos.tail);
+      parts.push({h:pos.icon+' '+pos.key+'位 · '+card.n+'('+orient+')',
+        p:lead+'你翻开的是「'+card.n+' · '+orient+'」——'+mean+'。'+tail});
+    });
+    // 行动建议(锁区)
+    parts.push({h:'🧭 给你的一句行动建议', p:CE.pick(rng,ACT)});
+
+    const kw=CE.pick(rng,TAGS);
+    const tag='【'+kw+'】';
+    const energy=Math.min(99,Math.round(60+rng()*39));
+    const dims=[
+      ['🔮指引',Math.min(99,66+Math.round(rng()*33))],
+      ['🍀时运',Math.min(99,58+Math.round(rng()*41))],
+      ['💗情感',Math.min(99,58+Math.round(rng()*41))],
+      ['💰财运',Math.min(99,58+Math.round(rng()*41))]];
+    const spread=three.map(c=>c.n).join(' · ');
+    const sub=hasQ ? ('问:'+(q.length>18?q.slice(0,18)+'…':q)) : '你心里默念的那个问题 · 牌都懂';
+
+    const result={
+      heading:'你的塔罗三牌阵', tag, sub,
+      big:energy, bigLabel:'能量指数', dims, parts,
+      card:{kicker:'🔮 塔罗抽牌', title:kw, sub:spread, big:energy, bigLabel:'能量指数', dims, hook:over},
+      shareText:'我抽到的塔罗指引是「'+kw+'」,来抽你的 👉 qizh.space/ce/tarot'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+  },600);
+};
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

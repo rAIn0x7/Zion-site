@@ -14,8 +14,8 @@ header p{color:var(--muted);font-size:14px;margin-top:6px}
 .ce-stage{max-width:520px;margin:20px auto 0}
 .ce-field{margin-bottom:16px}
 .ce-field label{display:block;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--muted);margin-bottom:7px}
-.ce-field input,.ce-field select{width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:var(--body);font-size:16px;padding:13px 14px;outline:none;transition:border-color .2s}
-.ce-field input:focus,.ce-field select:focus{border-color:rgba(201,168,76,.5)}
+.ce-field input,.ce-field select,.ce-field textarea{width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:10px;color:var(--white);font-family:var(--body);font-size:16px;padding:13px 14px;outline:none;transition:border-color .2s;resize:vertical}
+.ce-field input:focus,.ce-field select:focus,.ce-field textarea:focus{border-color:rgba(201,168,76,.5)}
 .ce-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .ce-opts{display:flex;gap:8px;flex-wrap:wrap}
 .ce-opt{font-family:var(--mono);font-size:13px;color:var(--muted);border:1px solid var(--border);border-radius:99px;padding:9px 15px;cursor:pointer;background:var(--panel);transition:.2s}

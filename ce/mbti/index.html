@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MBTI 趣味人格测试 · 8 道题测出你的 16 型人格 — qizh.space</title>
+<meta name="description" content="8 道趣味二选一,测出你的 MBTI 16 型人格 + 专属昵称 + 优势短板 + 最配类型。答案说了算,同答案同结果,好玩又准。趣味版·仅供娱乐,分享解锁完整解读。">
+<link rel="canonical" href="https://qizh.space/ce/mbti/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='54' text-anchor='middle'%3E%F0%9F%A7%AD%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="MBTI 趣味人格测试 · 8 道题测你的 16 型人格">
+<meta property="og:description" content="8 道趣味二选一,测出你的 MBTI 人格 + 专属昵称 + 最配类型。趣味版·仅供娱乐。">
+<meta property="og:url" content="https://qizh.space/ce/mbti/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/palm/">手相</a><a href="/">← 主站</a></div>
+</nav>
+<header>
+  <h1>MBTI 趣味版</h1>
+  <p>8 道二选一,测出你的 16 型人格 · 趣味版·仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>1 · 忙完一整天,你靠什么回血?</label><div class="ce-opts" id="q1">
+      <button class="ce-opt on" data-v="E">🎉 出门找人 / 热闹一下</button><button class="ce-opt" data-v="I">🏠 一个人窝着 / 静静充电</button>
+    </div></div>
+    <div class="ce-field"><label>2 · 聚会里的你更像?</label><div class="ce-opts" id="q2">
+      <button class="ce-opt on" data-v="E">🗣️ 主动开麦、到处唠</button><button class="ce-opt" data-v="I">👀 安静观察、跟熟人聊</button>
+    </div></div>
+    <div class="ce-field"><label>3 · 你更相信哪一种?</label><div class="ce-opts" id="q3">
+      <button class="ce-opt on" data-v="N">🔮 直觉和脑补的可能性</button><button class="ce-opt" data-v="S">🔍 眼见为实的事实细节</button>
+    </div></div>
+    <div class="ce-field"><label>4 · 你更爱哪种内容?</label><div class="ce-opts" id="q4">
+      <button class="ce-opt on" data-v="N">🌌 天马行空的脑洞设定</button><button class="ce-opt" data-v="S">🍜 真实接地气的日常</button>
+    </div></div>
+    <div class="ce-field"><label>5 · 朋友向你诉苦,你第一反应?</label><div class="ce-opts" id="q5">
+      <button class="ce-opt on" data-v="T">🧠 帮ta分析、给方案</button><button class="ce-opt" data-v="F">🫂 先共情、抱一抱</button>
+    </div></div>
+    <div class="ce-field"><label>6 · 做决定你更靠?</label><div class="ce-opts" id="q6">
+      <button class="ce-opt on" data-v="T">⚖️ 逻辑和利弊权衡</button><button class="ce-opt" data-v="F">💗 感受和对人的影响</button>
+    </div></div>
+    <div class="ce-field"><label>7 · 出去玩,你是?</label><div class="ce-opts" id="q7">
+      <button class="ce-opt on" data-v="J">🗂️ 攻略排满、行程锁死</button><button class="ce-opt" data-v="P">🎲 说走就走、随性发挥</button>
+    </div></div>
+    <div class="ce-field"><label>8 · 面对 deadline,你是?</label><div class="ce-opts" id="q8">
+      <button class="ce-opt on" data-v="J">✅ 提前搞定、井井有条</button><button class="ce-opt" data-v="P">🔥 灵感在最后一刻爆发</button>
+    </div></div>
+    <button class="ce-btn g ce-go" id="go">🧭 测我的 MBTI 人格</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在拼出你的人格类型…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>MBTI 趣味版 · 趣味娱乐,切不可当真 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+/* 每题默认选中第一项 → 8 题都有初值,答完即可出结果 */
+const sel={q1:'E',q2:'E',q3:'N',q4:'N',q5:'T',q6:'T',q7:'J',q8:'J'};
+['q1','q2','q3','q4','q5','q6','q7','q8'].forEach(q=>{
+  $(q).querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    $(q).querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');sel[q]=b.dataset.v;
+  });
+});
+
+/* ── 16 型内容库(昵称 / 一句人设 / 优势 / 短板 / 方向 / 最配型)── */
+const T16={
+  INTJ:{nick:'建筑师',hook:'你是那种表面云淡风轻、脑子里已经把整盘棋推演到第八步的人——话不多,但一开口经常一针见血。',
+    adv:'战略脑 + 强执行,一旦认准目标就自己给自己铺路,别人还在纠结你已经在落地。独立、清醒、不吃 PUA。',
+    weak:'太信自己的判断,容易把「我懒得解释」写在脸上;情绪表达是弱项,亲近的人常觉得你有点冷。',
+    dir:'适合做需要长期主义 + 系统设计的事:创业操盘、产品/战略、研究、投资、任何「一个人也能把复杂问题啃下来」的方向。',
+    match:'ENFP · 竞选者(帮你把冷内核焐热) / ENTP · 辩论家(和你脑子对得上、越吵越来电)'},
+  INTP:{nick:'逻辑学家',hook:'你的大脑是一个 24 小时开着的后台程序,永远在拆解「这到底为什么」——是那种能为一个冷知识兴奋一整天的人。',
+    adv:'逻辑锋利、想象力爆棚,擅长在别人觉得「就这样吧」的地方发现新解法。真诚,不装,讨厌废话和权威。',
+    weak:'想得多、动得少,完美主义拖延症;对现实琐事(社交、家务、deadline)常常掉线。',
+    dir:'适合钻研型工作:研发、算法、写作、独立开发、任何让你「深挖一个有意思的问题」的领域。别做纯执行的重复劳动。',
+    match:'ENTJ · 指挥官(帮你把点子落地) / ENFJ · 主人公(把你从洞里温柔拽出来)'},
+  ENTJ:{nick:'指挥官',hook:'你是天生的操盘手——走进任何一个乱局,三分钟内就想好谁干什么、怎么最快出结果。气场两米八,天生带团队的人。',
+    adv:'目标感 + 决断力拉满,擅长把资源和人组织起来往前推,抗压强,越难越兴奋。天生的领导者气质。',
+    weak:'太快、太直,容易碾压别人的节奏和感受;不耐烦「效率低」的人,有时把胜负看得太重。',
+    dir:'适合掌舵:创业、管理、商务、任何能让你带队打大仗的位置。给你一个山头,你能插旗。',
+    match:'INTP · 逻辑学家(给你源源不断的新弹药) / INFP · 调停者(软化你的锋芒、补上人情)'},
+  ENTP:{nick:'辩论家',hook:'你是行走的脑暴机 + 杠精本精(褒义)——什么观点到你这都能被翻个面。点子多到用不完,最烦的就是「无聊」。',
+    adv:'反应快、脑洞大、嘴皮子溜,擅长在混乱里找机会、把不可能聊成可能。天生的创意 + 忽悠(褒义)双修。',
+    weak:'三分钟热度,开局猛如虎、收尾常烂尾;享受抬杠本身,偶尔忘了照顾别人的情绪。',
+    dir:'适合需要不断创新和搞事的场:创业、市场增长、内容、BD、任何「点子多且能落一部分」的舞台。',
+    match:'INFJ · 提倡者(接得住你的深度) / INTJ · 建筑师(帮你把脑洞变成蓝图)'},
+  INFJ:{nick:'提倡者',hook:'你是人群里那个安静却看透一切的人——共情力强到像自带雷达,还总揣着一个想让世界变好一点的执念。',
+    adv:'洞察 + 理想主义兼备,既懂人心又有长期信念,能把温柔和坚定揉在一起,是那种「话不多但被深深信任」的人。',
+    weak:'太容易吸收别人的情绪把自己耗空;标准高、爱内耗,受伤了会突然「关门」谁也不见。',
+    dir:'适合有意义感的事:心理/教育、内容创作、品牌、公益、任何能把你的理想落成影响力的方向。',
+    match:'ENTP · 辩论家(点燃你、和你灵魂对话) / ENFP · 竞选者(懂你的深、又给你光)'},
+  INFP:{nick:'调停者',hook:'你是把整个宇宙的浪漫和敏感都装进心里的人——外表安静,内心一部never-ending的电影,永远在为「真」和「美」较真。',
+    adv:'共情力和想象力顶配,价值观极稳,认定的东西谁也带不偏。温柔、真诚,能治愈身边的人。',
+    weak:'太理想化,现实一击就容易emo;讨厌冲突常自我消化,把「我没事」挂嘴边其实很有事。',
+    dir:'适合表达自我 + 帮助他人的路:写作、艺术、心理、内容、任何能把你的内心世界变成作品的方向。',
+    match:'ENFJ · 主人公(稳稳接住你的情绪) / ENTJ · 指挥官(帮你把理想推进现实)'},
+  ENFJ:{nick:'主人公',hook:'你是天生的暖场王 + 人生导师——走到哪都能把气氛和人心拢住,别人的潜力在你眼里像被打了高光。',
+    adv:'超强感染力 + 组织力,既能鼓舞人又能把事办成,是那种「大家都愿意跟着」的领袖型暖人。',
+    weak:'太在意别人的评价和期待,容易把自己排到最后;付出感强,失望时也会格外受伤。',
+    dir:'适合与人打交道的舞台:教育、团队管理、社群、内容/演讲、任何能把人聚起来往前带的方向。',
+    match:'INFP · 调停者(值得你全心呵护) / ISFP · 探险家(被你的光温柔照亮)'},
+  ENFP:{nick:'竞选者',hook:'你是行走的小太阳 + 好奇心永动机——热情来得快、点子冒不停,能把最普通的一天过成一场即兴演出。',
+    adv:'感染力 + 创造力 + 共情三修,天生自来熟,擅长把人和点子连起来,走到哪都在发光。',
+    weak:'热度来得快去得也快,容易开一堆坑;情绪起伏大,一被否定小太阳瞬间断电。',
+    dir:'适合自由 + 表达 + 和人连接的路:创意、市场、内容创作、创业、任何能不断尝新的舞台。',
+    match:'INTJ · 建筑师(接住你的能量、帮你落地) / INFJ · 提倡者(和你灵魂共振)'},
+  ISTJ:{nick:'物流师',hook:'你是那个「说到做到、答应了就一定办到」的人——靠谱到别人闭眼把事交给你,是团队里那块最稳的压舱石。',
+    adv:'责任心 + 执行力顶配,做事有条理、守规矩、抠细节,交给你的事从不掉链子,靠谱是你的代名词。',
+    weak:'有点固执、认死理,不太爱变;情感表达含蓄,常用「做事」代替「说爱」。',
+    dir:'适合需要严谨和稳定的事:运营、财务、法务、项目管理、工程,任何「细节和规矩即生命」的领域。',
+    match:'ESFP · 表演者(给你的生活加点甜和乱) / ESTP · 企业家(帮你偶尔跳出舒适区)'},
+  ISFJ:{nick:'守护者',hook:'你是那种默默把身边人照顾得妥妥帖帖的人——记得所有人的喜好和纪念日,温柔又可靠,是团队里的定海神针。',
+    adv:'细心 + 忠诚 + 强责任感,擅长照顾人和处理琐碎,任劳任怨,是让人特别有安全感的存在。',
+    weak:'太会委屈自己成全别人,不好意思拒绝;不爱变化,受了委屈也常憋着不说。',
+    dir:'适合服务 + 支持型的事:医护、教育、HR、行政、客户成功,任何「用心把人照顾好」的方向。',
+    match:'ESFP · 表演者(带你放松、被你温柔宠着) / ESTP · 企业家(给你活力和保护欲)'},
+  ESTJ:{nick:'总经理',hook:'你是天生的管理者——规矩、效率、结果三个字刻在骨头里,乱糟糟的局面到你手里分分钟被安排得明明白白。',
+    adv:'执行力 + 组织力超强,雷厉风行、说一不二,擅长把团队和流程拧成一股绳,该扛事的时候绝不含糊。',
+    weak:'有点强势、认死理,容易忽略别人的情绪;不太能接受「不按规矩来」和低效率。',
+    dir:'适合管理 + 落地型的岗:运营、管理、销售、供应链,任何「把事高效办成、把队伍带整齐」的位置。',
+    match:'ISFP · 探险家(软化你、给你松弛感) / ISTP · 鉴赏家(默契配合、互不越界)'},
+  ESFJ:{nick:'执政官',hook:'你是人群里的社交中心 + 贴心管家——记得每个人的需求,擅长把大家聚在一起,走到哪都是那个「张罗一切」的人。',
+    adv:'热心 + 高情商 + 强行动力,擅长照顾人、维系关系、把气氛和事情都办得妥帖,是集体里的黏合剂。',
+    weak:'太在意别人的看法和认可,容易为了和谐委屈自己;被忽视时会格外敏感。',
+    dir:'适合与人紧密协作的路:运营、销售、HR、活动、客户关系,任何「靠人情和张罗力吃饭」的方向。',
+    match:'ISFP · 探险家(被你的热情温柔接住) / ISTP · 鉴赏家(和你性格互补、动静相宜)'},
+  ISTP:{nick:'鉴赏家',hook:'你是冷静的实干派 + 拆解狂魔——话不多但动手能力一流,任何东西到你手里都想拆开看看「它到底怎么转的」。',
+    adv:'动手能力 + 临场应变超强,遇事不慌、逻辑清晰,擅长在关键时刻用最简洁的方式解决问题。酷且实在。',
+    weak:'不爱被规矩和情绪绑住,亲密关系里容易「人在心不在」;讨厌空谈和无意义的社交。',
+    dir:'适合技术 + 实操型的事:工程、技术、设计、运动、任何「靠真本事和手感说话」的领域。',
+    match:'ESFJ · 执政官(把你的生活打理得暖) / ESTJ · 总经理(和你效率合拍、各司其职)'},
+  ISFP:{nick:'探险家',hook:'你是低调的宝藏艺术家——不爱张扬,却对美和体验有超强的感知,活得随性、真诚,把日子过成自己的作品。',
+    adv:'审美 + 共情 + 动手力兼备,活在当下、真实自在,擅长用行动和作品表达温柔,是很治愈的存在。',
+    weak:'太随性、不爱规划,容易被临时情绪带着走;讨厌冲突和束缚,压力大时会默默消失。',
+    dir:'适合审美 + 自由 + 体验型的路:设计、艺术、手作、摄影、任何能把感受变成作品的方向。',
+    match:'ENFJ · 主人公(给你稳稳的爱和方向) / ESFJ · 执政官(把你照顾得妥妥帖帖)'},
+  ESTP:{nick:'企业家',hook:'你是天生的行动派 + 气氛制造机——胆大、反应快、坐不住,机会在眼前绝不犹豫,先冲了再说是你的人生信条。',
+    adv:'行动力 + 临场应变 + 抗压顶配,擅长在真实世界里抓机会、搞定人、快速见效。魅力足、不怕事。',
+    weak:'太冲、不爱等,容易忽略长期和细节;三分钟热度,享受刺激有时忘了收尾。',
+    dir:'适合需要闯劲和临场的事:销售、创业、市场、运营、任何「快节奏、见真章、要结果」的战场。',
+    match:'ISFJ · 守护者(在你身后稳稳托底) / ISTJ · 物流师(帮你补上细节和长线)'},
+  ESFP:{nick:'表演者',hook:'你是天生的快乐制造机 + 全场焦点——走到哪都是发光的那个,懂玩、会活,能把平凡的日子过得热气腾腾。',
+    adv:'感染力 + 行动力 + 高共情,自来熟、会来事,擅长活跃气氛、抓住当下,是让所有人都开心的存在。',
+    weak:'太活在当下,容易冲动和缺规划;特别在意关注和喜欢,被冷落时会明显失落。',
+    dir:'适合表达 + 与人 + 现场感强的路:表演、销售、活动、内容、任何能站在聚光灯下发光的舞台。',
+    match:'ISFJ · 守护者(默默宠着你、给你安稳) / ISTJ · 物流师(帮你稳住节奏和后方)'}
+};
+
+const AXES=[
+  {k:['E','I'],lab:['E 外向','I 内向'],qs:['q1','q2']},
+  {k:['N','S'],lab:['N 直觉','S 实感'],qs:['q3','q4']},
+  {k:['T','F'],lab:['T 理智','F 情感'],qs:['q5','q6']},
+  {k:['J','P'],lab:['J 判断','P 感知'],qs:['q7','q8']}
+];
+
+$('go').onclick=()=>{
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    let type='',dims=[];
+    AXES.forEach(ax=>{
+      const a=ax.k[0],b=ax.k[1];
+      let ca=0,cb=0;
+      ax.qs.forEach(q=>{sel[q]===a?ca++:cb++;});
+      // 多数决;平票取默认(第一侧)
+      const win=ca>=cb?a:b;
+      const winCnt=Math.max(ca,cb),total=ca+cb;
+      const pct=Math.round(winCnt/total*100); // 2:0→100, 1:1→50
+      type+=win;
+      const winLab=win===a?ax.lab[0]:ax.lab[1];
+      dims.push([winLab,pct]);
+    });
+    const T=T16[type];
+    const tag='【'+type+' · '+T.nick+'】';
+    const parts=[
+      {h:'👤 你是这样的人', p:T.hook},
+      {h:'💪 你的优势', p:T.adv},
+      {h:'⚠️ 要留意的短板', p:T.weak},
+      {h:'🎯 适合你的方向', p:T.dir},
+      {h:'💞 和你最配的类型', p:T.match}
+    ];
+    const result={
+      heading:'你的 MBTI 人格', tag, sub:type+' · '+T.nick,
+      dims, parts,
+      card:{kicker:'🧭 MBTI 趣味版', title:type+' · '+T.nick, sub:'趣味版·仅供娱乐', dims, hook:T.hook},
+      shareText:'我是 '+T.nick+'('+type+')!来测你的 👉 qizh.space/ce/mbti'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+  },600);
+};
+
+const cfg={ id:'mbti', 名字:'MBTI 趣味版', 图标:'🧭' };
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>
