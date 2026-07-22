@@ -16,7 +16,14 @@
 <meta name="twitter:title" content="AI 帮你做决定 · 纠结症终结者">
 <meta name="twitter:description" content="说出你的纠结,AI 帮你冷静拍板,给理由、给风险、替你下决心。">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"AI 帮你做决定","url":"https://qizh.space/ce/decide/","applicationCategory":"LifestyleApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"说出你的纠结与候选项,AI 帮你冷静拍板:推荐选项 + 3 条理由 + 1 条风险提醒 + 一句赛博骰子最终拍板。断网也有本地决策框架兜底。","inLanguage":"zh-CN","isAccessibleForFree":true}
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"AI 帮你做决定","url":"https://qizh.space/ce/decide/","applicationCategory":"LifestyleApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"说出你的纠结与候选项,AI 帮你冷静拍板:推荐选项 + 3 条理由 + 1 条风险提醒 + 一句赛博骰子最终拍板。断网也有本地决策框架兜底。","inLanguage":"zh-CN","isAccessibleForFree":true},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"AI 帮你做决定要收费吗?","acceptedAnswer":{"@type":"Answer","text":"完全免费,在线打开即用,无需注册或登录。"}},
+{"@type":"Question","name":"它给的建议靠谱吗、准不准?","acceptedAnswer":{"@type":"Answer","text":"这是一款趣味决策参考工具,AI 会帮你把利弊、理由和风险理清楚,但最终决定还得你自己拍板,请理性参考。"}},
+{"@type":"Question","name":"需要填写隐私信息吗?","acceptedAnswer":{"@type":"Answer","text":"不需要。只要写下你在纠结什么、填上几个候选项即可,不采集姓名、生日等个人隐私。"}}
+]}
+]}
 </script>
 <link rel="preconnect" href="https://fonts.loli.net">
 <link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
@@ -67,6 +74,25 @@
   <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在权衡利弊、帮你把话说明白…</p></div>
   <div class="ce-report" id="ce-report"></div>
 </div>
+<style>
+/* 页面可见 FAQ(与 head 中 FAQPage 结构化数据一致;仅本页内联,不改 ce.css)*/
+.ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
+.ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
+.ce-faq details{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ce-faq details[open]{border-color:rgba(201,168,76,.4)}
+.ce-faq summary{list-style:none;cursor:pointer;padding:14px 46px 14px 16px;position:relative;font-size:14.5px;font-weight:500;color:var(--white);line-height:1.6}
+.ce-faq summary::-webkit-details-marker{display:none}
+.ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
+.ce-faq details[open] summary::after{content:"−"}
+.ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+</style>
+<section class="ce-faq" aria-label="常见问题">
+  <h2>常见问题</h2>
+  <details><summary>AI 帮你做决定要收费吗?</summary><div class="a">完全免费,在线打开即用,无需注册或登录。</div></details>
+  <details><summary>它给的建议靠谱吗、准不准?</summary><div class="a">这是一款趣味决策参考工具,AI 会帮你把利弊、理由和风险理清楚,但最终决定还得你自己拍板,请理性参考。</div></details>
+  <details><summary>需要填写隐私信息吗?</summary><div class="a">不需要。只要写下你在纠结什么、填上几个候选项即可,不采集姓名、生日等个人隐私。</div></details>
+</section>
+
 <footer>AI 帮你做决定 · 趣味参考,决定还得你自己下 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
 
 <script src="/ce/engine.js"></script>

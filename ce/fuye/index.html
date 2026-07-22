@@ -16,7 +16,14 @@
 <meta name="twitter:title" content="副业方向测评 · 你适合搞什么副业">
 <meta name="twitter:description" content="6 道题测出最适合你的副业方向,附起步第一步与变现方式。">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebApplication","name":"副业方向测评","url":"https://qizh.space/ce/fuye/","applicationCategory":"BusinessApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"6 道选择题测出最适合你的 2-3 个副业方向,每个方向给出为什么适合你、起步第一步、变现方式与难度回报标签。答案驱动,同答案同结果。","inLanguage":"zh-CN","isAccessibleForFree":true}
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"副业方向测评","url":"https://qizh.space/ce/fuye/","applicationCategory":"BusinessApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"6 道选择题测出最适合你的 2-3 个副业方向,每个方向给出为什么适合你、起步第一步、变现方式与难度回报标签。答案驱动,同答案同结果。","inLanguage":"zh-CN","isAccessibleForFree":true},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"副业方向测评要答多少题?","acceptedAnswer":{"@type":"Answer","text":"只需 6 道选择题,约一分钟即可测出最适合你的 2-3 个副业方向。"}},
+{"@type":"Question","name":"测出来的方向准吗、能直接照着做吗?","acceptedAnswer":{"@type":"Answer","text":"这是一款趣味测评,结果根据你的答案匹配,仅供参考与启发;具体要不要做、怎么做,还得结合你的真实情况。"}},
+{"@type":"Question","name":"免费吗?需要填隐私吗?","acceptedAnswer":{"@type":"Answer","text":"完全免费,无需注册,也不采集生日等隐私,答题即可看到结果。"}}
+]}
+]}
 </script>
 <link rel="preconnect" href="https://fonts.loli.net">
 <link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
@@ -85,6 +92,25 @@
   <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在匹配最适合你的副业方向…</p></div>
   <div class="ce-report" id="ce-report"></div>
 </div>
+<style>
+/* 页面可见 FAQ(与 head 中 FAQPage 结构化数据一致;仅本页内联,不改 ce.css)*/
+.ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
+.ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
+.ce-faq details{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ce-faq details[open]{border-color:rgba(201,168,76,.4)}
+.ce-faq summary{list-style:none;cursor:pointer;padding:14px 46px 14px 16px;position:relative;font-size:14.5px;font-weight:500;color:var(--white);line-height:1.6}
+.ce-faq summary::-webkit-details-marker{display:none}
+.ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
+.ce-faq details[open] summary::after{content:"−"}
+.ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+</style>
+<section class="ce-faq" aria-label="常见问题">
+  <h2>常见问题</h2>
+  <details><summary>副业方向测评要答多少题?</summary><div class="a">只需 6 道选择题,约一分钟即可测出最适合你的 2-3 个副业方向。</div></details>
+  <details><summary>测出来的方向准吗、能直接照着做吗?</summary><div class="a">这是一款趣味测评,结果根据你的答案匹配,仅供参考与启发;具体要不要做、怎么做,还得结合你的真实情况。</div></details>
+  <details><summary>免费吗?需要填隐私吗?</summary><div class="a">完全免费,无需注册,也不采集生日等隐私,答题即可看到结果。</div></details>
+</section>
+
 <footer>副业方向测评 · 趣味参考,路还得自己走 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
 
 <script src="/ce/engine.js"></script>

@@ -72,6 +72,25 @@
   <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在拼出你的人格类型…</p></div>
   <div class="ce-report" id="ce-report"></div>
 </div>
+<style>
+/* 页面可见 FAQ(与 head 中 FAQPage 结构化数据一致;仅本页内联,不改 ce.css)*/
+.ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
+.ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
+.ce-faq details{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ce-faq details[open]{border-color:rgba(201,168,76,.4)}
+.ce-faq summary{list-style:none;cursor:pointer;padding:14px 46px 14px 16px;position:relative;font-size:14.5px;font-weight:500;color:var(--white);line-height:1.6}
+.ce-faq summary::-webkit-details-marker{display:none}
+.ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
+.ce-faq details[open] summary::after{content:"−"}
+.ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+</style>
+<section class="ce-faq" aria-label="常见问题">
+  <h2>常见问题</h2>
+  <details><summary>MBTI 测试要多少道题?</summary><div class="a">只需 8 道趣味二选一,约一分钟即可测出你的 16 型人格。</div></details>
+  <details><summary>这个 MBTI 测试免费吗?</summary><div class="a">完全免费,无需注册,分享后可解锁完整人格解读。</div></details>
+  <details><summary>结果专业吗?</summary><div class="a">这是趣味简化版,仅供娱乐,不能替代专业心理测评。</div></details>
+</section>
+
 <footer>MBTI 趣味版 · 趣味娱乐,切不可当真 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
 
 <script src="/ce/engine.js"></script>

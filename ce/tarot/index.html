@@ -69,6 +69,25 @@
   <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在洗牌,把最该给你的三张翻出来…</p></div>
   <div class="ce-report" id="ce-report"></div>
 </div>
+<style>
+/* 页面可见 FAQ(与 head 中 FAQPage 结构化数据一致;仅本页内联,不改 ce.css)*/
+.ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
+.ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
+.ce-faq details{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ce-faq details[open]{border-color:rgba(201,168,76,.4)}
+.ce-faq summary{list-style:none;cursor:pointer;padding:14px 46px 14px 16px;position:relative;font-size:14.5px;font-weight:500;color:var(--white);line-height:1.6}
+.ce-faq summary::-webkit-details-marker{display:none}
+.ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
+.ce-faq details[open] summary::after{content:"−"}
+.ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+</style>
+<section class="ce-faq" aria-label="常见问题">
+  <h2>常见问题</h2>
+  <details><summary>用的是哪套塔罗牌?</summary><div class="a">采用经典韦特塔罗牌图,含正逆位与三张牌阵(过去/现在/未来)。</div></details>
+  <details><summary>塔罗结果准吗?</summary><div class="a">这是一款趣味测试,牌面与解读仅供娱乐与自我启发,不构成任何决策建议。</div></details>
+  <details><summary>需要付费或注册吗?</summary><div class="a">不需要,免费即抽,零采集隐私,分享后可解锁完整牌阵解读。</div></details>
+</section>
+
 <footer>塔罗抽牌 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
 
 <script src="/ce/engine.js"></script>
