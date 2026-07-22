@@ -6,6 +6,32 @@
 window.CE = (function () {
   const API = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
   const GLM_KEY = 'a3627c50241e4ba89fc4f56193b9c724.ADj57yFSiiLajwRC'; // 复用;仅"生成型"工具(起名)用
+  const JOIN_URL = 'https://t.zsxq.com/hGab6';                          // 知识星球(微信内多半打不开→靠扫码/复制到浏览器)
+
+  /* ── 工具矩阵清单(唯一真源;结果页"再测下一个"导流条 & 首页都可复用)──
+     每项:id 与各工具页 cfg.id 一致(用于结果页自动排除当前工具)/ name / icon / url / hook 一句钩子 */
+  const TOOLS = [
+    {id:'palm',    name:'AI 手相',    icon:'🖐', url:'/palm/',       hook:'拍张手掌,AI 看你天生什么命'},
+    {id:'hehun',   name:'AI 合婚',    icon:'💞', url:'/ce/hehun/',   hook:'输俩名字,测你俩到底配不配'},
+    {id:'xingzuo', name:'今日运势',   icon:'⭐', url:'/ce/xingzuo/', hook:'你的星座今天多少分?'},
+    {id:'tarot',   name:'塔罗抽牌',   icon:'🃏', url:'/ce/tarot/',   hook:'三张牌拆穿你的现在与未来'},
+    {id:'qianshi', name:'前世今生',   icon:'🪷', url:'/ce/qianshi/', hook:'你上辈子到底是谁?'},
+    {id:'keyword', name:'本命关键词', icon:'🔮', url:'/ce/keyword/', hook:'测出你的年度本命词'},
+    {id:'qiming',  name:'AI 起名',    icon:'✍️', url:'/ce/qiming/',  hook:'AI 给你起个带寓意的好名字'},
+    {id:'mbti',    name:'MBTI 锐评',  icon:'🧭', url:'/ce/mbti/',    hook:'8 题测你是哪型人格'}
+  ];
+
+  /* ── 结果页底部"再测下一个"导流条(排除当前工具,按 toolId 稳定挑 3 个)── */
+  function buildMore(curId){
+    const others = TOOLS.filter(t=>t.id!==curId);
+    if(!others.length) return '';
+    const rng = rngFrom((curId||'x')+'|more');                 // 同工具稳定、跨工具各异
+    for(let i=others.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=others[i];others[i]=others[j];others[j]=t;}
+    const cards = others.slice(0,3).map(t=>
+      `<a class="ce-more-c" href="${t.url}"><span class="ce-more-i">${t.icon}</span><span class="ce-more-tx"><b>${t.name}</b><i>${t.hook}</i></span><span class="ce-more-go">→</span></a>`
+    ).join('');
+    return `<div class="ce-more"><div class="ce-more-hd">🔥 测完这个,顺手再测 →</div><div class="ce-more-row">${cards}</div><a class="ce-more-all" href="/ce/">查看全部 ${TOOLS.length} 个测试 →</a></div>`;
+  }
 
   /* ── 种子 & 随机(同输入同结果,跨输入不同)── */
   function xmur3(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^=h>>>16)>>>0;};}
@@ -135,11 +161,19 @@ window.CE = (function () {
       <div class="ce-tag">${esc(result.tag||'')}</div>${result.sub?`<div class="ce-sub">${esc(result.sub)}</div>`:''}
       ${result.big!=null?`<div class="ce-score"><div class="big">${result.bigLabel||''} <b>${result.big}</b></div><div class="ce-dims">${dimsHtml}</div></div>`:''}
       <div id="ce-body">${first?sec(first):''}
-        ${rest.length?`<div class="ce-lockcta" id="ce-lockCta">🔒 完整解读还锁着 —— 📤 <b>分享卡片</b>即可解锁全部<div style="margin-top:10px"><button class="ce-btn g" id="ce-lockShare">📤 分享并解锁</button></div><div style="color:#8a8378;font-size:11px;margin-top:8px">分享/保存后自动解锁 · 也欢迎微信搜「Zion降噪」</div></div>
+        ${rest.length?`<div class="ce-lockcta" id="ce-lockCta">🔒 下面还有你的<b>完整深度版</b>(藏了后半段)<div style="margin:6px 0 12px;color:#c7c2b8;font-size:12.5px">分享给一个朋友,立刻解锁全部 👇</div><button class="ce-btn g" id="ce-lockShare">📤 分享一下 · 解锁完整版</button><div style="color:#8a8378;font-size:11px;margin-top:8px">分享/保存后自动解锁,只需一次 · 也可微信搜「Zion降噪」</div></div>
         <div class="ce-lockZone ce-blur" id="ce-lockZone">${rest.map(sec).join('')}</div>`:''}
       </div>
-      <div class="ce-cta"><div class="ct">🔮 想要更深 / 每天一条降噪信号</div><a class="ce-btn g" href="/join/" style="display:inline-block;margin:8px 0 4px;text-decoration:none">加入「降噪·静音舱」→</a><div class="cb">或微信搜公众号 <b>「Zion降噪」</b></div></div>
+      <div class="ce-cta"><div class="ct">🔓 解锁更深 · 每天一条「降噪信号」帮你少焦虑</div>
+        <div class="ce-qrs">
+          <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪" loading="lazy"><b>扫码关注公众号</b><span>「Zion降噪」· 回复口令解锁更多</span></div>
+          <div class="ce-qr"><img src="/planet-qr.png" alt="知识星球" loading="lazy"><b>扫码进知识星球</b><span>和同频的人一起搞事、拿工具</span></div>
+        </div>
+        <a class="ce-btn g" href="/join/" style="display:inline-block;margin:6px 0 4px;text-decoration:none">加入「降噪·静音舱」→</a>
+        <div class="cb">微信里打不开链接?复制到浏览器:<b>${JOIN_URL}</b></div></div>
       <div class="ce-row"><button class="ce-btn g" id="ce-share">📤 甩给最该看的人</button><button class="ce-btn" id="ce-again">再测一次</button></div>
+      <div class="ce-retention">🌙 明天再来测,运势/心情每天都在变 · 把结果甩给最该看的那个人,反应最真实 👀</div>
+      ${buildMore(cfg.id)}
       <div class="ce-wm">qizh.space · 微信搜「Zion降噪」· 仅供娱乐</div>`;
     document.getElementById('ce-share').onclick=shareCard;
     const ls=document.getElementById('ce-lockShare');if(ls)ls.onclick=shareCard;
@@ -150,5 +184,6 @@ window.CE = (function () {
   }
 
   return { rngFrom, pick, wpick, imgHash, buildParts, llm, render, drawCard,
+           TOOLS, JOIN_URL, buildMore,
            util:{xmur3,mulberry32} };
 })();

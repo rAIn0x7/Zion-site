@@ -82,3 +82,55 @@ footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;co
 .ce-card:hover{box-shadow:0 18px 40px -18px rgba(201,168,76,.45)}
 .ce-card:hover::before{opacity:1}
 .ce-card .ci{display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:12px;background:radial-gradient(circle at 32% 28%,rgba(240,212,136,.18),rgba(201,168,76,.05));box-shadow:inset 0 0 0 1px rgba(201,168,76,.22);position:relative}
+
+/* ═══ 转化闭环:结果页双码 CTA + 回访钩子 + "再测下一个"导流条 ═══ */
+/* 双二维码转化区 */
+.ce-qrs{display:flex;gap:14px;justify-content:center;margin:14px 0 6px}
+.ce-qr{flex:1;max-width:210px;display:flex;flex-direction:column;align-items:center;text-align:center;background:rgba(201,168,76,.05);border:1px solid var(--border);border-radius:12px;padding:12px 10px}
+.ce-qr img{width:112px;height:112px;border-radius:8px;background:#fff;padding:5px;object-fit:contain}
+.ce-qr b{display:block;color:var(--gold-lt);font-size:12.5px;margin-top:9px}
+.ce-qr span{display:block;color:var(--muted);font-size:11px;line-height:1.5;margin-top:3px}
+.ce-cta .cb{word-break:break-all}
+/* 回访钩子 */
+.ce-retention{text-align:center;color:var(--muted);font-size:12px;line-height:1.6;margin:16px auto 0;max-width:440px;padding:10px 14px;border:1px dashed var(--border);border-radius:10px;background:rgba(201,168,76,.03)}
+/* 再测下一个 导流条 */
+.ce-more{margin:22px 0 4px;border-top:1px solid var(--border);padding-top:18px}
+.ce-more-hd{text-align:center;font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;color:var(--gold-lt);margin-bottom:14px}
+.ce-more-row{display:grid;grid-template-columns:1fr;gap:10px}
+.ce-more-c{display:flex;align-items:center;gap:12px;background:linear-gradient(165deg,#16130f,#100e0b);border:1px solid var(--border);border-radius:12px;padding:12px 14px;transition:.2s;position:relative;overflow:hidden}
+.ce-more-c::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 12% 0,rgba(201,168,76,.14),transparent 60%);opacity:0;transition:opacity .25s}
+.ce-more-c:hover{border-color:var(--gold);transform:translateY(-2px);box-shadow:0 14px 32px -16px rgba(201,168,76,.5)}
+.ce-more-c:hover::before{opacity:1}
+.ce-more-i{flex:none;display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:11px;font-size:22px;background:radial-gradient(circle at 32% 28%,rgba(240,212,136,.18),rgba(201,168,76,.05));box-shadow:inset 0 0 0 1px rgba(201,168,76,.22);position:relative;z-index:1}
+.ce-more-tx{flex:1;min-width:0;position:relative;z-index:1}
+.ce-more-tx b{display:block;color:var(--white);font-size:14.5px;font-weight:600}
+.ce-more-tx i{display:block;color:var(--muted);font-size:12px;font-style:normal;line-height:1.4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ce-more-go{flex:none;color:var(--gold);font-size:18px;position:relative;z-index:1;transition:transform .2s}
+.ce-more-c:hover .ce-more-go{transform:translateX(4px)}
+.ce-more-all{display:block;text-align:center;margin-top:14px;font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--muted)}
+.ce-more-all:hover{color:var(--gold)}
+
+/* ═══ 测测矩阵首页(hub)大杀器升级 ═══ */
+.hub-hero{text-align:center;padding:8px 20px 4px;max-width:640px;margin:0 auto}
+.hub-hero .kick{font-family:var(--mono);font-size:11.5px;letter-spacing:.22em;color:var(--gold);text-transform:uppercase}
+.hub-hero h1{font-family:var(--display);font-size:clamp(40px,10vw,66px);letter-spacing:.03em;color:var(--gold-lt);line-height:1.02;margin:8px 0 6px;text-shadow:0 4px 30px rgba(201,168,76,.28)}
+.hub-hero .lede{color:#c7c2b8;font-size:15px;line-height:1.7;max-width:480px;margin:0 auto}
+.hub-hero .lede b{color:var(--gold-lt);font-weight:600}
+.hub-hero .stats{display:flex;justify-content:center;gap:22px;margin:16px 0 4px;flex-wrap:wrap}
+.hub-hero .stats div{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em}
+.hub-hero .stats b{display:block;font-family:var(--display);font-size:26px;color:var(--gold-lt);letter-spacing:.02em}
+.hub-cat{max-width:640px;margin:26px auto 0;padding:0 20px}
+.hub-cat-hd{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.hub-cat-hd h2{font-size:15px;font-weight:600;color:var(--white);letter-spacing:.02em}
+.hub-cat-hd .em{font-size:18px}
+.hub-cat-hd::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+.hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ce-card .badge{position:absolute;top:12px;right:12px;font-family:var(--mono);font-size:10px;letter-spacing:.04em;padding:3px 8px;border-radius:99px;z-index:2}
+.ce-card .badge.hot{color:#1a1206;background:linear-gradient(180deg,#f6e2a6,#dcb95c);box-shadow:0 4px 12px -4px rgba(201,168,76,.6)}
+.ce-card .badge.new{color:var(--gold-lt);background:rgba(201,168,76,.12);border:1px solid rgba(201,168,76,.4)}
+.hub-cta{max-width:640px;margin:36px auto 0;padding:26px 22px;text-align:center;background:linear-gradient(176deg,#181410,#0f0d0a);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 24px 60px -22px rgba(0,0,0,.7),inset 0 1px 0 rgba(240,212,136,.08);position:relative;overflow:hidden}
+.hub-cta::before{content:"";position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:120%;height:60%;background:radial-gradient(ellipse at center,rgba(201,168,76,.14),transparent 70%);pointer-events:none}
+.hub-cta>*{position:relative;z-index:1}
+.hub-cta h3{font-size:19px;color:var(--gold-lt);font-weight:600;margin-bottom:6px}
+.hub-cta p{color:var(--muted);font-size:13px;line-height:1.6;max-width:420px;margin:0 auto 4px}
+@media(max-width:520px){.hub-grid{grid-template-columns:1fr}.ce-qr img{width:96px;height:96px}}
