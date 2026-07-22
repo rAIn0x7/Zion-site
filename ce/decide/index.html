@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 帮你做决定 · 纠结症终结者 — qizh.space</title>
+<meta name="description" content="选 A 还是选 B?说出你的纠结、填上候选项,AI 帮你冷静拍板:给出推荐选项 + 3 条理由 + 1 条风险提醒 + 一句赛博骰子帮你下决心。不玄学,像靠谱朋友帮你把话说明白。">
+<link rel="canonical" href="https://qizh.space/ce/decide/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='56' text-anchor='middle'%3E%F0%9F%8E%B2%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="AI 帮你做决定 · 纠结症终结者">
+<meta property="og:description" content="说出你的纠结,AI 帮你冷静拍板:推荐选项 + 3 条理由 + 风险提醒 + 一句赛博骰子。不玄学。">
+<meta property="og:url" content="https://qizh.space/ce/decide/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI 帮你做决定 · 纠结症终结者">
+<meta name="twitter:description" content="说出你的纠结,AI 帮你冷静拍板,给理由、给风险、替你下决心。">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"AI 帮你做决定","url":"https://qizh.space/ce/decide/","applicationCategory":"LifestyleApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"description":"说出你的纠结与候选项,AI 帮你冷静拍板:推荐选项 + 3 条理由 + 1 条风险提醒 + 一句赛博骰子最终拍板。断网也有本地决策框架兜底。","inLanguage":"zh-CN","isAccessibleForFree":true}
+</script>
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+<style>
+/* 候选项动态输入(本页专属,不改 ce.css)*/
+.cd-row{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.cd-row input{flex:1}
+.cd-del{flex:none;width:38px;height:44px;border:1px solid var(--border);border-radius:10px;background:var(--panel);color:var(--muted);font-size:18px;cursor:pointer;line-height:1;transition:.2s}
+.cd-del:hover{border-color:#e08b7a;color:#e08b7a}
+.cd-add{margin-top:2px;font-size:12.5px;padding:9px 16px}
+.cd-hint{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:6px;letter-spacing:.04em}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
+</nav>
+<header>
+  <h1>AI 帮你做决定</h1>
+  <p>把纠结说出来,AI 帮你冷静拍板 · 不玄学</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>你在纠结什么?</label>
+      <textarea id="stuck" rows="3" maxlength="200" placeholder="如:该接那份工资高但要加班的 offer,还是留在现在这份稳定但没成长的?"></textarea>
+    </div>
+    <div class="ce-field"><label>你的候选项(2-4 个)</label>
+      <div id="cands"></div>
+      <button class="ce-btn cd-add" id="addc" type="button">+ 再加一个候选项</button>
+      <div class="cd-hint">至少填 2 个 · 最多 4 个</div>
+    </div>
+    <div class="ce-field"><label>你更在意什么 · 选填</label>
+      <div class="ce-opts" id="care">
+        <button class="ce-opt on" data-v="">不特别限定</button>
+        <button class="ce-opt" data-v="长期成长">长期成长</button>
+        <button class="ce-opt" data-v="赚钱多少">赚钱多少</button>
+        <button class="ce-opt" data-v="稳定安心">稳定安心</button>
+        <button class="ce-opt" data-v="自由开心">自由开心</button>
+        <button class="ce-opt" data-v="风险最小">风险最小</button>
+      </div>
+    </div>
+    <button class="ce-btn g ce-go" id="go">🎲 帮我拍板</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在权衡利弊、帮你把话说明白…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>AI 帮你做决定 · 趣味参考,决定还得你自己下 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const cfg={ id:'decide', 名字:'AI 帮你做决定', 图标:'🎲' };
+
+/* ── 候选项动态输入(2~4)── */
+const PLACE=['如:接新 offer','如:留在原公司','如:先 gap 一段','如:再看看机会'];
+function renderCands(vals){
+  const box=$('cands');box.innerHTML='';
+  vals.forEach((v,i)=>{
+    const row=document.createElement('div');row.className='cd-row';
+    const inp=document.createElement('input');inp.maxLength=40;inp.value=v||'';inp.placeholder=PLACE[i]||('候选项 '+(i+1));inp.dataset.i=i;
+    inp.oninput=()=>{cands[i]=inp.value;};
+    row.appendChild(inp);
+    if(vals.length>2){
+      const del=document.createElement('button');del.className='cd-del';del.type='button';del.textContent='×';del.title='删除';
+      del.onclick=()=>{cands.splice(i,1);renderCands(cands);};
+      row.appendChild(del);
+    }
+    box.appendChild(row);
+  });
+  $('addc').style.display=vals.length>=4?'none':'';
+}
+let cands=['',''];
+renderCands(cands);
+$('addc').onclick=()=>{if(cands.length<4){cands.push('');renderCands(cands);}};
+
+/* ── 更在意什么 ── */
+let care='';
+$('care').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('care').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');care=b.dataset.v;});
+
+/* ── 本地兜底:通用决策框架(断网/LLM 失败也绝不白屏)── */
+const FRAMES=[
+  '想象十年后的你回头看:哪个选项更不会让你后悔?能过"未来自己"这一关的,通常才是真答案。',
+  '问自己——选完之后,哪个能让你今晚睡得更踏实?身体比脑子诚实,它已经在替你投票了。',
+  '把每条路都推到最坏结局:哪个最坏结果你还能接受?能兜住底的那个,风险其实反而更小。',
+  '别问"哪个更好",问"哪个更像我想成为的人会做的选择"——你在为未来的自己下单。',
+  '如果是你最好的朋友拿同样的问题来问你,你会劝 TA 选哪个?那个答案,你其实早就有了。',
+  '删掉所有"应该",只留"想要":哪个是你没有任何顾虑时的第一直觉?第一反应往往最不骗人。',
+  '算一笔账:哪个选项就算最后没成,也让你学到、认识、经历得更多?过程本身就已经回本了。',
+  '看清楚:哪个是在向前推进,哪个只是在逃避?别把"逃避"精心包装成"选择"。',
+  '把纠结写下来你会发现——你反复回看、舍不得放下的那个,心里其实早就偏向它了。'
+];
+const RISKS=[
+  '定了之后就别再回头比价——决策疲劳比选错本身更消耗人,拍了板就先做起来。',
+  '别为了"证明自己没选错"而硬撑到底,允许自己在路上调整方向,及时纠偏不丢人。',
+  '真正的风险不是选错,而是迟迟不选、让机会在你的纠结里悄悄过期。',
+  '别高估这一次选择的分量——绝大多数决定都能在过程里补救,先动起来永远比原地纠结强。',
+  '选定后给自己定个复盘时间点(比如 1 个月),到点用结果说话,而不是每天用情绪反复审判自己。'
+];
+const DICE=[
+  '骰子已经替你掷好了:就它,别磨叽,现在就迈出第一步。',
+  '别想了,选它——三个月后的你,会庆幸今天这一下拍得干脆。',
+  '答案你心里早有了,我只是帮你说出口:就这个,去吧。',
+  '停止内耗,选定它,把省下来的纠结时间,全拿去把它做好。',
+  '与其纠结哪个对,不如选一个、然后把它做成对的。就它了。'
+];
+function pickN(rng,arr,n){const a=arr.slice();const out=[];while(out.length<n&&a.length){out.push(a.splice(Math.floor(rng()*a.length),1)[0]);}return out;}
+
+$('go').onclick=async()=>{
+  const stuck=$('stuck').value.trim();
+  const list=cands.map(c=>c.trim()).filter(Boolean);
+  if(!stuck){$('err').textContent='先说说你在纠结什么呀 🎲';return;}
+  if(list.length<2){$('err').textContent='至少填 2 个候选项,才好帮你比 🤔';return;}
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+
+  const seed=stuck+'||'+list.join('|')+'||'+care;
+  const rng=CE.rngFrom(seed);
+
+  const prompt=`你是一个冷静、务实的决策顾问,像一个靠谱的朋友帮人把纠结想清楚。不玄学、不打鸡血、不空喊口号。
+用户的纠结:「${stuck}」
+候选项:${list.map((c,i)=>(i+1)+'. '+c).join(' ; ')}
+${care?'用户此刻最在意:'+care:''}
+请基于常识和利弊权衡,帮 TA 拍板。严格只返回一个 JSON,不要任何多余文字、解释或 markdown 代码块:
+{"pick":"你推荐的候选项(必须原样是上面候选项之一)","confidence":60到95之间的一个整数,"reasons":["理由1","理由2","理由3"],"risk":"选了它之后最该提防的一个风险或提醒","dice":"一句干脆有力、帮 TA 下定决心的话,像替 TA 掷骰子拍板"}
+要求:三条理由要具体、扣住 TA 的纠结与在意点,别说正确的废话;风险要诚实、点到真问题;dice 一句要有力,让人看完就想立刻行动。`;
+
+  let data=null;
+  try{ data=await CE.llm(prompt,{json:true}); }catch(e){ data=null; }
+
+  let pick, reasons, risk, dice, conf, degraded=false;
+  // 校验 LLM 输出;任一字段不合规就整体走兜底,保证结构稳定
+  const ok = data && typeof data.pick==='string' && Array.isArray(data.reasons) && data.reasons.filter(Boolean).length>=3 && data.risk && data.dice;
+  if(ok){
+    pick=String(data.pick).trim();
+    // 模型偶尔把 pick 写成别的说法,兜回到最接近的候选项
+    if(!list.includes(pick)){const hit=list.find(c=>pick.includes(c)||c.includes(pick));pick=hit||list[Math.floor(rng()*list.length)];}
+    reasons=data.reasons.map(r=>String(r).trim()).filter(Boolean).slice(0,3);
+    risk=String(data.risk).trim();
+    dice=String(data.dice).trim();
+    conf=Math.max(55,Math.min(96,parseInt(data.confidence,10)||Math.round(72+rng()*18)));
+  }else{
+    degraded=true;
+    pick=list[Math.floor(rng()*list.length)];           // 确定性挑一个:同输入永远同结果
+    reasons=pickN(rng,FRAMES,3);
+    risk=CE.pick(rng,RISKS);
+    dice=CE.pick(rng,DICE);
+    conf=Math.round(70+rng()*20);
+  }
+
+  // 趣味四维(确定性,纯 flavor)
+  const dims=[
+    ['该冲指数',Math.min(99,55+Math.round(rng()*44))],
+    ['纠结浓度',Math.min(99,40+Math.round(rng()*45))],
+    ['后悔风险',Math.min(80,15+Math.round(rng()*45))]
+  ];
+
+  const parts=[];
+  parts.push({h:'🎯 建议你选:'+pick, p:(degraded
+      ? '结合你的纠结,先用一套通用决策框架帮你把话说明白 👇\n\n'+reasons[0]
+      : reasons[0])});
+  parts.push({h:'✅ 更多理由', p:reasons.slice(1).map((r,i)=>(i+2)+'. '+r).join('\n\n')});
+  parts.push({h:'⚠️ 但要提醒你一句', p:risk});
+  parts.push({h:'🎲 赛博骰子 · 最终拍板', p:dice});
+
+  let sub=(care?('在意:'+care+' · '):'')+list.length+' 选 1';
+  if(degraded)sub+=' · 网络不稳,已用本地决策框架为你拍板';
+
+  const result={
+    heading:'帮你拍板', tag:'【选它:'+pick+'】',
+    sub, big:conf, bigLabel:'决策指数', dims, parts,
+    card:{ kicker:'🎲 AI 帮你做决定', title:pick, sub:'决策指数 '+conf, big:conf, bigLabel:'决策指数', dims, hook:dice },
+    shareText:'我纠结「'+(stuck.length>18?stuck.slice(0,18)+'…':stuck)+'」,AI 帮我拍板选了「'+pick+'」!你也来让 AI 帮你做决定 👉 qizh.space/ce/decide'
+  };
+
+  $('loading').style.display='none';
+  CE.render(cfg, result);
+};
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>
