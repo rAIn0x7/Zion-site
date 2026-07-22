@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>牛马浓度测试 · 测测你被工作腌入味了几成 — qizh.space</title>
+<meta name="description" content="牛马浓度测试:输入昵称,测你的「牛马浓度 XX%」+ 班味/内耗/摸鱼/发疯四维 + 分段毒舌锐评 + 一句温柔反转。同名结果固定,极易截图转发。趣味测试,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/nongdu/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%90%82%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="牛马浓度测试 · 测测你被工作腌入味了几成">
+<meta property="og:description" content="输入昵称,测你的牛马浓度 XX% + 班味/内耗/摸鱼/发疯四维 + 毒舌锐评。极易截图转发。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/nongdu/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+<style>
+.nd-bars{margin:6px 0 2px}
+.nd-bar{margin:9px 0}
+.nd-bar .lb{display:flex;justify-content:space-between;font-size:12.5px;color:#cfc9bd;margin-bottom:5px}
+.nd-bar .lb b{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold-lt);letter-spacing:.03em}
+.nd-bar .tk{height:8px;border-radius:6px;background:rgba(201,168,76,.1);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(201,168,76,.16)}
+.nd-bar .fl{height:100%;border-radius:6px;background:linear-gradient(90deg,rgba(201,168,76,.55),var(--gold-lt));width:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
+</nav>
+<header>
+  <h1>牛马浓度测试</h1>
+  <p>测测你被工作腌入味了几成 · 结果极度真实 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>你的昵称</label><input id="nick" maxlength="12" placeholder="如:资深牛马小齐" autocomplete="off"></div>
+    <div class="ce-field"><label>你的工种(选填,测得更准)</label><div class="ce-opts" id="job">
+      <button class="ce-opt on" data-v="打工人">打工人</button><button class="ce-opt" data-v="程序员">程序员</button><button class="ce-opt" data-v="运营/市场">运营/市场</button><button class="ce-opt" data-v="销售">销售</button><button class="ce-opt" data-v="设计师">设计师</button><button class="ce-opt" data-v="学生党">学生党</button><button class="ce-opt" data-v="创业中">创业中</button>
+    </div></div>
+    <div class="ce-field"><label>此刻状态</label><div class="ce-opts" id="state">
+      <button class="ce-opt on" data-v="在工位">在工位</button><button class="ce-opt" data-v="加班中">加班中</button><button class="ce-opt" data-v="摸鱼中">摸鱼中</button><button class="ce-opt" data-v="躺平中">躺平中</button><button class="ce-opt" data-v="想离职">想离职</button>
+    </div></div>
+    <button class="ce-btn g ce-go" id="go">🐂 测我的牛马浓度</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在检测你体内的班味浓度…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>牛马浓度测试 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let job='打工人',state='在工位';
+$('job').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('job').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');job=b.dataset.v;});
+$('state').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('state').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');state=b.dataset.v;});
+
+/* ── 分段毒舌锐评(按牛马浓度分档,先扎心)── */
+const REVIEW={
+  low:[ // <45
+    '恭喜,你还没被完全腌入味,身上还留着一点「人味」。这在牛马界属于稀有物种,建议就地保护。',
+    '你的牛马浓度偏低——不是不努力,是你拎得清「哪些班值得上,哪些破事不值得上头」。清醒是你最大的资产。',
+    '检测到你体内班味不重,说明你还没把工作当成人生的全部。别人卷生卷死,你偷偷把生活过明白了。'],
+  mid:[ // 45-65
+    '你处在牛马浓度的「危险边缘」:一半是打工人,一半还是自己。就看你接下来是把生活捞回来,还是彻底腌进去。',
+    '典型的「表面配合、心里已下班」型选手。你不是不努力,你只是把力气用在了刀刃上,剩下的时间留给了摸鱼这门艺术。',
+    '你的浓度不高不低,刚好卡在「还能抢救一下」的区间。周末别再刷工作群了,那不叫勤奋,那叫慢性中毒。'],
+  high:[ // 65-82
+    '警告:你的牛马浓度已经超标。班味渗进了你说话的语气、周末的梦里、和回复「收到」的肌肉记忆里。',
+    '你已经被工作腌得相当入味了——「在吗」两个字能让你心跳加速,下班消息能让你条件反射地回。该给自己松松绑了。',
+    '深度牛马认证。你把「我可以」挂在嘴边太久,久到都快忘了「我不想」也是一个完整的句子。'],
+  max:[ // >82
+    '牛马浓度爆表。你不是在上班,你是长在了工位上——身体在工位,灵魂也在工位,连emo都是为了KPI而emo。',
+    '顶级腌入味选手。你的血里流的不是血,是甲方的需求和老板的「辛苦了」。这个浓度,建议直接申请工伤。',
+    '满级牛马。你已经卷到连摸鱼都带着负罪感的程度了——朋友,你缺的不是努力,是一个能让你安心躺下的理由。']
+};
+/* ── 维度锐评(锁区,针对最高维度)── */
+const DIM_TALK={
+  '🧟班味':['你的班味浓到隔着屏幕都能闻见——说话带汇报腔,走路带打卡感,连叹气都像在等审批。',
+           '班味是你身上洗不掉的味道,建议下班后先在楼下站十分钟,给灵魂做个通风。'],
+  '🌀内耗':['你的内耗值高得离谱:一条已读不回能让你脑补三部连续剧,一句普通评价能让你复盘到凌晨。别演了,累的是你自己。',
+           '你把80%的能量花在了「想」上,只剩20%用来「做」。省下点内耗,你能多睡两小时。'],
+  '🐟摸鱼':['你的摸鱼段位已臻化境:表面在改需求,实际在改人生规划。这不是划水,这是一种高级的自我保护。',
+           '摸鱼是你在牛马生活里唯一的呼吸口。摸得好,那叫可持续发展;摸得心虚,那才叫内耗。'],
+  '🔥发疯':['你的发疯值蓄满了——那种「再来一个需求我就掀桌」的能量,已经藏不住了。建议找个没人的地方,好好发一次。',
+           '你不是脾气差,你是忍太久了。适度发疯不是失控,是提醒世界:你也是有边界的人。']
+};
+/* ── 「其实」温柔反转结尾(必出,治愈)── */
+const TWIST=[
+  '其实,浓度高低都不代表你的价值。你之所以这么累,恰恰是因为你太负责、太在乎。别对那个拼命的自己太苛刻。',
+  '其实,你不是牛马,你只是暂时被放在了一个需要你使劲的位置上。位置会变,而你一直是那个值得被好好对待的人。',
+  '其实测出多少都没关系。真正重要的是:今晚记得好好吃饭、早点睡,把明天的力气留给值得的人和事,先从值得的自己开始。',
+  '其实,能笑着做完这个测试的你,已经比想象中更强了。牛马也好、清醒也罢,别忘了——你首先是你自己,然后才是任何一个身份。',
+  '其实,浓度只是一时的状态,不是你的判决书。慢下来不是认输,是给自己一个把日子重新过成自己的机会。'];
+/* ── 浓度称号 ── */
+const TITLE=[['见习牛马·尚有人味',0],['半熟牛马·摇摆不定',45],['资深牛马·班味入体',65],['顶级牛马·腌得入味',82],['满级牛马·工位一体',92]];
+function titleOf(n){let t=TITLE[0][0];for(const x of TITLE)if(n>=x[1])t=x[0];return t;}
+
+const cfg={ id:'nongdu', 名字:'牛马浓度测试', 图标:'🐂' };
+
+$('go').onclick=()=>{
+  const nick=$('nick').value.trim();
+  if(!nick){$('err').textContent='先起个昵称吧,牛马也要有名字 🐂';return;}
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    const seed=nick+'|'+job+'|'+state;                 // 同昵称+同选项 结果固定
+    const rng=CE.rngFrom(seed);
+
+    // 状态微调偏移(仍确定性):加班/想离职偏高,躺平/摸鱼偏低
+    const bias={'在工位':0,'加班中':10,'摸鱼中':-6,'躺平中':-10,'想离职':6}[state]||0;
+    let pct=Math.round(50+rng()*46+bias);
+    pct=Math.max(18,Math.min(99,pct));
+
+    // 四维(围绕总浓度波动,截图感强)
+    const dv=b=>Math.max(20,Math.min(99,Math.round(b+ (rng()*40-16))));
+    const dimsArr=[['🧟班味',dv(pct)],['🌀内耗',dv(pct)],['🐟摸鱼',dv(pct)],['🔥发疯',dv(pct)]];
+
+    // 分档锐评
+    const band=pct<45?'low':pct<65?'mid':pct<82?'high':'max';
+    const review=CE.pick(rng,REVIEW[band]);
+    // 最高维度的专属锐评
+    const top=dimsArr.slice().sort((a,b)=>b[1]-a[1])[0];
+    const dimTalk=CE.pick(rng,DIM_TALK[top[0]]||['—']);
+    const twist=CE.pick(rng,TWIST);
+    const title=titleOf(pct);
+
+    // 带样式的四维进度条(替换第一段富文本)
+    const barsHtml='<div class="nd-bars">'+dimsArr.map(d=>
+      '<div class="nd-bar"><div class="lb"><span>'+d[0].slice(2)+'</span><b>'+d[1]+'%</b></div><div class="tk"><div class="fl" data-w="'+d[1]+'"></div></div></div>').join('')+'</div>';
+
+    const parts=[
+      {h:'📊 你的牛马浓度构成', p:''},                       // 富文本进度条注入到这里
+      {h:'🔍 毒舌诊断', p:review},
+      {h:'⚠️ 你最超标的一项:'+top[0], p:dimTalk},
+      {h:'💊 一句「其实」', p:twist},
+      {h:'🌙 今日处方', p:'牛马也要下班。今晚:少刷一条工作群,多睡二十分钟,把「收到」先放一放。明天的你会谢谢今天松了一口气的自己。'}
+    ];
+
+    const tag='【'+title+'】';
+    const result={
+      heading:'牛马浓度检测报告', tag, sub:nick+' · '+job+' · '+state,
+      big:pct, bigLabel:'牛马浓度 %', dims:dimsArr, parts,
+      card:{kicker:'🐂 牛马浓度测试', title:nick+' '+tag, sub:job+' · '+state, big:pct, bigLabel:'牛马浓度 %', dims:dimsArr, hook:review},
+      shareText:'我的牛马浓度 '+pct+'%!'+tag+' 🐂 来测测你被腌入味了几成 👉 qizh.space/ce/nongdu'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+    injectBars(barsHtml);
+  },600);
+};
+
+/* 把首段 <p>(空)替换为带样式的四维进度条,并触发动画 */
+function injectBars(html){
+  const first=document.querySelector('#ce-body .ce-sec p');
+  if(!first)return;
+  first.innerHTML=html;first.style.margin='0';
+  requestAnimationFrame(()=>{setTimeout(()=>{
+    first.querySelectorAll('.nd-bar .fl').forEach(el=>{el.style.width=el.dataset.w+'%';});
+  },80);});
+}
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

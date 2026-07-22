@@ -18,7 +18,9 @@ window.CE = (function () {
     {id:'qianshi', name:'前世今生',   icon:'🪷', url:'/ce/qianshi/', hook:'你上辈子到底是谁?'},
     {id:'keyword', name:'本命关键词', icon:'🔮', url:'/ce/keyword/', hook:'测出你的年度本命词'},
     {id:'qiming',  name:'AI 起名',    icon:'✍️', url:'/ce/qiming/',  hook:'AI 给你起个带寓意的好名字'},
-    {id:'mbti',    name:'MBTI 锐评',  icon:'🧭', url:'/ce/mbti/',    hook:'8 题测你是哪型人格'}
+    {id:'mbti',    name:'MBTI 锐评',  icon:'🧭', url:'/ce/mbti/',    hook:'8 题测你是哪型人格'},
+    {id:'yiji',    name:'今日宜忌',   icon:'📜', url:'/ce/yiji/',    hook:'赛博老黄历,今天宜摸鱼忌收到'},
+    {id:'nongdu',  name:'牛马浓度',   icon:'🐂', url:'/ce/nongdu/',  hook:'测你被工作腌入味了几成'}
   ];
 
   /* ── 结果页底部"再测下一个"导流条(排除当前工具,按 toolId 稳定挑 3 个)── */

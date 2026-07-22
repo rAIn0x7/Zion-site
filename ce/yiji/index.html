@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>今日宜忌 · 赛博老黄历 — 打工人每日宜忌 · qizh.space</title>
+<meta name="description" content="赛博老黄历:输入昵称(可选),测你今天的「宜 X / 忌 Y」互联网嘴替版 + 幸运数字/方位 + 今日角色 + 一句毒舌运势。每天自动更新,同一天结果固定。趣味测试,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/yiji/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%93%9C%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="今日宜忌 · 赛博老黄历">
+<meta property="og:description" content="打工人每日宜忌:宜摸鱼但要摸得有尊严,忌回复'收到'后真的去做。每天更新。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/yiji/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.loli.net">
+<link href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/ce/ce.css">
+<style>
+.yj-cal{text-align:center;margin:2px 0 -2px}
+.yj-cal .d{display:inline-block;padding:6px 18px 8px;border-radius:14px;background:radial-gradient(circle at 34% 24%,rgba(240,212,136,.16),rgba(201,168,76,.03));box-shadow:inset 0 0 0 1px rgba(201,168,76,.35);animation:yjin .5s ease both}
+.yj-cal .d b{display:block;font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:1;color:var(--gold-lt);letter-spacing:.04em}
+.yj-cal .d span{display:block;margin-top:4px;font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;color:var(--muted)}
+@keyframes yjin{from{opacity:0;transform:translateY(-8px) scale(.9)}to{opacity:1;transform:none}}
+.yj-yj{display:flex;gap:12px;margin:4px 0 2px}
+.yj-yj .col{flex:1;border-radius:14px;padding:12px 12px 14px;box-shadow:inset 0 0 0 1px rgba(201,168,76,.22)}
+.yj-yj .col.yi{background:linear-gradient(180deg,rgba(80,140,80,.12),rgba(80,140,80,.02))}
+.yj-yj .col.ji{background:linear-gradient(180deg,rgba(190,70,60,.12),rgba(190,70,60,.02))}
+.yj-yj .col h5{margin:0 0 8px;font-family:'Noto Serif SC',serif;font-size:15px;font-weight:700}
+.yj-yj .col.yi h5{color:#8fd08a}.yj-yj .col.ji h5{color:#e08a80}
+.yj-yj .col ul{margin:0;padding:0;list-style:none}
+.yj-yj .col li{font-size:13px;line-height:1.5;color:#d9d4c8;padding:5px 0;border-top:1px solid rgba(201,168,76,.1)}
+.yj-yj .col li:first-child{border-top:none}
+@media(max-width:400px){.yj-yj{flex-direction:column;gap:8px}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
+</nav>
+<header>
+  <h1>今日宜忌</h1>
+  <p>赛博老黄历 · 打工人每日宜忌 · 每天翻一页 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>你的昵称(选填,让今天更懂你)</label><input id="nick" maxlength="12" placeholder="如:摸鱼冠军小齐" autocomplete="off"></div>
+    <div class="ce-field"><label>今天的心情</label><div class="ce-opts" id="mood">
+      <button class="ce-opt on" data-v="随缘">随缘</button><button class="ce-opt" data-v="想搞钱">想搞钱</button><button class="ce-opt" data-v="只想躺">只想躺</button><button class="ce-opt" data-v="有点emo">有点emo</button><button class="ce-opt" data-v="蓄势待发">蓄势待发</button>
+    </div></div>
+    <button class="ce-btn g ce-go" id="go">📜 翻开我的今日宜忌</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在为你掐算今日黄历…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<footer>今日宜忌 · 赛博老黄历 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+let mood='随缘';
+$('mood').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('mood').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');mood=b.dataset.v;});
+
+/* ── 宜:互联网嘴替风(足够大,365天不重样)── */
+const YI=[
+  '摸鱼,但要摸得有尊严','在工位光明正大地发呆五分钟','把「在忙」设成默认回复','准点下班,一秒不多留',
+  '给自己泡杯好茶假装很忙','把烂尾的项目再拖一天','对不合理的需求说「这个做不了」','中午多睡二十分钟',
+  '把手机调成勿扰,当一天透明人','悄悄给自己加个隐形的午休','删掉一个从不点开的群','把「已读不回」当成一种边界感',
+  '花小钱买个大快乐','早点睡,把明天的自己叫醒的权利还给自己','把一件拖了很久的小事一口气结掉','出门晒十分钟太阳',
+  '大胆地把功劳留在自己名下','在会议里第一个发言抢占心智','给关心你的人回个消息','把emo的话写下来但先别发',
+  '对同事的甩锅礼貌但坚定地弹回去','午饭点份平时舍不得的','把工位收拾干净,清爽=好运','趁没人偷偷伸个懒腰',
+  '把「等我有空」改成「就现在」','屏蔽一条让你焦虑的推送','请自己喝杯奶茶,今天你值得','把没说出口的边界感说出来',
+  '在群里潜水,把发言额度攒着','认真吃一顿不看手机的饭','把待办清单砍掉一半','给未来的自己存点小钱',
+  '果断拒绝一场没必要的饭局','把注意力从别人身上收回自己','趁下班路上听首会上头的歌','对镜子里的自己说句狠话打气'];
+
+/* ── 忌:互联网嘴替风 ── */
+const JI=[
+  '回复「收到」后真的马上去做','在群里第一个冒泡揽活','对着已读不回的人反复脑补小剧场','把别人的情绪当成自己的KPI',
+  '熬夜刷手机等一个不会来的消息','为了合群喝下不想喝的那杯','答应了做不到的事还硬撑','翻三年前的聊天记录找罪受',
+  '在深夜下单「看着很划算」的东西','把「我可以」挂在嘴边到透支','和杠精认真辩论超过三句','为不值得的人破防',
+  '开会时抢着背下不属于你的锅','把周末献祭给临时加的班','emo到凌晨还在对号入座','点开前任的朋友圈',
+  '因为一句评价否定自己一整天','把「等忙完这阵」当成永远的借口','硬要在饭桌上证明自己是对的','替所有人的情绪买单',
+  '把手机第一眼给工作群','为了省几块钱耗掉一下午','答应帮忙时把自己排到最后','把焦虑当成努力的替身',
+  '在朋友圈精心营业给不在乎你的人看','用报复性熬夜惩罚白天的自己','把「都行」说出口然后又后悔','跟风买用不上的东西',
+  '硬凑一个不同频的局','把没做完的活带回家继续内耗','对小事上头到影响一整天','轻信一条来路不明的小道消息'];
+
+/* ── 今日角色(职场嘴替人设)── */
+const ROLE=['带薪如厕规划师','会议室氛围雕塑','工位隐身术大师','摸鱼界扫地僧','已读不回守门员','准点下班特种兵',
+  '甩锅回旋镖接杀手','奶茶续命型选手','待办清单删除侠','人间清醒观察员','装忙艺术表演家','emo防御工事总工',
+  '搞钱雷达值班员','边界感建筑师','工位续航焦虑者','群聊潜水冠军','情绪ICU住院医','低电量续航模式'];
+
+/* ── 开运方位(反套路搞笑)── */
+const DIR=['茶水间正东方','厕所隔间第三间','工位左手边的窗','楼下便利店冰柜前','离老板最远的那个角','会议室最后一排',
+  '公司门口的奶茶店','家里的沙发正中央','被窝的西南角','阳台晒到太阳的那块','离电脑一米之外','最近的那张空工位'];
+
+/* ── 一句毒舌运势总结(分段,先甜后损再托一把)── */
+const SUMMARY=[
+  '今天你气场全开,只可惜开的是「生人勿近」档——正好,清净。',
+  '今天诸事顺遂,顺遂到你怀疑是不是哪里出了问题。别怀疑,享受。',
+  '今天宜稳中带浪,别人卷你就摸,别人摸你就……接着摸,你赢麻了。',
+  '今天你自带主角光环,虽然是那种没什么台词但一直在的配角光环。',
+  '今天能量有点飘,建议把它用在最值得的一件事上,别撒得到处都是。',
+  '今天水逆已过,好运正在派件中,签收前请先把班味洗干净。',
+  '今天适合闷声干大事,把嘴闭上、把活干漂亮,让结果替你说话。',
+  '今天你像刚满电的手机,但记得——满电不代表要一直亮屏耗着。',
+  '今天小人退散、贵人上线,可惜贵人今天也在摸鱼,自己先顶住。',
+  '今天最大的幸运,是你终于愿意对那件破事说「不关我事」。',
+  '今天风平浪静,浪都被你留到心里翻了——收一收,今天宜安分。',
+  '今天你被生活温柔以待,前提是你先别为难自己。'];
+
+/* ── 四维小指标(增强截图欲)── */
+function distinct(rng,pool,n){const a=pool.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=a[i];a[i]=a[j];a[j]=t;}return a.slice(0,n);}
+
+/* 心情微调:不同心情让宜忌略微偏移(仍确定性) */
+const MOOD_TWEAK={'随缘':0,'想搞钱':1,'只想躺':2,'有点emo':3,'蓄势待发':4};
+
+const cfg={ id:'yiji', 名字:'今日宜忌', 图标:'📜' };
+
+$('go').onclick=()=>{
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    const nick=$('nick').value.trim();
+    const today=new Date().toISOString().slice(0,10);        // 当天日期 → 每天自动翻页
+    const seed=today+'|'+(nick||'路人')+'|'+mood;             // 同一天+同昵称+同心情 结果固定
+    const rng=CE.rngFrom(seed);
+
+    // 宜 / 忌 各取 3 条(不重复)
+    const yis=distinct(rng,YI,3), jis=distinct(rng,JI,3);
+    const role=CE.pick(rng,ROLE), dir=CE.pick(rng,DIR), luckyNum=1+Math.floor(rng()*9);
+    const summary=CE.pick(rng,SUMMARY);
+
+    // 四维小指标
+    const dims=[
+      ['🐟摸鱼力',Math.min(99,55+Math.round(rng()*44))],
+      ['💰搞钱力',Math.min(99,45+Math.round(rng()*54))],
+      ['🌸桃花值',Math.min(99,40+Math.round(rng()*59))],
+      ['🔋回血值',Math.min(99,50+Math.round(rng()*49))]];
+    // 今日气运总分
+    const score=Math.min(99,52+Math.round(rng()*47));
+
+    const yjHtml='<div class="yj-yj"><div class="col yi"><h5>✅ 今日宜</h5><ul>'+yis.map(x=>'<li>'+x+'</li>').join('')+'</ul></div>'+
+                 '<div class="col ji"><h5>🚫 今日忌</h5><ul>'+jis.map(x=>'<li>'+x+'</li>').join('')+'</ul></div></div>';
+
+    const parts=[
+      {h:'📜 今日宜忌', p:'', html:yjHtml},
+      {h:'🎭 今日角色', p:'今天的你是:「'+role+'」\n本色出演,毫无违和。'},
+      {h:'🧭 今日开运', p:'幸运数字:'+luckyNum+'　·　开运方位:'+dir+'\n（认真的,今天往这个方向走走,好运可能真在那儿等你）'},
+      {h:'🔮 今日运势 · 一句话', p:summary},
+      {h:'🌙 今日忠告', p:'黄历翻到这一页,记住:能不上头的事,今天一律不上头。明天再来翻新的一页。'}
+    ];
+
+    const cardHook='宜:'+yis[0]+'　/　忌:'+jis[0];
+    const tag='【今日·'+role+'】';
+    const result={
+      heading:'今日宜忌', tag, sub:today+(nick?' · '+nick:'')+' · '+mood,
+      big:score, bigLabel:'今日气运', dims, parts,
+      card:{kicker:'📜 今日宜忌 · 赛博老黄历', title:tag, sub:today, big:score, bigLabel:'今日气运', dims, hook:cardHook},
+      shareText:'我今天宜「'+yis[0]+'」,忌「'+jis[0]+'」!气运'+score+'分 📜 来翻你的今日黄历 👉 qizh.space/ce/yiji'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+    // 手动渲染富文本宜忌块(render 只输出纯文本 p,这里把首段替换成带样式的宜忌卡)
+    injectCal(today);
+    injectYiJi(yjHtml);
+  },600);
+};
+
+/* 顶部日历小标 */
+function injectCal(today){
+  const body=document.getElementById('ce-body');if(!body)return;
+  const old=document.getElementById('yj-cal');if(old)old.remove();
+  const dd=today.slice(8,10), ym=today.slice(0,7).replace('-','.');
+  const d=document.createElement('div');d.className='yj-cal';d.id='yj-cal';
+  d.innerHTML='<div class="d"><b>'+dd+'</b><span>'+ym+' 宜忌</span></div>';
+  body.parentNode.insertBefore(d,body);
+}
+/* 把首段 <p>(空)替换为富文本宜忌卡 */
+function injectYiJi(html){
+  const first=document.querySelector('#ce-body .ce-sec p');
+  if(first){first.innerHTML=html;first.style.margin='0';}
+}
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>
