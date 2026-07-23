@@ -8,6 +8,13 @@ window.CE = (function () {
   const GLM_KEY = 'a3627c50241e4ba89fc4f56193b9c724.ADj57yFSiiLajwRC'; // 复用;仅"生成型"工具(起名)用
   const JOIN_URL = 'https://t.zsxq.com/hGab6';                          // 知识星球(微信内多半打不开→靠扫码/复制到浏览器)
 
+  /* ── 分享卡字体族(拉丁走自托管 woff2;中文不再远程加载 Noto Serif SC → 显式回退到系统衬线,
+        保证任何设备上中文都有骨力、无豆腐块;拉丁数字/大标题用 Bebas,标签用 DM Mono)── */
+  const F_MONO = '"DM Mono",ui-monospace,"SFMono-Regular",monospace';
+  const F_NUM  = '"Bebas Neue",Impact,sans-serif';
+  const F_CJK  = '"Noto Serif SC","Noto Serif CJK SC","Source Han Serif SC","Songti SC",serif';
+  function _ls(x,v){try{x.letterSpacing=v;}catch(e){}}                  // 字距(现代浏览器支持,旧版静默忽略,无副作用)
+
   /* ── 工具矩阵清单(唯一真源;结果页"再测下一个"导流条 & 首页都可复用)──
      每项:id 与各工具页 cfg.id 一致(用于结果页自动排除当前工具)/ name / icon / url / hook 一句钩子 */
   const TOOLS = [
@@ -78,6 +85,20 @@ window.CE = (function () {
 
   /* ── 分享卡(canvas 竖版海报,底部画公众号/星球码)── */
   let _wxqr; function loadWxQR(){return new Promise(r=>{if(_wxqr!==undefined)return r(_wxqr);const im=new Image();im.onload=()=>{_wxqr=im;r(im);};im.onerror=()=>{_wxqr=null;r(null);};im.src='/wechat-qr.png';});}
+  /* 预热分享卡要用到的自托管拉丁字体(Bebas/Outfit/DM Mono),避免首张分享卡数字/标签回退成默认字体 */
+  let _warmed;
+  function _warmFonts(){
+    if(_warmed)return _warmed;
+    const fd=document.fonts;
+    const jobs=[];
+    if(fd&&fd.load){
+      try{jobs.push(fd.load('700 76px "Bebas Neue"'));}catch(e){}
+      try{jobs.push(fd.load('400 13px "DM Mono"'));}catch(e){}
+      try{jobs.push(fd.load('600 14px "Outfit"'));}catch(e){}
+    }
+    _warmed=Promise.all(jobs).catch(()=>{}).then(()=>{return fd&&fd.ready?fd.ready.catch(()=>{}):null;});
+    return _warmed;
+  }
   function _rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
   function _wrap(x,t,max){const o=[];let l='';for(const ch of String(t)){if(x.measureText(l+ch).width>max&&l){o.push(l);l=ch;}else l+=ch;}if(l)o.push(l);return o;}
   /* ── 分享卡装饰基元(纯 canvas,无外链;每个都 save/restore 自洽,不污染后续文字样式)── */
@@ -104,7 +125,7 @@ window.CE = (function () {
       ornament(x,W,H,t){ _oHeart(x,52,64,15,t.accent,.5); _oHeart(x,W-54,64,15,t.accent,.5); _oHeart(x,52,H-92,11,t.accent,.4); _oHeart(x,W-50,H-90,11,t.accent,.4); _oDot(x,88,50,2,t.hook,.5); _oDot(x,W-88,82,2,t.hook,.5); } },
     // 今日宜忌:朱砂红黄历风,内框 + 宜/吉印章
     yiji:{ bg:'#140a08', glow:'200,70,50', border:'rgba(210,90,65,.55)', accent:'#e0503c', hl:'#f0d488', muted:'#b08a72', rev:'#d69a78', cardBg:'#1a0d0a', divider:'rgba(210,90,65,.22)', hook:'#e8b878', accentDim:'#7a5a4a',
-      ornament(x,W,H,t){ x.save();x.globalAlpha=.35;x.strokeStyle=t.accent;x.lineWidth=1;_rr(x,24,24,W-48,H-48,14);x.stroke();x.restore(); const seal=(sx,ch)=>{x.save();x.globalAlpha=.5;x.strokeStyle=t.accent;x.lineWidth=1.6;_rr(x,sx,40,34,34,4);x.stroke();x.globalAlpha=.6;x.fillStyle=t.accent;x.font='bold 16px "Noto Serif SC",serif';x.textAlign='center';x.textBaseline='middle';x.fillText(ch,sx+17,58);x.restore();}; seal(40,'宜'); seal(W-74,'吉'); } },
+      ornament(x,W,H,t){ x.save();x.globalAlpha=.35;x.strokeStyle=t.accent;x.lineWidth=1;_rr(x,24,24,W-48,H-48,14);x.stroke();x.restore(); const seal=(sx,ch)=>{x.save();x.globalAlpha=.5;x.strokeStyle=t.accent;x.lineWidth=1.6;_rr(x,sx,40,34,34,4);x.stroke();x.globalAlpha=.6;x.fillStyle=t.accent;x.font='700 16px '+F_CJK;x.textAlign='center';x.textBaseline='middle';x.fillText(ch,sx+17,58);x.restore();}; seal(40,'宜'); seal(W-74,'吉'); } },
     // 星座运势:深蓝星空,星点 + 一小段星座连线 + 亮星芒
     xingzuo:{ bg:'#080b16', glow:'90,130,220', border:'rgba(120,150,230,.5)', accent:'#8aa8e8', hl:'#dfe8ff', muted:'#7c88a8', rev:'#d69a78', cardBg:'#0d1120', divider:'rgba(120,150,230,.2)', hook:'#c0cdf0', accentDim:'#5a6480',
       ornament(x,W,H,t){ const pts=[[44,50],[80,72],[120,44],[W-60,54],[W-98,86],[W-40,112],[60,H-82],[W-70,H-72],[W-120,H-112],[100,H-124]]; pts.forEach((p,i)=>_oDot(x,p[0],p[1],i%3===0?2.2:1.3,t.hl,.5)); x.save();x.globalAlpha=.3;x.strokeStyle=t.accent;x.lineWidth=1;x.beginPath();x.moveTo(44,50);x.lineTo(80,72);x.lineTo(120,44);x.stroke();x.restore(); _oSpark(x,W-58,60,7,t.hl,.6); } },
@@ -118,37 +139,84 @@ window.CE = (function () {
     const cards=(Array.isArray(model.cards)&&model.cards.length)?model.cards:null; // 可选:牌面小图(塔罗用)
     const cardsH=cards?228:0;
     const S=2,W=540,H=(qr?740:650)+cardsH,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
-    const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';
+    const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';x.textBaseline='alphabetic';
+
+    /* ── 底 + 顶部光晕(略上移,把光托在标题/大数字后面)── */
     x.fillStyle=t.bg;x.fillRect(0,0,W,H);
-    const g=x.createRadialGradient(W/2,210,40,W/2,210,430);g.addColorStop(0,'rgba('+t.glow+',.15)');g.addColorStop(1,'rgba('+t.glow+',0)');x.fillStyle=g;x.fillRect(0,0,W,H);
-    if(t.ornament){try{t.ornament(x,W,H,t);}catch(e){}x.textAlign='center';x.textBaseline='alphabetic';x.globalAlpha=1;} // 纹样后复位,防污染文字
+    const g=x.createRadialGradient(W/2,196,30,W/2,196,450);g.addColorStop(0,'rgba('+t.glow+',.17)');g.addColorStop(1,'rgba('+t.glow+',0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+    if(t.ornament){try{t.ornament(x,W,H,t);}catch(e){}x.textAlign='center';x.textBaseline='alphabetic';x.globalAlpha=1;x.shadowBlur=0;_ls(x,'0px');} // 纹样后彻底复位,防污染文字
+
+    /* ── 双描边外框(外实内虚,更精致)── */
     x.strokeStyle=t.border;x.lineWidth=1.5;_rr(x,16,16,W-32,H-32,18);x.stroke();
-    x.fillStyle=t.accent;x.font='13px monospace';x.fillText(model.kicker||'',W/2,60);
-    let Y=114;x.fillStyle=t.hl;x.font='bold 33px "Noto Serif SC",sans-serif';
-    _wrap(x,model.title,W-90).slice(0,2).forEach(l=>{x.fillText(l,W/2,Y);Y+=42;});
-    if(model.sub){Y+=2;x.fillStyle=t.muted;x.font='12px monospace';x.fillText(model.sub,W/2,Y);}Y+=46;
+    x.save();x.globalAlpha=.55;x.strokeStyle=t.divider;x.lineWidth=1;_rr(x,23,23,W-46,H-46,13);x.stroke();x.restore();
+
+    /* ── kicker + 短金线(把眉题与标题分层)── */
+    x.fillStyle=t.accent;x.font='12px '+F_MONO;_ls(x,'1.5px');x.fillText(model.kicker||'',W/2,57);_ls(x,'0px');
+    x.save();x.globalAlpha=.75;x.strokeStyle=t.accent;x.lineWidth=1.4;x.beginPath();x.moveTo(W/2-15,71);x.lineTo(W/2+15,71);x.stroke();x.restore();
+
+    /* ── 标题(中文衬线;按长度自适应字号;最多 2 行,超长优雅省略)── */
+    const title=String(model.title||'');
+    let ts = title.length<=8?36 : title.length<=13?31 : 27;
+    x.fillStyle=t.hl;x.font='700 '+ts+'px '+F_CJK;
+    let lines=_wrap(x,title,W-92);
+    if(lines.length>2){let last=lines[1];while(last&&x.measureText(last+'…').width>W-92)last=last.slice(0,-1);lines=[lines[0],last+'…'];}
+    let Y=(lines.length>=2?106:114);const lh=ts+9;
+    lines.forEach(l=>{x.fillText(l,W/2,Y);Y+=lh;});
+    if(model.sub){Y+=4;x.fillStyle=t.muted;x.font='12px '+F_MONO;_ls(x,'.5px');x.fillText(model.sub,W/2,Y);_ls(x,'0px');Y+=8;}
+    Y+=40;
+
     if(cards){
       const n=cards.length,cw=92,ch=158,gap=16,totW=n*cw+(n-1)*gap,sx=(W-totW)/2,ly=Y,iy=Y+18;
       cards.forEach((cd,i)=>{
         const ix=sx+i*(cw+gap),mx=ix+cw/2;
-        x.fillStyle=t.muted;x.font='11px "Noto Serif SC",sans-serif';x.fillText(cd.pos||'',mx,ly+8);
-        x.fillStyle=t.accent;_rr(x,ix-2,iy-2,cw+4,ch+4,8);x.fill();                 // 牌框(主强调色)
+        x.fillStyle=t.muted;x.font='11px '+F_CJK;x.fillText(cd.pos||'',mx,ly+8);
+        x.save();x.shadowColor='rgba(0,0,0,.45)';x.shadowBlur=10;x.shadowOffsetY=4;         // 牌面投影,增立体
+        x.fillStyle=t.accent;_rr(x,ix-2,iy-2,cw+4,ch+4,8);x.fill();x.restore();             // 牌框(主强调色)
         x.save();_rr(x,ix,iy,cw,ch,6);x.clip();x.translate(mx,iy+ch/2);if(cd.rev)x.rotate(Math.PI);
         if(cd.el)x.drawImage(cd.el,-cw/2,-ch/2,cw,ch);else{x.fillStyle=t.cardBg;x.fillRect(-cw/2,-ch/2,cw,ch);}
         x.restore();
-        x.fillStyle=t.hl;x.font='12px "Noto Serif SC",sans-serif';x.fillText(cd.name||'',mx,iy+ch+18);
-        x.fillStyle=cd.rev?t.rev:t.muted;x.font='10px monospace';x.fillText(cd.rev?'逆位':'正位',mx,iy+ch+32);
+        x.fillStyle=t.hl;x.font='700 12.5px '+F_CJK;x.fillText(cd.name||'',mx,iy+ch+19);
+        x.fillStyle=cd.rev?t.rev:t.muted;x.font='10px '+F_MONO;x.fillText(cd.rev?'逆位':'正位',mx,iy+ch+33);
       });
-      Y=iy+ch+32+20;
+      Y=iy+ch+33+22;
     }
-    if(model.big!=null){x.fillStyle=t.muted;x.font='13px monospace';x.fillText(model.bigLabel||'',W/2,Y);Y+=54;
-      x.fillStyle=t.hl;x.font='700 70px "Bebas Neue",sans-serif';x.fillText(String(model.big),W/2,Y);Y+=44;}
-    (model.dims||[]).forEach((d,i,a)=>{const cx=W*(i+0.5)/a.length;x.fillStyle=t.hl;x.font='700 24px "Bebas Neue",sans-serif';x.fillText(String(d[1]),cx,Y);x.fillStyle=t.muted;x.font='10.5px "Noto Serif SC",sans-serif';x.fillText(d[0],cx,Y+18);});
-    if(model.dims&&model.dims.length)Y+=54;
-    x.strokeStyle=t.divider;x.lineWidth=1;x.beginPath();x.moveTo(60,Y);x.lineTo(W-60,Y);x.stroke();Y+=30;
-    if(model.hook){x.fillStyle=t.hook;x.font='14px "Noto Serif SC",sans-serif';let hk=model.hook;if(hk.length>58)hk=hk.slice(0,58)+'…';_wrap(x,hk,W-96).slice(0,3).forEach(l=>{x.fillText(l,W/2,Y);Y+=25;});}
-    if(qr){const q=112;x.drawImage(qr,(W-q)/2,H-188,q,q);x.fillStyle=t.accent;x.font='12px monospace';x.fillText('↑ 扫码关注「Zion降噪」· 回复解锁更多',W/2,H-52);x.fillStyle=t.accentDim;x.font='11px monospace';x.fillText('qizh.space · 仅供娱乐',W/2,H-30);}
-    else{x.fillStyle=t.accent;x.font='12.5px monospace';x.fillText('微信搜「Zion降噪」测你的',W/2,H-58);x.fillStyle=t.accentDim;x.font='11px monospace';x.fillText('qizh.space · 仅供娱乐',W/2,H-36);}
+
+    /* ── 大数字(全卡主角:光晕 + Bebas,跳出来)── */
+    if(model.big!=null){
+      x.fillStyle=t.muted;x.font='12px '+F_MONO;_ls(x,'1px');x.fillText(model.bigLabel||'',W/2,Y);_ls(x,'0px');Y+=58;
+      x.save();x.shadowColor='rgba('+t.glow+',.55)';x.shadowBlur=24;x.fillStyle=t.hl;x.font='700 76px '+F_NUM;x.fillText(String(model.big),W/2,Y);x.restore();
+      Y+=44;
+    }
+
+    /* ── 四维(收进一块淡底面板,配竖分隔,成组更清楚)── */
+    const dims=model.dims||[];
+    if(dims.length){
+      const pt=Y-8,ph=54;
+      x.save();x.globalAlpha=.4;x.fillStyle='rgba('+t.glow+',.06)';_rr(x,44,pt,W-88,ph,12);x.fill();x.globalAlpha=.6;x.strokeStyle=t.divider;x.lineWidth=1;_rr(x,44,pt,W-88,ph,12);x.stroke();x.restore();
+      dims.forEach((d,i,a)=>{const cx=W*(i+0.5)/a.length;
+        if(i){x.save();x.globalAlpha=.5;x.strokeStyle=t.divider;x.lineWidth=1;const lx=W*i/a.length;x.beginPath();x.moveTo(lx,pt+12);x.lineTo(lx,pt+ph-12);x.stroke();x.restore();}
+        x.fillStyle=t.hl;x.font='700 24px '+F_NUM;x.fillText(String(d[1]),cx,pt+29);
+        x.fillStyle=t.muted;x.font='10.5px '+F_CJK;x.fillText(d[0],cx,pt+45);
+      });
+      Y=pt+ph+26;
+    }
+
+    /* ── 分隔:细线 + 中点菱形 ── */
+    x.strokeStyle=t.divider;x.lineWidth=1;x.beginPath();x.moveTo(66,Y);x.lineTo(W/2-14,Y);x.moveTo(W/2+14,Y);x.lineTo(W-66,Y);x.stroke();
+    x.save();x.fillStyle=t.accent;x.globalAlpha=.8;x.translate(W/2,Y);x.rotate(Math.PI/4);x.fillRect(-3,-3,6,6);x.restore();
+    Y+=30;
+
+    /* ── 钩子(衬线金句,最多 3 行)── */
+    if(model.hook){x.fillStyle=t.hook;x.font='15px '+F_CJK;let hk=String(model.hook);if(hk.length>60)hk=hk.slice(0,60)+'…';_wrap(x,hk,W-100).slice(0,3).forEach(l=>{x.fillText(l,W/2,Y);Y+=26;});}
+
+    /* ── 底部:二维码 / 引导 ── */
+    if(qr){const q=104,qx=(W-q)/2,qy=H-198;
+      x.save();x.shadowColor='rgba(0,0,0,.4)';x.shadowBlur=14;x.fillStyle='#fff';_rr(x,qx-11,qy-11,q+22,q+22,14);x.fill();x.restore(); // 白底圆角托,扫码更稳更干净
+      x.drawImage(qr,qx,qy,q,q);
+      x.fillStyle=t.accent;x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText('扫码关注「Zion降噪」· 回复解锁更多',W/2,H-58);_ls(x,'0px');
+      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('qizh.space · 仅供娱乐',W/2,H-34);}
+    else{x.fillStyle=t.accent;x.font='13px '+F_MONO;_ls(x,'.3px');x.fillText('微信搜「Zion降噪」测你的',W/2,H-60);_ls(x,'0px');
+      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('qizh.space · 仅供娱乐',W/2,H-36);}
     return c;
   }
 
@@ -157,7 +225,7 @@ window.CE = (function () {
   function applyLock(){const u=localStorage.getItem('ce_unlocked_'+(_last&&_last.toolId))==='1';const z=document.getElementById('ce-lockZone'),ct=document.getElementById('ce-lockCta');if(z)z.classList.toggle('ce-blur',!u);if(ct)ct.style.display=u?'none':'block';}
   async function shareCard(){
     if(!_last)return;
-    try{await document.fonts.ready;}catch(e){}
+    try{await _warmFonts();}catch(e){}   // 画之前确保自托管拉丁字体已就绪,首图不掉字
     // 可选:预加载分享卡上的牌面小图(同源本地图,不污染 canvas → toDataURL 正常)
     if(_last.card&&Array.isArray(_last.card.cards)&&_last.card.cards.length){
       await Promise.all(_last.card.cards.map(c=>new Promise(r=>{

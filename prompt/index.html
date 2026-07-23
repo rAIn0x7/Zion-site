@@ -28,6 +28,8 @@
 ]}
 ]}
 </script>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/bebas-neue-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/dm-mono-300.woff2" crossorigin>
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -46,7 +48,7 @@ a{color:inherit;text-decoration:none}
 nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:18px 24px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .logo{font-family:var(--display);font-size:25px;letter-spacing:.16em}.logo span{color:var(--gold)}
 .nav-r{display:flex;gap:18px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
-.nav-r a:hover{color:var(--gold)}
+.nav-r a{padding:10px 5px}.nav-r a:hover{color:var(--gold)}
 header{text-align:center;padding:56px 24px 20px;position:relative;z-index:1}
 .badge{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--gold);text-transform:uppercase;border:1px solid var(--border);border-radius:99px;padding:6px 15px;background:rgba(201,168,76,.05);margin-bottom:16px}
 header h1{font-family:var(--display);font-size:clamp(42px,8.5vw,66px);letter-spacing:.05em;line-height:1;

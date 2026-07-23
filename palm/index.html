@@ -114,6 +114,21 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 .subok{display:none;color:var(--gold);font-family:var(--mono);font-size:13px;margin-top:8px}
 .subok.show{display:block}
 .subcn{color:var(--dim);font-family:var(--mono);font-size:11px;margin-top:12px}
+/* ── 移动端小屏适配:防横向溢出 + 收紧导航/四维 ── */
+body{overflow-x:hidden}
+img{max-width:100%}
+@media(max-width:420px){
+  nav{padding:14px 16px}
+  .nav-r{gap:12px;font-size:11px;letter-spacing:.06em}
+  .wrap{padding:0 16px}
+  header{padding:34px 16px 6px}
+  .dims{gap:6px}
+  .dim{font-size:10px}
+  .dim .n{font-size:20px}
+  .subf{flex-wrap:wrap}
+  .subf input{flex:1 1 100%}
+  .subbtn{flex:1 1 100%;padding:11px 20px}
+}
 </style>
 </head>
 <body>
@@ -138,7 +153,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
       <div class="h">手心朝上 · 五指自然张开 · 光线充足</div>
     </div>
     <input type="file" id="file" accept="image/*" hidden>
-    <div class="preview" id="preview"><img id="pimg" alt="手掌预览"></div>
+    <div class="preview" id="preview"><img id="pimg" alt="手掌预览" loading="lazy" decoding="async"></div>
     <div class="row" id="actions" style="display:none">
       <button class="btn g" id="go">🔮 开始解读</button>
       <button class="btn" id="redo">换一张</button>
@@ -182,7 +197,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
   <div class="subcn">想要加深版?<a href="/join/" style="color:var(--gold)">加入「降噪·静音舱」→</a></div>
 </div>
 <div class="shareov" id="shareov">
-  <img id="shareimg" alt="手相分享卡">
+  <img id="shareimg" alt="手相分享卡" loading="lazy" decoding="async">
   <div class="svtip" id="svtip">长按图片保存,发朋友圈 📲</div>
   <div class="svbtns"><button class="btn g" id="svdl">下载图片</button><button class="btn" id="svclose">关闭</button></div>
 </div>
@@ -362,39 +377,79 @@ $('drop').addEventListener('drop',e=>{if(e.dataTransfer.files[0])loadFile(e.data
 function reset(){imgB64='';$('file').value='';$('stage').style.display='block';$('drop').style.display='block';$('preview').style.display='none';$('actions').style.display='none';$('report').style.display='none';setErr('');}
 $('redo').onclick=reset;$('again').onclick=()=>{reset();scrollTo({top:0,behavior:'smooth'});};
 // ── 分享卡:canvas 生成竖版海报 ──
+/* 字体族:拉丁走自托管 woff2;中文不再远程加载 Noto Serif SC → 显式回退系统衬线,保证有骨力、无豆腐块 */
+const F_MONO='"DM Mono",ui-monospace,"SFMono-Regular",monospace';
+const F_NUM='"Bebas Neue",Impact,sans-serif';
+const F_CJK='"Noto Serif SC","Noto Serif CJK SC","Source Han Serif SC","Songti SC",serif';
+function _ls(x,v){try{x.letterSpacing=v;}catch(e){}}
 function _rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
 function _wrap(x,t,max){const out=[];let line='';for(const ch of t){if(x.measureText(line+ch).width>max&&line){out.push(line);line=ch;}else line+=ch;}if(line)out.push(line);return out;}
 let _wxqr;  // undefined=没试过, null=没有图, Image=已加载。把公众号二维码存成 /wechat-qr.png 即自动出现在分享卡上
 function loadWxQR(){return new Promise(res=>{if(_wxqr!==undefined)return res(_wxqr);const im=new Image();im.onload=()=>{_wxqr=im;res(im);};im.onerror=()=>{_wxqr=null;res(null);};im.src='/wechat-qr.png';});}
+/* 预热自托管拉丁字体(Bebas/Outfit/DM Mono),避免首张分享卡的数字/标签回退成默认字体 */
+let _warmed;
+function _warmFonts(){
+  if(_warmed)return _warmed;const fd=document.fonts,jobs=[];
+  if(fd&&fd.load){try{jobs.push(fd.load('700 76px "Bebas Neue"'));}catch(e){}try{jobs.push(fd.load('400 13px "DM Mono"'));}catch(e){}try{jobs.push(fd.load('600 14px "Outfit"'));}catch(e){}}
+  _warmed=Promise.all(jobs).catch(()=>{}).then(()=>{return fd&&fd.ready?fd.ready.catch(()=>{}):null;});
+  return _warmed;
+}
 function drawCard(qrImg){
   const S=2,W=540,H=qrImg?740:650,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
-  const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';
+  const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';x.textBaseline='alphabetic';
+  // 底 + 顶部光晕
   x.fillStyle='#0a0908';x.fillRect(0,0,W,H);
-  const g=x.createRadialGradient(W/2,210,40,W/2,210,430);g.addColorStop(0,'rgba(201,168,76,.15)');g.addColorStop(1,'rgba(201,168,76,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+  const g=x.createRadialGradient(W/2,196,30,W/2,196,450);g.addColorStop(0,'rgba(201,168,76,.17)');g.addColorStop(1,'rgba(201,168,76,0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+  // 双描边外框
   x.strokeStyle='rgba(201,168,76,.5)';x.lineWidth=1.5;_rr(x,16,16,W-32,H-32,18);x.stroke();
+  x.save();x.globalAlpha=.55;x.strokeStyle='rgba(201,168,76,.16)';x.lineWidth=1;_rr(x,23,23,W-46,H-46,13);x.stroke();x.restore();
   const sc=lastSc||{life:0,mind:0,emo:0,career:0};
-  x.fillStyle='#c9a84c';x.font='13px monospace';x.fillText('🖐  AI 手相人设',W/2,60);
-  let Y=114;x.fillStyle='#f0d488';x.font='bold 33px "Noto Serif SC",sans-serif';
-  _wrap(x,lastTag,W-90).slice(0,2).forEach(l=>{x.fillText(l,W/2,Y);Y+=42;});
-  Y+=2;x.fillStyle='#8a8378';x.font='12px monospace';x.fillText(lastSub||'',W/2,Y);Y+=48;
-  x.fillStyle='#8a8378';x.font='13px monospace';x.fillText('综合手相',W/2,Y);Y+=56;
-  x.fillStyle='#f0d488';x.font='700 70px "Bebas Neue",sans-serif';x.fillText(String(lastScore),W/2,Y);Y+=20;
-  x.fillStyle='#6b655c';x.font='11px monospace';x.fillText('/ 100 分',W/2,Y);Y+=46;
-  [['🌿生命力',sc.life],['🧠思维',sc.mind],['❤️情绪',sc.emo],['💼事业',sc.career]].forEach((d,i)=>{const cx=W*(i+0.5)/4;x.fillStyle='#f0d488';x.font='700 24px "Bebas Neue",sans-serif';x.fillText(String(d[1]),cx,Y);x.fillStyle='#8a8378';x.font='10.5px "Noto Serif SC",sans-serif';x.fillText(d[0],cx,Y+18);});
-  Y+=62;x.strokeStyle='rgba(201,168,76,.16)';x.lineWidth=1;x.beginPath();x.moveTo(60,Y);x.lineTo(W-60,Y);x.stroke();Y+=34;
-  x.fillStyle='#d9c48a';x.font='14px "Noto Serif SC",sans-serif';
-  let hk=lastHook||'';if(hk.length>58)hk=hk.slice(0,58)+'…';
-  _wrap(x,hk,W-96).slice(0,3).forEach(l=>{x.fillText(l,W/2,Y);Y+=25;});
-  if(qrImg){const q=112;x.drawImage(qrImg,(W-q)/2,H-188,q,q);
-    x.fillStyle='#c9a84c';x.font='12px monospace';x.fillText('↑ 扫码关注「Zion降噪」· 回复「手相」解锁',W/2,H-52);
-    x.fillStyle='#6b655c';x.font='11px monospace';x.fillText('qizh.space/palm · 仅供娱乐',W/2,H-30);}
-  else{x.fillStyle='#c9a84c';x.font='12.5px monospace';x.fillText('微信搜「Zion降噪」回复「手相」测你的手',W/2,H-58);
-    x.fillStyle='#6b655c';x.font='11px monospace';x.fillText('qizh.space/palm · 仅供娱乐',W/2,H-36);}
+  // kicker + 短金线
+  x.fillStyle='#c9a84c';x.font='12px '+F_MONO;_ls(x,'1.5px');x.fillText('🖐 AI 手相人设',W/2,57);_ls(x,'0px');
+  x.save();x.globalAlpha=.75;x.strokeStyle='#c9a84c';x.lineWidth=1.4;x.beginPath();x.moveTo(W/2-15,71);x.lineTo(W/2+15,71);x.stroke();x.restore();
+  // 标题(人设标签,中文衬线,自适应字号)
+  const title=String(lastTag||'');
+  let ts=title.length<=8?36:title.length<=13?31:27;
+  x.fillStyle='#f0d488';x.font='700 '+ts+'px '+F_CJK;
+  let lines=_wrap(x,title,W-92);
+  if(lines.length>2){let last=lines[1];while(last&&x.measureText(last+'…').width>W-92)last=last.slice(0,-1);lines=[lines[0],last+'…'];}
+  let Y=(lines.length>=2?106:114);const lh=ts+9;
+  lines.forEach(l=>{x.fillText(l,W/2,Y);Y+=lh;});
+  if(lastSub){Y+=4;x.fillStyle='#8a8378';x.font='12px '+F_MONO;_ls(x,'.5px');x.fillText(lastSub,W/2,Y);_ls(x,'0px');Y+=8;}
+  Y+=44;
+  // 大数字(主角:光晕 + Bebas)
+  x.fillStyle='#8a8378';x.font='12px '+F_MONO;_ls(x,'1px');x.fillText('综合手相评分',W/2,Y);_ls(x,'0px');Y+=58;
+  x.save();x.shadowColor='rgba(201,168,76,.55)';x.shadowBlur=24;x.fillStyle='#f0d488';x.font='700 76px '+F_NUM;x.fillText(String(lastScore),W/2,Y);x.restore();Y+=44;
+  // 四维(淡底面板 + 竖分隔)
+  const dims=[['🌿生命力',sc.life],['🧠思维',sc.mind],['❤️情绪',sc.emo],['💼事业',sc.career]];
+  const pt=Y-8,ph=54;
+  x.save();x.globalAlpha=.4;x.fillStyle='rgba(201,168,76,.06)';_rr(x,44,pt,W-88,ph,12);x.fill();x.globalAlpha=.6;x.strokeStyle='rgba(201,168,76,.16)';x.lineWidth=1;_rr(x,44,pt,W-88,ph,12);x.stroke();x.restore();
+  dims.forEach((d,i,a)=>{const cx=W*(i+0.5)/a.length;
+    if(i){x.save();x.globalAlpha=.5;x.strokeStyle='rgba(201,168,76,.16)';x.lineWidth=1;const lx=W*i/a.length;x.beginPath();x.moveTo(lx,pt+12);x.lineTo(lx,pt+ph-12);x.stroke();x.restore();}
+    x.fillStyle='#f0d488';x.font='700 24px '+F_NUM;x.fillText(String(d[1]),cx,pt+29);
+    x.fillStyle='#8a8378';x.font='10.5px '+F_CJK;x.fillText(d[0],cx,pt+45);
+  });
+  Y=pt+ph+26;
+  // 分隔:细线 + 中点菱形
+  x.strokeStyle='rgba(201,168,76,.16)';x.lineWidth=1;x.beginPath();x.moveTo(66,Y);x.lineTo(W/2-14,Y);x.moveTo(W/2+14,Y);x.lineTo(W-66,Y);x.stroke();
+  x.save();x.fillStyle='#c9a84c';x.globalAlpha=.8;x.translate(W/2,Y);x.rotate(Math.PI/4);x.fillRect(-3,-3,6,6);x.restore();Y+=30;
+  // 钩子(衬线金句)
+  x.fillStyle='#d9c48a';x.font='15px '+F_CJK;
+  let hk=lastHook||'';if(hk.length>60)hk=hk.slice(0,60)+'…';
+  _wrap(x,hk,W-100).slice(0,3).forEach(l=>{x.fillText(l,W/2,Y);Y+=26;});
+  // 底部:二维码 / 引导
+  if(qrImg){const q=104,qx=(W-q)/2,qy=H-198;
+    x.save();x.shadowColor='rgba(0,0,0,.4)';x.shadowBlur=14;x.fillStyle='#fff';_rr(x,qx-11,qy-11,q+22,q+22,14);x.fill();x.restore();
+    x.drawImage(qrImg,qx,qy,q,q);
+    x.fillStyle='#c9a84c';x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText('扫码关注「Zion降噪」· 回复「手相」解锁',W/2,H-58);_ls(x,'0px');
+    x.fillStyle='#6b655c';x.font='11px '+F_MONO;x.fillText('qizh.space/palm · 仅供娱乐',W/2,H-34);}
+  else{x.fillStyle='#c9a84c';x.font='13px '+F_MONO;_ls(x,'.3px');x.fillText('微信搜「Zion降噪」回复「手相」测你的手',W/2,H-60);_ls(x,'0px');
+    x.fillStyle='#6b655c';x.font='11px '+F_MONO;x.fillText('qizh.space/palm · 仅供娱乐',W/2,H-36);}
   return c;
 }
 async function shareCard(){
   if(!lastTag){toast('先测一张再分享');return;}
-  try{await document.fonts.ready;}catch(e){}
+  try{await _warmFonts();}catch(e){}   // 画之前确保自托管拉丁字体就绪,首图数字/标签不掉字
   const qr=await loadWxQR();
   const canvas=drawCard(qr),dataUrl=canvas.toDataURL('image/png');
   localStorage.setItem('palm_unlocked','1');applyLock();   // 分享即解锁:点了分享=解锁完整解读
