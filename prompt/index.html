@@ -28,14 +28,12 @@
 ]}
 ]}
 </script>
-<link rel="preconnect" href="https://fonts.loli.net"><link rel="preconnect" href="https://gstatic.loli.net" crossorigin>
-<link rel="stylesheet" href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.loli.net/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400&family=Noto+Serif+SC:wght@500&display=swap"></noscript>
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--black:#0a0908;--bg2:#12100d;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);--panel:#15130f;
   --display:'Bebas Neue','PingFang SC','Microsoft YaHei',sans-serif;
-  --body:'Outfit',-apple-system,'PingFang SC','Microsoft YaHei','Noto Serif SC',sans-serif;
+  --body:'Outfit',-apple-system,'PingFang SC','Microsoft YaHei','Hiragino Sans GB','Songti SC',sans-serif;
   --mono:'DM Mono','SFMono-Regular',Consolas,monospace;--radius:12px}
 html{scroll-behavior:smooth}
 body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.6;min-height:100vh;overflow-x:hidden;position:relative}
@@ -188,7 +186,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
         <pre id="genpre"></pre>
         <div class="gbtns">
           <button class="btn g" id="gcopy">📋 复制</button>
-          <button class="btn" id="gharder">🔥 还不够好?再狠一点</button>
+          <button class="btn" id="gharder">还不够好?再狠一点</button>
           <button class="btn" id="gagain">↺ 换一个</button>
         </div>
         <div class="wm">qizh.space/prompt · 微信搜「Zion降噪」· 免费</div>
@@ -321,7 +319,7 @@ async function harder(){
   try{
     const p='下面是一条 AI 提示词。请把它改得更强:更具体、约束更清晰、更能逼出高质量结果、更少空话。保持中文与 Markdown 分节结构,只输出改进后的提示词本身,不要解释、不要代码块包裹。\n\n原提示词:\n"""\n'+lastResult+'\n"""';
     const out=await callLLM(p,0.85);
-    if(out)showGen(out,'再狠一点 🔥');
+    if(out)showGen(out,'再狠一点');
   }catch(e){$('err').textContent='再优化失败,稍后重试';}
   finally{$('go').disabled=false;$('loading').style.display='none';}
 }
