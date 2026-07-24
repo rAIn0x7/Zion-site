@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>互联网黑话翻译器 · 测测你这句话黑话浓度多少 — qizh.space</title>
+<meta name="description" content="互联网黑话翻译器:粘一句你的工作发言或群里的黑话,自动检测命中的黑话词,给出「黑话浓度 XX%」+ 人话翻译版 + 装X度/废话浓度/甩锅力/听不懂四维 + 分档毒舌锐评。纯本地计算不上传,同输入结果固定,极易截图转发。趣味测试,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/heihua/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%92%AC%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="互联网黑话翻译器 · 测测你这句话黑话浓度多少">
+<meta property="og:description" content="粘一句黑话,自动翻译成人话 + 测你的黑话浓度 XX% + 装X度/废话浓度/甩锅力/听不懂四维 + 毒舌锐评。极易截图转发。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/heihua/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:title" content="互联网黑话翻译器 · 测测你这句话黑话浓度多少">
+<meta name="twitter:description" content="粘一句黑话,自动翻译成人话 + 测你的黑话浓度 XX% + 四维 + 毒舌锐评。极易截图转发。趣味测试。">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
+<meta name="keywords" content="互联网黑话翻译器,黑话浓度测试,黑话翻译,大厂黑话,职场黑话,赋能抓手闭环,汇报腔,趣味测试,免费测试">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"互联网黑话翻译器","url":"https://qizh.space/ce/heihua/","description":"互联网黑话翻译器:粘一句你的工作发言或群里的黑话,自动检测命中的黑话词,给出「黑话浓度 XX%」+ 人话翻译版 + 装X度/废话浓度/甩锅力/听不懂四维 + 分档毒舌锐评。纯本地计算不上传,同输入结果固定,极易截图转发。趣味测试,分享解锁完整版。","applicationCategory":"LifestyleApplication","operatingSystem":"Web","inLanguage":"zh-CN","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"publisher":{"@type":"Person","name":"Zion","url":"https://qizh.space/"}},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"黑话翻译器怎么用?","acceptedAnswer":{"@type":"Answer","text":"粘贴一句你的工作发言或群里看到的黑话,自动检测命中的黑话词,给出黑话浓度百分比和逐词翻译的人话版本。"}},
+{"@type":"Question","name":"同一句话结果会变吗?","acceptedAnswer":{"@type":"Answer","text":"同一段输入结果固定,方便截图对比、甩给同事。"}},
+{"@type":"Question","name":"免费吗?会上传我的话吗?","acceptedAnswer":{"@type":"Answer","text":"免费。纯本地计算,不上传你的输入。趣味测试,仅供娱乐,分享后可解锁完整锐评与温柔反转。"}}
+]}
+]}
+</script>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/bebas-neue-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/outfit-300.woff2" crossorigin>
+<link rel="stylesheet" href="/ce/ce.css">
+<style>
+/* 人话翻译版:命中黑话高亮 + 括号给人话(仅本页内联,不改 ce.css)*/
+.hh-trans{line-height:2.15;font-size:15px;color:#c7c2b8}
+.hh-hit{color:var(--gold-lt);font-weight:600;border-bottom:1px dashed rgba(201,168,76,.5);padding-bottom:1px;white-space:nowrap}
+.hh-hit i{font-style:normal;color:var(--muted);font-weight:400;font-size:12px;margin-left:1px}
+.hh-empty{color:#9b958a;font-size:13px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
+</nav>
+<header>
+  <h1>互联网黑话翻译器</h1>
+  <p>把黑话翻译成人话 · 顺便测测你这句浓度几成 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>粘一句你的工作发言,或群里看到的黑话</label>
+      <textarea id="txt" rows="4" maxlength="300" placeholder="例:这个需求我们先对齐一下颗粒度,找到抓手,把链路闭环打通,赋能业务方,沉淀出一套可复用的方法论。"></textarea>
+    </div>
+    <button class="ce-btn g ce-go" id="go">💬 翻译成人话 + 测黑话浓度</button>
+    <div class="ce-err" id="err"></div>
+    <p style="color:var(--muted);font-size:11.5px;text-align:center;margin-top:12px;line-height:1.6">纯本地计算,你打的字不上传服务器 · 同一句话结果固定</p>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在把你的黑话翻译成人话…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<style>
+/* 页面可见 FAQ(与 head 中 FAQPage 结构化数据一致;仅本页内联,不改 ce.css)*/
+.ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
+.ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
+.ce-faq details{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ce-faq details[open]{border-color:rgba(201,168,76,.4)}
+.ce-faq summary{list-style:none;cursor:pointer;padding:14px 46px 14px 16px;position:relative;font-size:14.5px;font-weight:500;color:var(--white);line-height:1.6}
+.ce-faq summary::-webkit-details-marker{display:none}
+.ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
+.ce-faq details[open] summary::after{content:"−"}
+.ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+</style>
+<section class="ce-faq" aria-label="常见问题">
+  <h2>常见问题</h2>
+  <details><summary>黑话翻译器怎么用?</summary><div class="a">粘贴一句你的工作发言或群里看到的黑话,自动检测命中的黑话词,给出黑话浓度百分比和逐词翻译的人话版本。</div></details>
+  <details><summary>同一句话结果会变吗?</summary><div class="a">同一段输入结果固定,方便截图对比、甩给同事。</div></details>
+  <details><summary>免费吗?会上传我的话吗?</summary><div class="a">免费。纯本地计算,不上传你的输入。趣味测试,仅供娱乐,分享后可解锁完整锐评与温柔反转。</div></details>
+</section>
+
+<footer>互联网黑话翻译器 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+
+/* ══ 黑话词典:每条 [黑话, 人话翻译, 可选吐槽] ══
+   扫描时按词长从长到短匹配(先中「颗粒度」再中「对齐」),避免短词吃掉长词。*/
+const DICT=[
+  ['第一性原理','从最根上想问题','用「第一性原理」的人,十个有九个没读过那本书。'],
+  ['降本增效','少花钱、多干活','老板最爱的四个字,员工最怕的四个字。'],
+  ['底层逻辑','最根本的道理','句子里一出现「底层逻辑」,后面大概率是废话。'],
+  ['顶层设计','上面定的大方向'],
+  ['心智占领','让人一想到就想到你'],
+  ['价值感知','让人觉得值不值'],
+  ['价值锚点','让人觉得值的那个点'],
+  ['用户画像','用户大概长什么样'],
+  ['数据驱动','看数据再拍板'],
+  ['向上管理','把你老板哄明白','说白了就是搞定领导。'],
+  ['方法论','攒出来的套路'],
+  ['组合拳','一堆招一起上','单个招不管用,就说打组合拳。'],
+  ['护城河','别人抄不走的优势'],
+  ['颗粒度','细到什么程度','「对齐一下颗粒度」= 把细节说清楚。'],
+  ['生态位','你待的那个位置'],
+  ['渗透率','占了多大比例'],
+  ['基本盘','手里的基本家底'],
+  ['心智','别人对你的印象'],
+  ['赋能','帮上忙、给点资源','翻译过来就是「我帮你」,非要说成「我为你赋能」。'],
+  ['抓手','下手的切入点','找不到抓手,就是不知道从哪儿开始。'],
+  ['闭环','从头到尾做完一整套','万物皆可闭环,连回条消息都要闭环。'],
+  ['对齐','统一意见、商量一下'],
+  ['拉通','把几方协调到一块'],
+  ['沉淀','记下来、攒下来'],
+  ['打法','做法、路子'],
+  ['链路','整个流程'],
+  ['复盘','事后回头总结'],
+  ['破圈','让圈外人也知道'],
+  ['出圈','火到圈子外面'],
+  ['扩品','多做几种东西'],
+  ['落地','真正做出来','「这个先落地」= 先干起来别光说。'],
+  ['杠杆','用小力气撬大结果'],
+  ['飞轮','越转越顺的循环'],
+  ['势能','攒起来的那股劲'],
+  ['纵深','再往深里做一层'],
+  ['水位','水平、程度'],
+  ['耦合','绑得太死'],
+  ['解耦','拆开、松松绑'],
+  ['量级','数量的规模'],
+  ['壁垒','别人进不来的门槛'],
+  ['增量','多出来的那部分'],
+  ['存量','手里已经有的'],
+  ['私域','自己攒下的用户'],
+  ['公域','平台上的大流量'],
+  ['触达','让人看到、联系到'],
+  ['卡位','提前抢好位置'],
+  ['痛点','用户最烦的那件事'],
+  ['共识','大家都点头了'],
+  ['背书','有人替你担保'],
+  ['赛道','干的这个领域'],
+  ['风口','正好的好时机','风口这词,吹走了多少人的钱包。'],
+  ['心力','精力、心气'],
+  ['认知','想法、看法'],
+  ['势','局面、劲头'],
+  ['给结论','直接说结果','「你先给我个结论」= 别绕了。']
+];
+/* 去重 + 按长度降序,建查询表 */
+const _seen={};const TERMS=DICT.filter(d=>_seen[d[0]]?false:(_seen[d[0]]=1)).slice().sort((a,b)=>b[0].length-a[0].length);
+const MAP={};TERMS.forEach(d=>MAP[d[0]]=d);
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* 扫描输入:返回 翻译HTML、命中总次数 occ、命中的黑话字数、去重命中词(按出现顺序) */
+function scan(text){
+  const chars=[...text];let html='',occ=0,hitChars=0;const order=[],ohit={};
+  for(let i=0;i<chars.length;){
+    let hit=null;
+    for(const d of TERMS){const t=d[0];if(chars.slice(i,i+t.length).join('')===t){hit=d;break;}}
+    if(hit){
+      html+='<span class="hh-hit">'+esc(hit[0])+'<i>('+esc(hit[1])+')</i></span>';
+      occ++;hitChars+=hit[0].length;
+      if(!ohit[hit[0]]){ohit[hit[0]]=1;order.push(hit[0]);}
+      i+=hit[0].length;
+    }else{
+      const c=chars[i];html+=(c==='\n')?'<br>':esc(c);i++;
+    }
+  }
+  return {html,occ,hitChars,order,len:chars.length};
+}
+
+/* ── 分档毒舌锐评 ── */
+const REVIEW={
+  low:[ // 浓度低但有命中
+    '只沾了一点黑话,基本还能听懂。你偶尔蹦一个「对齐」装装样子,但没上瘾,及时收手还来得及。',
+    '轻度感染。你说话八成是人话,剩下两成是开会时被同化的口头禅。问题不大,别让它继续发酵。',
+    '你的黑话浓度不高,属于「会说但懒得说」型。在这个张口就是组合拳的年代,这份克制挺难得。'],
+  mid:[
+    '危险边缘。你一半在好好说话,一半已经开始拉通对齐颗粒度了。再往前一步,你妈就听不懂你在讲什么。',
+    '临界点选手:能说人话,可一到正经场合就自动切成汇报腔。别演了,累的其实是听你说话的人。',
+    '中度黑话,会议室常客。你学会了用三个词说一件本来一个词就说清的事,效率降一档,逼格升三档。'],
+  high:[
+    '警告:黑话浓度超标。你已经能面不改色地把「我不知道」包装成「这个我需要再对齐一下颗粒度」。',
+    '深度黑话认证。你说的每句话都对,连起来却什么信息都没有,这是正确的废话的最高境界,恭喜达成。',
+    '你张口就是赋能闭环组合拳,像一台被大厂 PPT 训练过的复读机。翻成人话之后,信息量大概只剩三分之一。'],
+  max:[
+    '黑话浓度爆表。你不是在说话,你是把空气打包成一段听起来很牛的音频。翻成人话后,大概能压缩成一句「我们再想想」。',
+    '顶级黑话结晶体。你已经卷到连点外卖都想先对齐一下需求颗粒度的程度。这个浓度,翻译器已经宣告投降。',
+    '满级黑话。你说完一段,在场没人敢承认自己没听懂,包括你自己。这不叫沟通,这叫大型皇帝新衣现场。']
+};
+/* 输入里一个黑话都没命中的特殊结果 */
+const CLEAN=[
+  '扫描完毕,一个黑话都没揪出来。你说的居然全是人话,在大厂语境里这属于濒危物种,建议就地保护。',
+  '零黑话检出。你没赋能、没抓手、没闭环,你只是把事说清楚了。这么朴素的表达,开会容易吃亏,过日子容易被信任。',
+  '浓度 0%。你的句子里找不到一句正确的废话,老板可能嫌你不够有高度,但你妈会觉得你终于说人话了。'];
+/* 「其实」温柔反转结尾(必出)*/
+const TWIST=[
+  '其实,说黑话不代表你空洞。多半是环境逼着你穿上这身话术盔甲,好在人群里显得安全一点。回到家,记得脱下来。',
+  '其实,你未必爱这么说话,是会议室和汇报文化一点点把你训练成这样。能意识到这点,你已经比大多数张口闭环的人清醒。',
+  '其实,真正厉害的人能把复杂的事说到外婆都听懂。黑话是门槛,人话才是本事。下次少一个抓手,多一句大白话试试。',
+  '其实测出多少都无所谓。从今天起,能说「帮个忙」就别说「赋能一下」,能说「想清楚」就别说「对齐颗粒度」。省下的力气,留给真正想表达的人。'];
+/* 浓度称号 */
+const TITLE=[['人话十级·清流罕见',0],['轻度沾染·偶尔上头',20],['中度黑话·会议常客',45],['资深黑话·张口就来',68],['黑话结晶体·翻译失败',88]];
+function titleOf(n){let t=TITLE[0][0];for(const x of TITLE)if(n>=x[1])t=x[0];return t;}
+
+const cfg={ id:'heihua', 名字:'互联网黑话翻译器', 图标:'💬' };
+
+$('go').onclick=()=>{
+  const text=$('txt').value.trim();
+  if(!text){$('err').textContent='先粘一句话进来,我才好给你验黑话浓度 💬';return;}
+  if([...text].length<4){$('err').textContent='太短了,多打几个字,一个词看不出浓度';return;}
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    const s=scan(text);
+    const rng=CE.rngFrom(text);                       // 种子=输入原文,同句同结果
+
+    // ── 黑话浓度公式 ──
+    // countScore:命中越多越高,且饱和(0命中→0,1→.30,2→.51,3→.66,4→.76,5→.83,6→.88…)
+    // density:黑话字数占全文比例(说得越密越浓)。二者各半,再叠 -4~+4 的种子微扰,数字不那么整。
+    let pct;const band0=s.occ===0;
+    if(band0){pct=0;}
+    else{
+      const countScore=1-Math.pow(0.70,s.occ);
+      const density=Math.min(1,s.hitChars/Math.max(s.len,1));
+      const raw=100*(0.5*countScore+0.5*density);
+      const jitter=Math.round(rng()*9-4);
+      pct=Math.max(6,Math.min(99,Math.round(raw)+jitter));
+    }
+
+    // 四维(围绕总浓度波动,截图感强)
+    const density=Math.min(1,s.hitChars/Math.max(s.len,1));
+    const dv=(b,sp)=>Math.max(12,Math.min(99,Math.round(b+(rng()*sp-sp/2))));
+    const dimsArr = band0
+      ? [['🎭 装X度',dv(9,14)],['💨 废话浓度',dv(8,12)],['🫥 甩锅力',dv(12,16)],['🌫 听不懂',dv(7,10)]]
+      : [['🎭 装X度',dv(pct,28)],['💨 废话浓度',dv(pct+4,28)],['🫥 甩锅力',dv(pct*0.8+16,34)],['🌫 听不懂',dv(Math.min(99,pct+density*22),22)]];
+
+    // 分档 + 锐评
+    const band = band0?'clean' : pct<20?'low' : pct<45?'mid' : pct<68?'high' : 'max';
+    const review = band0 ? CE.pick(rng,CLEAN) : CE.pick(rng,REVIEW[band]);
+    const twist = CE.pick(rng,TWIST);
+    const title = titleOf(pct);
+
+    // 逐词拆解(锁区):去重命中词 → 人话,最多 7 条;末尾追一条吐槽
+    let breakdown;
+    if(band0){
+      breakdown='没有需要拆解的黑话。你说的每个词,你妈都听得懂。';
+    }else{
+      const rows=s.order.slice(0,7).map(w=>'「'+w+'」→ '+MAP[w][1]);
+      const roasters=s.order.filter(w=>MAP[w][2]);
+      if(roasters.length){const w=CE.pick(rng,roasters);rows.push('· '+MAP[w][2]);}
+      breakdown=rows.join('\n');
+    }
+
+    // 下次可以这么说(锁区)
+    let advice;
+    if(band0){
+      advice='继续保持。在一个开口就是赋能闭环的世界里,好好说话本身就是稀缺能力。';
+    }else{
+      const w=s.order[Math.floor(rng()*s.order.length)];
+      advice='下次开会想说「'+w+'」的时候,试试直接说「'+MAP[w][1]+'」。天不会塌,也没人会觉得你不专业,反而没人敢再糊弄你。';
+    }
+
+    const parts=[
+      {h:'📝 人话翻译版', p:''},                         // 翻译富文本注入到这里(可见,不锁)
+      {h:'🔍 毒舌诊断', p:review},
+      {h:'🧩 逐词拆解', p:breakdown},
+      {h:'🗣 下次可以这么说', p:advice},
+      {h:'💊 一句「其实」', p:twist}
+    ];
+
+    const tag='【'+title+'】';
+    const cnt = band0 ? '未检出黑话' : ('命中 '+s.order.length+' 类 · '+s.occ+' 处');
+    const result={
+      heading:'黑话浓度检测报告', tag, sub:cnt,
+      big:pct, bigLabel:'黑话浓度 %', dims:dimsArr, parts,
+      card:{kicker:'💬 互联网黑话翻译器', title:tag, sub:cnt, big:pct, bigLabel:'黑话浓度 %', dims:dimsArr, hook:review},
+      shareText:'我这句话黑话浓度 '+pct+'%'+tag+',你敢测你老板的发言吗?👉 qizh.space/ce/heihua'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+    injectTrans(s.html||esc(text), band0);
+  },600);
+};
+
+/* 把首段 <p>(空)替换为带高亮的人话翻译版 */
+function injectTrans(html, clean){
+  const first=document.querySelector('#ce-body .ce-sec p');
+  if(!first)return;
+  first.className='hh-trans';
+  first.innerHTML=(clean?'<span class="hh-empty">全文无黑话残留,原样奉上:</span><br>':'')+html;
+  first.style.margin='4px 0 0';
+}
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>

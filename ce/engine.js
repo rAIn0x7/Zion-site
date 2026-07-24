@@ -29,7 +29,8 @@ window.CE = (function () {
     {id:'yiji',    name:'今日宜忌',   icon:'📜', url:'/ce/yiji/',    hook:'赛博老黄历,今天宜摸鱼忌收到'},
     {id:'nongdu',  name:'牛马浓度',   icon:'🐂', url:'/ce/nongdu/',  hook:'测你被工作腌入味了几成'},
     {id:'decide',  name:'帮你做决定', icon:'🎲', url:'/ce/decide/',  hook:'选 A 还是选 B?让 AI 替你拍板'},
-    {id:'fuye',    name:'副业测评',   icon:'💼', url:'/ce/fuye/',    hook:'6 题测你适合搞什么副业'}
+    {id:'fuye',    name:'副业测评',   icon:'💼', url:'/ce/fuye/',    hook:'6 题测你适合搞什么副业'},
+    {id:'heihua',  name:'黑话翻译',   icon:'💬', url:'/ce/heihua/',  hook:'粘句工作发言,测黑话浓度+翻人话'}
   ];
 
   /* ── 结果页底部"再测下一个"导流条(排除当前工具,按 toolId 稳定挑 3 个)── */
