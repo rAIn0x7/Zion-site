@@ -213,7 +213,7 @@ window.CE = (function () {
     if(qr){const q=104,qx=(W-q)/2,qy=H-198;
       x.save();x.shadowColor='rgba(0,0,0,.4)';x.shadowBlur=14;x.fillStyle='#fff';_rr(x,qx-11,qy-11,q+22,q+22,14);x.fill();x.restore(); // 白底圆角托,扫码更稳更干净
       x.drawImage(qr,qx,qy,q,q);
-      x.fillStyle=t.accent;x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText('扫码关注「Zion降噪」· 回复解锁更多',W/2,H-58);_ls(x,'0px');
+      x.fillStyle=t.accent;x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText('扫码关注「Zion降噪」· 每天一条信号帮你降噪',W/2,H-58);_ls(x,'0px');
       x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('qizh.space · 仅供娱乐',W/2,H-34);}
     else{x.fillStyle=t.accent;x.font='13px '+F_MONO;_ls(x,'.3px');x.fillText('微信搜「Zion降噪」测你的',W/2,H-60);_ls(x,'0px');
       x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('qizh.space · 仅供娱乐',W/2,H-36);}
@@ -274,7 +274,7 @@ window.CE = (function () {
       </div>
       <div class="ce-cta"><div class="ct">🔓 解锁更深 · 每天一条「降噪信号」帮你少焦虑</div>
         <div class="ce-qrs">
-          <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪" loading="lazy"><b>扫码关注公众号</b><span>「Zion降噪」· 回复口令解锁更多</span></div>
+          <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪" loading="lazy"><b>扫码关注公众号</b><span>「Zion降噪」· 每天降噪信号 + 新测试抢先玩</span></div>
           <div class="ce-qr"><img src="/planet-qr.png" alt="知识星球" loading="lazy"><b>扫码进知识星球</b><span>和同频的人一起搞事、拿工具</span></div>
         </div>
         <a class="ce-btn g" href="/join/" style="display:inline-block;margin:6px 0 4px;text-decoration:none">加入「降噪·静音舱」→</a>
