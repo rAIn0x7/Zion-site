@@ -334,7 +334,7 @@ footer a:hover{color:var(--gold)}
       <h2>GET THE <em>signal</em></h2>
       <p class="sd">深度分析——AI 趋势、创业逻辑、财富思维。不发噪音,只发值得你 10 分钟的内容。</p>
       <p class="soc">Free · 随时退订 · Building in public</p>
-      <form class="subform" id="subForm" onsubmit="handleSubscribe(event)"><input type="email" id="subEmail" placeholder="your@email.com" required><button class="magnet" type="submit">JOIN →</button></form>
+      <form class="subform" id="subForm" onsubmit="handleSubscribe(event)"><input type="text" name="company" id="hp_zion_sub" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute!important;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none"><input type="email" id="subEmail" placeholder="your@email.com" required><button class="magnet" type="submit">JOIN →</button></form>
       <div class="subok" id="subOk">✓ You're on the list.</div>
       <div class="subsplit">国内读者</div>
       <div class="cnsub">
@@ -422,11 +422,17 @@ const mb=document.getElementById('menuBtn'),mn=document.getElementById('mnav');
 mb.addEventListener('click',()=>{const o=mn.classList.toggle('open');mb.classList.toggle('open',o);document.body.style.overflow=o?'hidden':''});
 document.querySelectorAll('.ml').forEach(a=>a.addEventListener('click',()=>{mn.classList.remove('open');mb.classList.remove('open');document.body.style.overflow=''}));
 // subscribe → shared Supabase subscribers table (same backend as the Lens sites)
+const _subFormTs=Date.now(); // page-load time — used to reject implausibly fast (bot) submits
+function _showSubOk(){document.getElementById('subForm').style.display='none';document.getElementById('subOk').classList.add('show')}
 async function handleSubscribe(e){e.preventDefault();const v=document.getElementById('subEmail').value.trim();if(!v)return;
+  // anti-bot: honeypot filled, near-instant submit, or malformed email → pretend success, write nothing.
+  const hp=document.getElementById('hp_zion_sub');
+  const emailOk=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  if((hp&&hp.value)||(Date.now()-_subFormTs<2000)||!emailOk){_showSubOk();return}
   try{await fetch('https://uzvguynixndzusrlqryo.supabase.co/rest/v1/subscribers',{method:'POST',
     headers:{'apikey':'sb_publishable_tHr8G_hSTCG9kDYpC48_bg_CWjXpeLN','Content-Type':'application/json','Prefer':'return=minimal'},
     body:JSON.stringify({email:v})})}catch(_){/* duplicate or offline — still show ok */}
-  document.getElementById('subForm').style.display='none';document.getElementById('subOk').classList.add('show')}
+  _showSubOk()}
 // contact → mailto
 function sendMessage(){const n=document.getElementById('f-name').value.trim(),em=document.getElementById('f-email').value.trim(),tp=document.getElementById('f-topic').value,m=document.getElementById('f-msg').value.trim();
   if(!m){const t=document.getElementById('f-msg');t.style.borderColor='rgba(255,80,80,.6)';t.focus();setTimeout(()=>t.style.borderColor='',1800);return}
