@@ -31,7 +31,7 @@
   --body:'Outfit',-apple-system,'PingFang SC','Microsoft YaHei','Hiragino Sans GB','Songti SC',sans-serif;
   --mono:'DM Mono','SFMono-Regular',Consolas,monospace;--radius:12px}
 html{scroll-behavior:smooth}
-body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.6;min-height:100vh;overflow-x:hidden;position:relative}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.6;min-height:100vh;overflow-x:hidden;position:relative;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 .aurora{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
 .aurora i{position:absolute;border-radius:50%;filter:blur(100px);opacity:.3;mix-blend-mode:screen}
 .aurora i:nth-child(1){width:50vw;height:50vw;left:-12vw;top:-16vw;background:radial-gradient(circle,rgba(216,162,74,.5),transparent 70%)}
@@ -125,6 +125,8 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 .subwrap,.panel{position:relative;overflow:hidden;background:linear-gradient(165deg,#16130f,#100e0b)}
 .subwrap{box-shadow:0 18px 44px -22px rgba(0,0,0,.6)}
 .subcn a{border-bottom:1px solid rgba(201,168,76,.3)}
+/* 桌面宽屏:顶部小字大一丢丢 + 提对比(主体已是 1080px 宽布局,无瘦长问题)*/
+@media(min-width:1024px){.nav-r{font-size:13px;color:#9d968a}header p{font-size:15.5px;color:#9d968a}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>

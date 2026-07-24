@@ -142,3 +142,31 @@ footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;co
 .hub-cta h3{font-size:19px;color:var(--gold-lt);font-weight:600;margin-bottom:6px}
 .hub-cta p{color:var(--muted);font-size:13px;line-height:1.6;max-width:420px;margin:0 auto 4px}
 @media(max-width:520px){.hub-grid{grid-template-columns:1fr}.ce-qr img{width:96px;height:96px}}
+
+/* ═══ 全站字体平滑:深色底上的细体小字不再发虚(移动端一并受益,不影响布局)═══ */
+body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+
+/* ═══ 桌面宽屏优化(≥1024px):加宽容器、横向铺展、顶部字更大更清晰;窄屏完全不受影响 ═══ */
+@media(min-width:1024px){
+  /* 主容器 & 结果卡加宽,告别"细长条"(输入 520→720,报告 560→760,壳 640→860)*/
+  .wrap{max-width:860px}
+  .ce-stage{max-width:720px}
+  .ce-report{max-width:760px;padding:32px 40px}
+  /* 顶部字:大一丢丢 + 提一档对比(细体+小字+低对比是"发虚"主因)*/
+  .nav-r{font-size:13px;color:#9d968a}
+  header p{font-size:15.5px;color:#9d968a}
+  /* 工具页顶部那些 mono 小标签:各微增,更清楚 */
+  .ce-field label{font-size:12.5px}
+  .ce-rt{font-size:12.5px}
+  .ce-sub{font-size:11.5px}
+  /* 四维横向更从容(宽屏拉开间距,不再挤在中间)*/
+  .ce-dims{gap:0;max-width:640px;margin-left:auto;margin-right:auto}
+  .ce-dim .n{font-size:26px}
+  /* "再测下一个"导流条:宽屏两列铺开 */
+  .ce-more-row{grid-template-columns:1fr 1fr}
+  /* 首页 hub:加宽 + 三列铺满,减少两侧留白 */
+  .hub-hero,.hub-cta{max-width:900px}
+  .hub-cat{max-width:900px}
+  .hub-grid{grid-template-columns:repeat(3,1fr)}
+  .ce-grid{max-width:900px;grid-template-columns:repeat(3,1fr)}
+}
