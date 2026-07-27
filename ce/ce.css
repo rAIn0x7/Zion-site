@@ -38,7 +38,7 @@ header p{color:var(--muted);font-size:14px;margin-top:6px}
 .ce-loading{display:none;text-align:center;padding:30px}
 .ce-spin{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--gold);border-radius:50%;margin:0 auto;animation:cesp 1s linear infinite}@keyframes cesp{to{transform:rotate(360deg)}}
 /* 报告 */
-.ce-report{display:none;max-width:560px;margin:20px auto 0;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px;scroll-margin-top:84px}
+.ce-report{display:none;max-width:560px;margin:20px auto 0;background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px;scroll-margin-top:96px}
 .ce-rt{text-align:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
 .ce-tag{text-align:center;font-family:var(--body);font-weight:700;font-size:clamp(23px,6vw,31px);color:var(--gold-lt);margin:8px 0 4px;line-height:1.25;text-shadow:0 2px 10px rgba(201,168,76,.25)}
 .ce-sub{text-align:center;font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:12px}
@@ -62,7 +62,9 @@ header p{color:var(--muted);font-size:14px;margin-top:6px}
 .ce-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:.2s;cursor:pointer;display:block}
 .ce-card:hover{border-color:var(--gold);transform:translateY(-2px)}
 .ce-card .ci{font-size:26px}.ce-card h3{font-size:16px;font-weight:600;color:var(--white);margin:8px 0 4px}.ce-card p{color:var(--muted);font-size:12.5px;line-height:1.55}
-footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:40px}footer a{color:var(--muted)}
+footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:40px}
+/* 页脚链接同样补触控热区:负 margin 抵消行盒撑高,页脚视觉高度与行距保持原样 */
+footer a{color:var(--muted);display:inline-block;padding:13px 0;margin:-13px 0}
 @media(max-width:520px){.ce-grid{grid-template-columns:1fr}}
 @media(max-width:360px){.ce-two{grid-template-columns:1fr}}
 
@@ -115,7 +117,8 @@ footer{border-top:1px solid var(--border);padding:26px 20px;text-align:center;co
 .ce-more-tx i{display:block;color:var(--muted);font-size:12px;font-style:normal;line-height:1.4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ce-more-go{flex:none;color:var(--gold);font-size:18px;position:relative;z-index:1;transition:transform .2s}
 .ce-more-c:hover .ce-more-go{transform:translateX(4px)}
-.ce-more-all{display:block;text-align:center;margin-top:14px;font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--muted)}
+/* 触控热区:文字只有 20px 高,补上下 padding 到 44px(触控标准),margin 相应收窄,视觉间距不变 */
+.ce-more-all{display:block;text-align:center;margin-top:2px;padding:12px 0;font-family:var(--mono);font-size:12px;letter-spacing:.05em;color:var(--muted)}
 .ce-more-all:hover{color:var(--gold)}
 
 /* ═══ 测测矩阵首页(hub)大杀器升级 ═══ */
@@ -170,3 +173,16 @@ body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
   .hub-grid{grid-template-columns:repeat(3,1fr)}
   .ce-grid{max-width:900px;grid-template-columns:repeat(3,1fr)}
 }
+
+/* ═══ 页面可见 FAQ(与各页 head 中 FAQPage 结构化数据配套)══════════════════
+   原本在 16 个工具页里各内联一份逐字相同的副本,现收进共享层;选择器与声明与内联版完全一致,外观不变。
+   工具页里的内联副本可随后删除(重复定义不会冲突,只是暂时冗余)。 */
+.ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
+.ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
+.ce-faq details{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ce-faq details[open]{border-color:rgba(201,168,76,.4)}
+.ce-faq summary{list-style:none;cursor:pointer;padding:14px 46px 14px 16px;position:relative;font-size:14.5px;font-weight:500;color:var(--white);line-height:1.6}
+.ce-faq summary::-webkit-details-marker{display:none}
+.ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
+.ce-faq details[open] summary::after{content:"−"}
+.ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}

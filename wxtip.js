@@ -17,14 +17,24 @@
       '或复制链接后到浏览器粘贴。</div>' +
       '<button id="wxcopy" style="flex:none;background:rgba(201,168,76,.14);border:1px solid rgba(201,168,76,.5);' +
       'color:#f0d488;font:inherit;font-size:12.5px;white-space:nowrap;padding:7px 12px;border-radius:8px;cursor:pointer">复制本页链接</button>' +
-      '<button id="wxx" aria-label="关闭" style="flex:none;background:none;border:0;color:#8a8378;font-size:20px;line-height:1;padding:0 4px;cursor:pointer">×</button>';
+      '<button id="wxx" aria-label="关闭" style="flex:none;width:44px;height:44px;margin:-8px -6px -8px 0;' +
+      'display:flex;align-items:center;justify-content:center;' +
+      'background:none;border:0;color:#8a8378;font-size:22px;line-height:1;padding:0;cursor:pointer">×</button>';
     document.body.appendChild(bar);
+
+    /* 浮条是 fixed 的,不占文档流 → 不补 padding 就会一直压住页面底部的导流条/footer */
+    var prevPB = document.body.style.paddingBottom;                     // 内联值,关闭时原样还原
+    var basePB = parseFloat(getComputedStyle(document.body).paddingBottom) || 0;  // 叠加在页面原有留白之上
+    function padBody() { document.body.style.paddingBottom = (basePB + bar.offsetHeight) + 'px'; }
+    function unpadBody() { document.body.style.paddingBottom = prevPB; }
+    padBody();
+    window.addEventListener('resize', padBody);
 
     function toast(msg) {
       var t = document.createElement('div');
       t.textContent = msg;
       t.setAttribute('style',
-        'position:fixed;left:50%;bottom:76px;transform:translateX(-50%);z-index:100000;' +
+        'position:fixed;left:50%;bottom:' + (bar.offsetHeight + 16) + 'px;transform:translateX(-50%);z-index:100000;' +
         'background:rgba(10,9,8,.95);color:#f5f1ea;border:1px solid rgba(201,168,76,.5);' +
         'font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;font-size:13px;' +
         'padding:9px 16px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.5);max-width:80vw;text-align:center');
@@ -59,7 +69,12 @@
         fallbackCopy(u);
       }
     };
-    document.getElementById('wxx').onclick = function () { bar.remove(); sessionStorage.setItem('wxtip_x', '1'); };
+    document.getElementById('wxx').onclick = function () {
+      bar.remove();
+      window.removeEventListener('resize', padBody);
+      unpadBody();                                                      // 关掉就还原,不留一截空白
+      sessionStorage.setItem('wxtip_x', '1');
+    };
   }
   if (document.body) init(); else document.addEventListener('DOMContentLoaded', init);
 })();

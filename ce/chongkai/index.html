@@ -12,6 +12,7 @@
 <meta property="og:url" content="https://qizh.space/ce/chongkai/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="人生重开模拟器 · 一局重开一辈子">
 <meta name="twitter:description" content="选性别起昵称 → 抽天赋 → 逐年随机人生 → 一生总评 + 专属称号。每局都不同,一键重开。免费小游戏。">
 <meta name="twitter:image" content="https://qizh.space/og-default.png">
@@ -43,24 +44,26 @@
 /* 天赋卡 */
 .ck-tip{text-align:center;color:var(--muted);font-size:12.5px;margin:2px 0 14px;line-height:1.6}
 .ck-tal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 6px}
-.ck-tal{position:relative;text-align:left;background:linear-gradient(165deg,#16130f,#100e0b);border:1px solid var(--border);border-radius:12px;padding:12px 13px;cursor:pointer;transition:.18s;overflow:hidden}
+.ck-tal{display:block;width:100%;font:inherit;color:inherit;position:relative;text-align:left;background:linear-gradient(165deg,#16130f,#100e0b);border:1px solid var(--border);border-radius:12px;padding:12px 13px;cursor:pointer;transition:.18s;overflow:hidden}
 .ck-tal:hover{border-color:var(--gold);transform:translateY(-2px)}
+.ck-tal:focus-visible{outline:2px solid var(--gold-lt);outline-offset:2px}
 .ck-tal.pick{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold),0 12px 26px -16px rgba(201,168,76,.6)}
 .ck-tal.pick::after{content:"✓";position:absolute;top:8px;right:10px;color:var(--gold-lt);font-size:14px}
-.ck-tal .ti{font-size:15px;font-weight:600;color:var(--white)}
+.ck-tal .ti{display:block;font-size:15px;font-weight:600;color:var(--white)}
 .ck-tal .ti .ic{margin-right:5px}
 .ck-tal .rr{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;padding:1px 6px;border-radius:99px;margin-left:6px;vertical-align:1px}
 .rr.N{color:var(--muted);border:1px solid var(--border)}
 .rr.R{color:#7fb2e0;border:1px solid rgba(127,178,224,.4)}
 .rr.SR{color:#c58ae0;border:1px solid rgba(197,138,224,.45)}
 .rr.SSR{color:#1a1206;background:linear-gradient(180deg,#f6e2a6,#dcb95c)}
-.ck-tal .de{color:var(--muted);font-size:12px;line-height:1.5;margin-top:5px}
+.ck-tal .de{display:block;color:var(--muted);font-size:12px;line-height:1.5;margin-top:5px}
 .ck-count{text-align:center;font-family:var(--mono);font-size:12px;color:var(--gold-lt);margin:12px 0 2px}
 /* 逐年日志 */
 .ck-hud{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:6px 0 12px}
 .ck-hud .h{font-family:var(--mono);font-size:11px;color:var(--muted);background:var(--panel);border:1px solid var(--border);border-radius:99px;padding:5px 10px}
 .ck-hud .h b{font-family:'Bebas Neue',sans-serif;color:var(--gold-lt);font-size:14px;margin-left:3px;letter-spacing:.02em}
 .ck-log{max-width:560px;margin:0 auto;height:min(52vh,440px);overflow-y:auto;padding:6px 4px;scroll-behavior:smooth}
+.ck-log:focus-visible{outline:2px solid var(--gold-lt);outline-offset:3px;border-radius:10px}
 .ck-year{padding:9px 2px;border-bottom:1px solid rgba(201,168,76,.08);animation:ckin .38s ease}
 @keyframes ckin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .ck-year .age{font-family:'Bebas Neue',sans-serif;color:var(--gold);font-size:15px;letter-spacing:.03em;margin-right:8px;white-space:nowrap}
@@ -76,6 +79,16 @@
 .ck-hl .k{flex:none;font-size:13px;width:64px;color:var(--gold-lt)}
 .ck-hl .v{flex:1;color:#c7c2b8;font-size:13.5px;line-height:1.6}
 .ck-comment{text-align:center;color:#d8d3c8;font-size:14px;line-height:1.75;margin:12px auto;max-width:460px}
+/* 结局页「回看这一生」折叠日志 */
+.ck-recap{background:rgba(201,168,76,.04);border:1px solid var(--border);border-radius:12px;margin:12px 0 4px;overflow:hidden}
+.ck-recap[open]{border-color:rgba(201,168,76,.38)}
+.ck-recap summary{list-style:none;cursor:pointer;padding:12px 40px 12px 14px;position:relative;font-size:14px;color:var(--gold-lt)}
+.ck-recap summary::-webkit-details-marker{display:none}
+.ck-recap summary::after{content:"+";position:absolute;right:15px;top:9px;color:var(--gold);font-family:var(--mono);font-size:19px}
+.ck-recap[open] summary::after{content:"−"}
+.ck-recap .bd{max-height:min(56vh,460px);overflow-y:auto;padding:0 14px 10px}
+.ck-recap .ck-year{animation:none}
+.ck-recap .ck-year.dead{margin-bottom:6px}
 .ck-again{width:100%;font-size:16px;padding:15px;margin-top:8px}
 @media(max-width:400px){.ck-tal-grid{grid-template-columns:1fr}}
 /* FAQ(与 head 中 FAQPage 结构化数据一致;仅本页内联,不改 ce.css)*/
@@ -119,20 +132,21 @@
     <div class="ce-stage">
       <div class="ck-tip">你的初始属性已随机生成 👇 再从下面 <b style="color:var(--gold-lt)">选 3 个天赋</b>(或直接手气发)</div>
       <div class="ck-attrs" id="init-attrs"></div>
-      <div class="ck-count" id="tal-count">已选 0 / 3</div>
-      <div class="ck-tal-grid" id="tal-grid"></div>
+      <div class="ck-count" id="tal-count" role="status" aria-live="polite">已选 0 / 3</div>
+      <div class="ck-tal-grid" id="tal-grid" role="group" aria-label="天赋候选,最多选 3 个"></div>
       <div class="ce-row">
         <button class="ce-btn" id="btn-lucky">🎲 手气不错,随机发 3 个</button>
         <button class="ce-btn" id="btn-reroll">🔄 换一批天赋</button>
       </div>
       <button class="ce-btn g ce-go" id="btn-live" style="margin-top:14px">🎬 就这样,开始人生</button>
+      <div class="ce-err" id="tal-err" role="alert"></div>
     </div>
   </div>
 
   <!-- ③ 逐年模拟 -->
   <div class="ck-screen" id="sc-life">
     <div class="ck-hud" id="hud"></div>
-    <div class="ck-log" id="life-log"></div>
+    <div class="ck-log" id="life-log" tabindex="0" role="log" aria-live="polite" aria-label="逐年人生日志"></div>
     <div class="ce-row">
       <button class="ce-btn" id="btn-speed">⏩ 加速</button>
       <button class="ce-btn" id="btn-skip">⏭ 直接看结局</button>
@@ -236,7 +250,7 @@ const EVENTS=[
   {a:[18,26],w:5,tags:['才艺','好事'],eff:{颜值:2,快乐:4},t:'你开始在网上发东西,某条突然火了,体验了一把三天涨粉的快乐。'},
   {a:[22,35],w:5,tags:['社交','好事'],eff:{快乐:4},t:'你养了只猫,从此家里主人换成了它,你负责铲屎和挣猫粮钱。'},
   {a:[18,30],w:5,tags:['桃花','搞笑'],eff:{快乐:2},t:'你被安排了一场相亲,尬聊四十分钟,唯一共识是这顿饭AA。'},
-  {a:[18,29],w:5,tags:['意外','衰事'],eff:{体质:-8},t:'你出了场小车祸,人没大事,但看见红绿灯会下意识多等两秒。',risk:0.05,cause:'一场没能躲过的车祸'},
+  {a:[18,29],w:5,tags:['意外','衰事'],eff:{体质:-8},t:'你出了场小车祸,人没大事,但看见红绿灯会下意识多等两秒。',risk:0.035,cause:'一场没能躲过的车祸'},
   {a:[12,29],w:4,tags:[],eff:{快乐:1},t:'这一年没什么大事,你在忙碌和迷茫之间反复横跳。'},
   // 中年 30-55
   {a:[30,38],w:9,tags:['家庭','好事'],eff:{快乐:6,体质:-3},t:'你有了孩子,第一次体会到什么叫连续几个月睡不成整觉。',once:true},
@@ -250,8 +264,13 @@ const EVENTS=[
   {a:[40,55],w:6,tags:['搞笑'],eff:{快乐:3},t:'你迷上了钓鱼,鱼没钓到几条,但在河边把中年的心事想明白了不少。'},
   {a:[40,54],w:5,tags:['桃花','衰事'],eff:{快乐:-6},t:'你的婚姻走到了岔路口,你们平静地聊了很久,决定各自去过想要的日子。'},
   {a:[45,55],w:5,tags:['财运','好事'],eff:{家境:10,快乐:4},t:'你早年随手买的东西升值了,逢人就说「我当年就看好它」,其实是忘了卖。'},
-  {a:[30,55],w:5,tags:['健康','意外','衰事'],eff:{体质:-12},t:'你突发重病住院,躺在病床上,把这辈子最想见的人在心里排了个序。',risk:0.06,cause:'一场来势汹汹的重病'},
+  {a:[30,55],w:5,tags:['健康','意外','衰事'],eff:{体质:-12},t:'你突发重病住院,躺在病床上,把这辈子最想见的人在心里排了个序。',risk:0.035,cause:'一场来势汹汹的重病'},
   {a:[30,55],w:5,tags:['学习','好事'],eff:{智力:4,快乐:3},t:'你利用下班时间考出了一个证,虽然到现在也没用上,但那股劲头你很怀念。'},
+  // 青壮年 / 中年体质回正(平衡:抵消长期熬夜加班的损耗,让「活到老年」成为常见结局)
+  {a:[26,44],w:6,tags:['运动','好事'],eff:{体质:7,快乐:2},t:'你被同事拉去夜跑,本以为坚持不过一周,结果跑上了瘾,体检报告第一次全是绿的。'},
+  {a:[36,58],w:7,tags:['健康','运动','好事'],eff:{体质:9,快乐:2},t:'你开始每天早起晨练,一个月后爬六楼不喘了,顺手把陪了多年的烟也戒了。',once:true},
+  {a:[40,62],w:6,tags:['健康','好事'],eff:{体质:7,快乐:3},t:'复查报告上的箭头一个个消失,医生说你这半年很配合,你听着比被夸还受用。'},
+  {a:[42,70],w:6,tags:['健康','运动','好事'],eff:{体质:6,快乐:2},t:'你推掉了几场酒局,改成和朋友沿着河边走路,一年下来体重和心事都轻了。'},
   {a:[20,40],w:5,tags:['财运','衰事','搞笑'],eff:{家境:-4},t:'你冲动下单买了一堆用不上的东西,收货那刻的空虚比快递盒还大。'},
   {a:[18,40],w:4,tags:['意外','衰事','搞笑'],eff:{体质:-4,快乐:-2},t:'你熬夜追剧到天亮,顶着两个黑眼圈上班,被领导关心是不是家里出了事。'},
   {a:[40,70],w:4,tags:['好事'],eff:{快乐:5},t:'你终于放下了一件耿耿于怀多年的事,那天晚上睡得格外沉。'},
@@ -264,23 +283,22 @@ const EVENTS=[
   {a:[60,90],w:6,tags:['好事'],eff:{快乐:5},t:'你和老伴报了个旅行团,把年轻时说了无数遍「以后一定去」的地方走了一遍。'},
   {a:[62,95],w:6,tags:['家庭'],eff:{快乐:3},t:'你开始爱讲当年的故事,同一个讲了很多遍,家人每次都配合着惊讶。'},
   {a:[65,95],w:6,tags:['健康','衰事'],eff:{体质:-8},t:'你住了几天院,出院那天阳光很好,你觉得能出来晒太阳就是赚的。'},
+  {a:[56,88],w:7,tags:['健康','好事'],eff:{体质:7,快乐:4},t:'退休后作息终于规律了,睡到自然醒,三餐按点吃,身子骨反倒比上班那些年结实。'},
   {a:[56,90],w:5,tags:['财运','好事'],eff:{家境:6,快乐:3},t:'你把攒了一辈子的钱分了分,一部分给孩子,一部分留自己,难得地想通了。'},
   {a:[70,110],w:5,tags:['好事'],eff:{快乐:6},t:'你成了小区里的老寿星,居委会来送锦旗,你还嫌照片没拍好看。'},
-  {a:[50,80],w:4,tags:['意外','衰事'],eff:{体质:-10},t:'你摔了一跤,养了大半年才利索,从此走路多了几分小心。',risk:0.05,cause:'一次意外跌倒引发的并发症'},
+  {a:[50,80],w:4,tags:['意外','衰事'],eff:{体质:-10},t:'你摔了一跤,养了大半年才利索,从此走路多了几分小心。',risk:0.03,cause:'一次意外跌倒引发的并发症'},
   {a:[60,120],w:4,tags:[],eff:{快乐:1,体质:-1},t:'这一年很安静,你晒晒太阳喝喝茶,把日子过成了慢镜头。'}
 ];
 
 /* ── 死因池 ── */
 const DEATH={
-  old:['寿终正寝,走得很安详,梦里还在小时候的院子里跑。','活成了当地的一段传说,无疾而终。','睡着睡着就没再醒来,脸上带着点笑。'],
-  mid:['一场急病没能扛过去,连句正式的告别都没来得及说。','身体的零件陆续退休,你也累了,决定歇一歇。'],
-  young:['积劳成疾,倒在了自己最拼命的那几年。','一场意外,人生毫无预兆地按下了停止键。'],
-  weak:['身体彻底垮掉,油尽灯枯。','熬夜和硬撑终于把账单一次性结清了。']
+  old:['寿终正寝,走得很安详,梦里还在小时候的院子里跑。','活成了当地的一段传说,无疾而终。','睡着睡着就没再醒来,脸上带着点笑。','活到了自己都懒得数岁数的年纪,最后在午后的藤椅上睡了过去。','儿孙都赶回来了,你把家常话交代完,安安静静地走了。'],
+  mid:['一场急病没能扛过去,连句正式的告别都没来得及说。','身体的零件陆续退休,你也累了,决定歇一歇。','年纪到了,一场小感冒牵出了旧毛病,这回没能翻篇。','走得不算突然,该见的人都见了,该说的话也都说完了。'],
+  young:['积劳成疾,倒在了自己最拼命的那几年。','一场意外,人生毫无预兆地按下了停止键。','病来得又快又不讲道理,你连交代的机会都没捞着。'],
+  weak:['身体彻底垮掉,油尽灯枯。','熬夜和硬撑终于把账单一次性结清了。','身体其实警告过你很多次,只是你每次都说「再撑一下」。']
 };
 
 /* ═══════════ 工具函数 ═══════════ */
-let RNG=Math.random;
-function ri(a,b){return Math.floor(RNG()*(b-a+1))+a;}
 function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
 function pickN(rng,arr){return arr[Math.floor(rng()*arr.length)];}
 
@@ -315,7 +333,7 @@ function show(id){
 /* ── 属性条 HTML ── */
 function attrBars(a){
   return '<div class="ck-attrs">'+ATTR_KEYS.map(k=>{
-    const w=clamp(a[k],0,100);
+    const w=clamp(a[k],0,ATTR_MAX);
     return '<div class="ck-attr"><div class="lb"><span>'+ATTR_ICON[k]+' '+k+'</span><b>'+Math.round(w)+'</b></div><div class="tk"><div class="fl" style="width:'+w+'%"></div></div></div>';
   }).join('')+'</div>';
 }
@@ -343,34 +361,60 @@ function rollCandidates(){
   renderTalents();
 }
 
-function renderTalents(){
+/* 天赋卡用 <button>:Tab 可达、回车/空格可选、aria-pressed 播报选中态(和同页性别选择一致)*/
+function renderTalents(refocusId){
   const grid=$('tal-grid');
   grid.innerHTML=G.candidates.map(t=>{
-    const on=G.picked.includes(t.id)?' pick':'';
-    return '<div class="ck-tal'+on+'" data-id="'+t.id+'"><div class="ti"><span class="ic">'+t.icon+'</span>'+t.name+'<span class="rr '+t.rar+'">'+t.rar+'</span></div><div class="de">'+t.desc+'</div></div>';
+    const on=G.picked.includes(t.id);
+    return '<button type="button" class="ck-tal'+(on?' pick':'')+'" data-id="'+t.id+'" aria-pressed="'+(on?'true':'false')+'">'+
+      '<span class="ti"><span class="ic" aria-hidden="true">'+t.icon+'</span>'+esc(t.name)+'<span class="rr '+t.rar+'">'+t.rar+'</span></span>'+
+      '<span class="de">'+esc(t.desc)+'</span></button>';
   }).join('');
   grid.querySelectorAll('.ck-tal').forEach(el=>el.onclick=()=>toggle(el.dataset.id));
+  if(refocusId){const el=grid.querySelector('[data-id="'+refocusId+'"]');if(el)el.focus();}
   updateCount();
 }
 function toggle(id){
   const i=G.picked.indexOf(id);
   if(i>=0)G.picked.splice(i,1);
   else{if(G.picked.length>=3){/* 满 3 个,替换最早的 */G.picked.shift();}G.picked.push(id);}
-  renderTalents();
+  $('tal-err').textContent='';
+  renderTalents(id);
 }
 function updateCount(){$('tal-count').textContent='已选 '+G.picked.length+' / 3';}
 
-$('btn-lucky').onclick=()=>{G.picked=G.candidates.slice(0,3).map(t=>t.id);renderTalents();};
-$('btn-reroll').onclick=()=>rollCandidates();
+/* 手气不错:真随机抽 3 个,并保证至少 1 个 R 以上的正面天赋(N 级里全是负面/半负面)*/
+$('btn-lucky').onclick=()=>{
+  const rng=G.rng||Math.random;
+  const pool=G.candidates.slice(),picks=[];
+  const good=pool.map((t,i)=>t.rar!=='N'?i:-1).filter(i=>i>=0);
+  if(good.length){const i=good[Math.floor(rng()*good.length)];picks.push(pool[i]);pool.splice(i,1);}
+  while(picks.length<3&&pool.length){const i=Math.floor(rng()*pool.length);picks.push(pool[i]);pool.splice(i,1);}
+  G.picked=picks.map(t=>t.id);
+  $('tal-err').textContent='';
+  renderTalents();
+};
+$('btn-reroll').onclick=()=>{$('tal-err').textContent='';rollCandidates();};
 
 /* ═══════════ ② 开始人生 → 模拟 ═══════════ */
 $('btn-live').onclick=()=>{
-  if(G.picked.length<1){$('tal-count').textContent='至少选 1 个天赋再上路吧 🎲';return;}
+  if(G.picked.length<1){   // 提示就放在按钮正下方,别再写到一屏之外的计数器里
+    $('tal-err').textContent='至少选 1 个天赋再上路吧 🎲';
+    $('tal-grid').scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+  $('tal-err').textContent='';
   G.sim=simulate();
   runPlayback();
 };
 
 function talentsPicked(){return G.picked.map(id=>TALENTS.find(t=>t.id===id)).filter(Boolean);}
+
+/* ── 平衡常数 ──
+   ATTR_MAX:属性统一上限,和展示层(属性条/HUD/结局五维)完全一致,不再出现「家境 180 但页面显示 100」
+   BODY_DROP_MUL:普通事件的体质减项折半,只有带 risk 的事件才真伤命(否则 40 年累积必然归零)
+   BODY_FLOOR / FRAIL_*:体质有地板,归零不再直接判死,改成「长期虚弱 → 每年小概率离世」*/
+const ATTR_MAX=100, BODY_DROP_MUL=0.45, BODY_FLOOR=5, FRAIL_TH=8, FRAIL_AGE=25, FRAIL_P=0.08;
 
 function simulate(){
   const rng=G.rng;
@@ -382,7 +426,7 @@ function simulate(){
     if(t.init)for(const k in t.init)s[k]=(s[k]||0)+t.init[k];
     if(t.flags)t.flags.forEach(f=>flags.add(f));
   }
-  ATTR_KEYS.forEach(k=>s[k]=clamp(s[k],1,120));
+  ATTR_KEYS.forEach(k=>s[k]=clamp(s[k],1,ATTR_MAX));
   // 事件权重加成
   const favorMul=tag=>{let m=1;for(const t of tals)if(t.favor&&t.favor[tag])m*=t.favor[tag];return m;};
   // 寿命基线
@@ -397,7 +441,7 @@ function simulate(){
 
   for(let age=0;age<=deathAge && age<=120;age++){
     // 大器晚成:35 岁后稳定回升
-    if(flags.has('大器晚成')&&age>=35){s.家境+=1.2;s.智力+=1;s.快乐+=0.6;}
+    if(flags.has('大器晚成')&&age>=35){s.家境=clamp(s.家境+1.2,0,ATTR_MAX);s.智力=clamp(s.智力+1,0,ATTR_MAX);s.快乐=clamp(s.快乐+0.6,0,ATTR_MAX);}
     // 滑动窗口:丢弃超出 N 年的记录,得到「近 N 年已用」事件集合
     recent=recent.filter(x=>x.age>age-RECENT_WINDOW);
     const recentSet=new Set(recent.map(x=>x.ev));
@@ -424,20 +468,25 @@ function simulate(){
       if(ev.eff)for(const k in ev.eff){
         let v=ev.eff[k];
         if(k==='快乐'&&v<0&&flags.has('情绪稳定'))v*=0.5;
-        s[k]=clamp((s[k]||0)+v,0,999);d+=v;
+        if(k==='体质'&&v<0&&!ev.risk)v*=BODY_DROP_MUL;   // 普通事件不再慢性掏空体质
+        s[k]=clamp((s[k]||0)+v,k==='体质'?BODY_FLOOR:0,ATTR_MAX);d+=v;
       }
       delta+=d;
       lines.push({t:ev.t,d});
       // 致死事件
       if(ev.risk){
-        let r=ev.risk*(flags.has('命硬')?0.3:1)*(s.体质<30?1.7:1);
+        let r=ev.risk*(flags.has('命硬')?0.3:1)*(s.体质<30?1.7:s.体质>=60?0.65:1);
         if(rng()<r){fatal=true;cause=ev.cause;realDeath=age;}
       }
     }
     for(const ev of chosen)recent.push({ev,age});   // 登记本年事件,供后续年份滑动窗口去重
     peakHappy=Math.max(peakHappy,s.快乐);sumHappy+=s.快乐;years++;
     timeline.push({age,lines,delta,snap:{...s}});
-    if(s.体质<=0){cause=cause||pickN(rng,DEATH.weak);realDeath=age;break;}
+    // 体质见底不再直接判死:虚弱状态下每年掷一次骰子,给玩家把身体养回来的机会
+    if(!fatal&&s.体质<=FRAIL_TH&&age>=FRAIL_AGE){
+      const p=FRAIL_P*(flags.has('命硬')?0.3:1)*(s.体质<=BODY_FLOOR+2?1.5:1);
+      if(rng()<p){cause=pickN(rng,DEATH.weak);realDeath=age;fatal=true;}
+    }
     if(fatal)break;
   }
 
@@ -450,9 +499,12 @@ function simulate(){
   // 死亡条目
   timeline.push({age:realDeath,death:true,cause:cause});
 
-  // 评分
+  // 评分:五维用的是和页面展示同一套 0~100 的值(不再出现「家境 180 把分拉高、页面却只显示 100」)
+  // 寿命项以 70 岁为及格线换算,否则人均活到 70+ 后这 20 分等于白送,称号会集体通胀成「封神」
   const mean=ATTR_KEYS.reduce((p,k)=>p+s[k],0)/5;
-  const score=clamp(Math.round(mean*0.6+Math.min(realDeath,100)*0.2+Math.min(peakHappy,100)*0.2),1,100);
+  const lifeScore=clamp(50+(realDeath-70)*1.6,0,100);
+  const happyScore=clamp((Math.min(peakHappy,100)-55)*1.8,0,100);   // 快乐见顶太容易,直接给满 20 分等于白送
+  const score=clamp(Math.round(mean*0.6+lifeScore*0.2+happyScore*0.2),1,100);
 
   // 高光 / 遗憾
   const real=timeline.filter(e=>!e.death&&e.lines&&e.lines.length);
@@ -460,7 +512,7 @@ function simulate(){
   for(const e of real){if(!best||e.delta>best.delta)best=e;if(!worst||e.delta<worst.delta)worst=e;}
   const lineOf=e=>e?(e.age+' 岁,'+e.lines.map(l=>l.t).join(' ')):'——';
 
-  const {tag,comment}=verdict(s,score,tals);
+  const {tag,comment}=verdict(s,score,tals,rng);
 
   return {
     attrs:s,score,deathAge:realDeath,cause,tag,comment,peakHappy,
@@ -482,7 +534,7 @@ function weightedNoRep(rng,cand,n){
 }
 
 /* ── 称号 + 一生总评 ── */
-function verdict(s,score,tals){
+function verdict(s,score,tals,rng){
   const top=ATTR_KEYS.reduce((a,b)=>s[a]>=s[b]?a:b);
   const flavor={
     颜值:['颜值即正义','靠脸吃饭的一生','人间富贵花'],
@@ -500,7 +552,7 @@ function verdict(s,score,tals){
     '一言难尽':'这一路磕磕绊绊,好在你熬了过来,没认输。',
     '重开保底':'开局一副烂牌,你打得很吃力,但你从没弃过牌。'
   }[band];
-  const tagWord=flavor[Math.floor(G.rng()*flavor.length)];
+  const tagWord=pickN(rng,flavor);
   return {tag:'【'+tagWord+'】',comment:comment};
 }
 
@@ -533,24 +585,23 @@ function step(){
   if(ti>=TL.length){clearTimeout(timer);setTimeout(showEnd,650);return;}
   scheduleNext();
 }
+/* 一年的日志内容(逐年播放与结局页「回看这一生」共用同一套渲染)*/
+function yearHTML(e){
+  if(e.death)return '<div class="tx">🕯️ '+e.age+' 岁,你的人生落幕了。<br>'+esc(e.cause)+'</div>';
+  return '<span class="age">'+e.age+'岁</span>'+e.lines.map(l=>{
+    let df='';if(l.d>0)df=' <span class="df up">△'+Math.round(l.d)+'</span>';else if(l.d<0)df=' <span class="df dn">▽'+Math.abs(Math.round(l.d))+'</span>';
+    return '<span class="tx">'+esc(l.t)+'</span>'+df;
+  }).join('<br>');
+}
 function reveal(e){
   const log=$('life-log');const div=document.createElement('div');
-  if(e.death){
-    div.className='ck-year dead';
-    div.innerHTML='<div class="tx">🕯️ '+e.age+' 岁,你的人生落幕了。<br>'+e.cause+'</div>';
-  }else{
-    div.className='ck-year';
-    const body=e.lines.map(l=>{
-      let df='';if(l.d>0)df=' <span class="df up">△'+Math.round(l.d)+'</span>';else if(l.d<0)df=' <span class="df dn">▽'+Math.abs(Math.round(l.d))+'</span>';
-      return '<span class="tx">'+l.t+'</span>'+df;
-    }).join('<br>');
-    div.innerHTML='<span class="age">'+e.age+'岁</span>'+body;
-    if(e.snap)updateHud(e.snap);
-  }
+  div.className=e.death?'ck-year dead':'ck-year';
+  div.innerHTML=yearHTML(e);
+  if(!e.death&&e.snap)updateHud(e.snap);
   log.appendChild(div);log.scrollTop=log.scrollHeight;
 }
 function updateHud(a){
-  $('hud').innerHTML=ATTR_KEYS.map(k=>'<span class="h">'+ATTR_ICON[k]+k+'<b>'+Math.round(clamp(a[k],0,100))+'</b></span>').join('');
+  $('hud').innerHTML=ATTR_KEYS.map(k=>'<span class="h">'+ATTR_ICON[k]+k+'<b>'+Math.round(clamp(a[k],0,ATTR_MAX))+'</b></span>').join('');
 }
 $('btn-speed').onclick=()=>{
   manualFast=!manualFast;
@@ -565,6 +616,13 @@ $('btn-skip').onclick=()=>{
 };
 
 /* ═══════════ ④ 结局 + 引流闭环 ═══════════ */
+/* 结局页把整条人生日志折叠收进来:sc-life 被隐藏后,这几十年的事件文案不至于消失 */
+function recapHTML(){
+  const tl=(G.sim&&G.sim.timeline)||[];
+  if(!tl.length)return '';
+  const rows=tl.map(e=>'<div class="ck-year'+(e.death?' dead':'')+'">'+yearHTML(e)+'</div>').join('');
+  return '<details class="ck-recap"><summary>📜 回看这一生('+tl.length+' 个年头)</summary><div class="bd">'+rows+'</div></details>';
+}
 function showEnd(){
   const r=G.sim;
   const nick=G.nick||'无名氏';
@@ -574,8 +632,9 @@ function showEnd(){
     title:nick+'的一生',
     sub:G.gender+' · 享年 '+r.deathAge+' 岁',
     big:r.score,bigLabel:'综合评分',
-    dims:ATTR_KEYS.map(k=>[k,Math.round(clamp(r.attrs[k],0,100))]),
-    hook:r.tag+' '+r.comment
+    dims:ATTR_KEYS.map(k=>[k,Math.round(clamp(r.attrs[k],0,ATTR_MAX))]),
+    hook:r.tag+' '+r.comment,
+    themeId:'chongkai'   // 走 engine.js 里的像素橙主题(不加这行 drawCard 会回落成通用金黑卡)
   };
   END_SHARE=shareText;
 
@@ -583,9 +642,10 @@ function showEnd(){
     '<div class="ce-rt">🎮 一生总评</div>'+
     '<div class="ck-end-tag">'+r.tag+'</div>'+
     '<div class="ce-score"><div class="big">综合评分 <b>'+r.score+'</b></div>'+
-      '<div class="ce-dims">'+ATTR_KEYS.map(k=>'<div class="ce-dim"><span class="n">'+Math.round(clamp(r.attrs[k],0,100))+'</span>'+k+'</div>').join('')+'</div>'+
+      '<div class="ce-dims">'+ATTR_KEYS.map(k=>'<div class="ce-dim"><span class="n">'+Math.round(clamp(r.attrs[k],0,ATTR_MAX))+'</span>'+k+'</div>').join('')+'</div>'+
     '</div>'+
-    '<div class="ck-end-cause">'+G.nick+(G.nick?' · ':'')+G.gender+' · 享年 '+r.deathAge+' 岁<br>🕯️ '+r.cause+'</div>'+
+    '<div class="ck-end-cause">'+esc(nick)+' · '+esc(G.gender)+' · 享年 '+r.deathAge+' 岁<br>🕯️ '+esc(r.cause)+'</div>'+
+    recapHTML()+
     '<div class="ce-sec"><h4>这辈子值不值</h4><p>'+r.comment+'</p></div>'+
     '<div class="ck-hl">'+
       '<div class="row"><div class="k">✨ 高光</div><div class="v">'+esc(r.highlight)+'</div></div>'+
@@ -596,7 +656,7 @@ function showEnd(){
     // ── 统一双二维码引流闭环(照抄站点规范)──
     '<div class="ce-cta"><div class="ct">🔓 解锁更多离谱人生 · 每天一条「降噪信号」帮你少焦虑</div>'+
       '<div class="ce-qrs">'+
-        '<div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪" loading="lazy"><b>扫码关注公众号</b><span>「Zion降噪」· 每天降噪信号 + 新测试抢先玩</span></div>'+
+        '<div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪"><b>扫码关注公众号</b><span>「Zion降噪」· 每天降噪信号 + 新测试抢先玩</span></div>'+
         '<div class="ce-qr"><img src="/planet-qr.png" alt="知识星球" loading="lazy"><b>扫码进知识星球</b><span>和同频的人一起搞事、拿工具</span></div>'+
       '</div>'+
       '<a class="ce-btn g" href="/join/" style="display:inline-block;margin:6px 0 4px;text-decoration:none">加入「降噪·静音舱」→</a>'+
@@ -617,7 +677,7 @@ function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'
 /* 完整重开:回到捏人页(性别/起名),保留昵称方便再来 */
 function restart(){
   $('nick').value=G.nick;
-  $('err').textContent='';
+  $('err').textContent='';$('tal-err').textContent='';
   show('sc-start');
 }
 /* 快速重开:不退回捏人页,沿用当前性别/昵称/天赋,只换新随机种子直接重跑一局 */

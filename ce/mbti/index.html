@@ -12,6 +12,7 @@
 <meta property="og:url" content="https://qizh.space/ce/mbti/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="MBTI 测试免费版 · 8 道题测你的 16 型人格">
 <meta name="twitter:description" content="8 道趣味二选一,测出你的 MBTI 人格 + 专属昵称 + 最配类型。趣味版·仅供娱乐。">
 <meta name="twitter:image" content="https://qizh.space/og-default.png">
@@ -29,6 +30,15 @@
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/bebas-neue-400.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="/assets/fonts/outfit-300.woff2" crossorigin>
 <link rel="stylesheet" href="/ce/ce.css">
+<style>
+/* 答题进度 + 未答满时按钮置灰(仅本页内联,不改 ce.css)*/
+.mb-prog{font-family:var(--mono);font-size:12.5px;color:var(--muted);letter-spacing:.04em;text-align:center;margin:2px 0 10px}
+.mb-prog b{color:var(--gold-lt);font-size:14px}
+.mb-prog.done{color:var(--gold-lt)}
+.ce-btn.is-off{opacity:.42;filter:saturate(.35)}
+.ce-field.mb-miss label{color:var(--gold-lt)}
+.ce-field.mb-miss .ce-opt{border-color:rgba(201,168,76,.45)}
+</style>
 </head>
 <body>
 <nav>
@@ -36,37 +46,38 @@
   <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
 </nav>
 <header>
-  <h1>MBTI 趣味版</h1>
+  <h1>MBTI 锐评</h1>
   <p>8 道二选一,测出你的 16 型人格 · 趣味版·仅供娱乐</p>
 </header>
 
 <div class="wrap">
   <div class="ce-stage" id="ce-stage">
     <div class="ce-field"><label>1 · 忙完一整天,你靠什么回血?</label><div class="ce-opts" id="q1">
-      <button class="ce-opt on" data-v="E">🎉 出门找人 / 热闹一下</button><button class="ce-opt" data-v="I">🏠 一个人窝着 / 静静充电</button>
+      <button class="ce-opt" data-v="E">🎉 出门找人 / 热闹一下</button><button class="ce-opt" data-v="I">🏠 一个人窝着 / 静静充电</button>
     </div></div>
     <div class="ce-field"><label>2 · 聚会里的你更像?</label><div class="ce-opts" id="q2">
-      <button class="ce-opt on" data-v="E">🗣️ 主动开麦、到处唠</button><button class="ce-opt" data-v="I">👀 安静观察、跟熟人聊</button>
+      <button class="ce-opt" data-v="E">🗣️ 主动开麦、到处唠</button><button class="ce-opt" data-v="I">👀 安静观察、跟熟人聊</button>
     </div></div>
     <div class="ce-field"><label>3 · 你更相信哪一种?</label><div class="ce-opts" id="q3">
-      <button class="ce-opt on" data-v="N">🔮 直觉和脑补的可能性</button><button class="ce-opt" data-v="S">🔍 眼见为实的事实细节</button>
+      <button class="ce-opt" data-v="N">🔮 直觉和脑补的可能性</button><button class="ce-opt" data-v="S">🔍 眼见为实的事实细节</button>
     </div></div>
     <div class="ce-field"><label>4 · 你更爱哪种内容?</label><div class="ce-opts" id="q4">
-      <button class="ce-opt on" data-v="N">🌌 天马行空的脑洞设定</button><button class="ce-opt" data-v="S">🍜 真实接地气的日常</button>
+      <button class="ce-opt" data-v="N">🌌 天马行空的脑洞设定</button><button class="ce-opt" data-v="S">🍜 真实接地气的日常</button>
     </div></div>
     <div class="ce-field"><label>5 · 朋友向你诉苦,你第一反应?</label><div class="ce-opts" id="q5">
-      <button class="ce-opt on" data-v="T">🧠 帮ta分析、给方案</button><button class="ce-opt" data-v="F">🫂 先共情、抱一抱</button>
+      <button class="ce-opt" data-v="T">🧠 帮ta分析、给方案</button><button class="ce-opt" data-v="F">🫂 先共情、抱一抱</button>
     </div></div>
     <div class="ce-field"><label>6 · 做决定你更靠?</label><div class="ce-opts" id="q6">
-      <button class="ce-opt on" data-v="T">⚖️ 逻辑和利弊权衡</button><button class="ce-opt" data-v="F">💗 感受和对人的影响</button>
+      <button class="ce-opt" data-v="T">⚖️ 逻辑和利弊权衡</button><button class="ce-opt" data-v="F">💗 感受和对人的影响</button>
     </div></div>
     <div class="ce-field"><label>7 · 出去玩,你是?</label><div class="ce-opts" id="q7">
-      <button class="ce-opt on" data-v="J">🗂️ 攻略排满、行程锁死</button><button class="ce-opt" data-v="P">🎲 说走就走、随性发挥</button>
+      <button class="ce-opt" data-v="J">🗂️ 攻略排满、行程锁死</button><button class="ce-opt" data-v="P">🎲 说走就走、随性发挥</button>
     </div></div>
     <div class="ce-field"><label>8 · 面对 deadline,你是?</label><div class="ce-opts" id="q8">
-      <button class="ce-opt on" data-v="J">✅ 提前搞定、井井有条</button><button class="ce-opt" data-v="P">🔥 灵感在最后一刻爆发</button>
+      <button class="ce-opt" data-v="J">✅ 提前搞定、井井有条</button><button class="ce-opt" data-v="P">🔥 灵感在最后一刻爆发</button>
     </div></div>
-    <button class="ce-btn g ce-go" id="go">🧭 测我的 MBTI 人格</button>
+    <div class="mb-prog" id="prog">已答 <b>0</b>/8 · 8 题全答完才出结果</div>
+    <button class="ce-btn g ce-go is-off" id="go">🧭 测我的 MBTI 人格</button>
     <div class="ce-err" id="err"></div>
   </div>
   <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在拼出你的人格类型…</p></div>
@@ -91,19 +102,33 @@
   <details><summary>结果专业吗?</summary><div class="a">这是趣味简化版,仅供娱乐,不能替代专业心理测评。</div></details>
 </section>
 
-<footer>MBTI 趣味版 · 趣味娱乐,切不可当真 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+<footer>MBTI 锐评 · 趣味娱乐,切不可当真 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
 
 <script src="/ce/engine.js"></script>
 <script>
 const $=id=>document.getElementById(id);
-/* 每题默认选中第一项 → 8 题都有初值,答完即可出结果 */
-const sel={q1:'E',q2:'E',q3:'N',q4:'N',q5:'T',q6:'T',q7:'J',q8:'J'};
-['q1','q2','q3','q4','q5','q6','q7','q8'].forEach(q=>{
+/* 一律不预选:零操作点按钮会拿到一个"默认人格",测试类产品这么干等于自毁可信度。
+   8 题必须自己答完,按钮在此之前置灰(仍可点,点了告诉你还差几题)。 */
+const QS=['q1','q2','q3','q4','q5','q6','q7','q8'];
+const sel={};
+const unanswered=()=>QS.filter(q=>!sel[q]);
+function updateProg(){
+  const n=QS.length-unanswered().length, done=n===QS.length;
+  $('prog').innerHTML='已答 <b>'+n+'</b>/8'+(done?' · 可以出结果了 👇':' · 8 题全答完才出结果');
+  $('prog').classList.toggle('done',done);
+  $('go').classList.toggle('is-off',!done);
+  $('go').setAttribute('aria-disabled',done?'false':'true');
+}
+QS.forEach(q=>{
   $(q).querySelectorAll('button').forEach(b=>b.onclick=()=>{
     $(q).querySelectorAll('button').forEach(x=>x.classList.remove('on'));
     b.classList.add('on');sel[q]=b.dataset.v;
+    const f=$(q).closest('.ce-field'); if(f)f.classList.remove('mb-miss');
+    $('err').textContent='';
+    updateProg();
   });
 });
+updateProg();
 
 /* ── 16 型内容库(每型多条,按"答案串"做种子稳定挑选)──
    字段:nick 昵称 / roast 毒舌锐评[] / hook 人设[] / adv 优势[] / weak 短板[] / dir 方向[] / match 最配[] / line 口头禅[] */
@@ -246,6 +271,13 @@ const AXES=[
 ];
 
 $('go').onclick=()=>{
+  const miss=unanswered();
+  if(miss.length){                                   // 没答满不出结果,并把没答的题标出来
+    $('err').textContent='还有 '+miss.length+' 题没答(第 '+miss.map(q=>q.slice(1)).join('、')+' 题),答完才准 👇';
+    QS.forEach(q=>{const f=$(q).closest('.ce-field');if(f)f.classList.toggle('mb-miss',!sel[q]);});
+    const f0=$(miss[0]).closest('.ce-field'); if(f0)f0.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
   $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
   setTimeout(()=>{
     let type='',dims=[];
@@ -278,9 +310,10 @@ $('go').onclick=()=>{
       {h:'🗣️ 你的本命口头禅', p:'「'+line+'」'}
     ];
     const result={
-      heading:'你的 MBTI 人格', tag, sub:type+' · '+T.nick,
+      // 副标题不再复读 tag,改放四个维度的倾向分(同一型也能看出偏得多狠)
+      heading:'你的 MBTI 人格', tag, sub:dims.map(d=>d[0].charAt(0)+d[1]).join(' · '),
       dims, parts,
-      card:{kicker:'🧭 MBTI 趣味版', title:type+' · '+T.nick, sub:'趣味版·仅供娱乐', dims, hook:roast},
+      card:{kicker:'🧭 MBTI 锐评', title:type+' · '+T.nick, sub:'趣味版·仅供娱乐', dims, hook:roast},
       shareText:'我是 '+T.nick+'('+type+')!'+roast+' 来测你的 👉 qizh.space/ce/mbti'
     };
     $('loading').style.display='none';
@@ -288,7 +321,7 @@ $('go').onclick=()=>{
   },600);
 };
 
-const cfg={ id:'mbti', 名字:'MBTI 趣味版', 图标:'🧭' };
+const cfg={ id:'mbti', 名字:'MBTI 锐评', 图标:'🧭' };
 </script>
 <script src="/wxtip.js" defer></script>
 </body>

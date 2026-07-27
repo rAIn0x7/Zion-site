@@ -12,6 +12,7 @@
 <meta property="og:url" content="https://qizh.space/ce/heihua/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="互联网黑话翻译器 · 测测你这句话黑话浓度多少">
 <meta name="twitter:description" content="粘一句黑话,自动翻译成人话 + 测你的黑话浓度 XX% + 四维 + 毒舌锐评。极易截图转发。趣味测试。">
 <meta name="twitter:image" content="https://qizh.space/og-default.png">
@@ -140,20 +141,33 @@ const DICT=[
   ['风口','正好的好时机','风口这词,吹走了多少人的钱包。'],
   ['心力','精力、心气'],
   ['认知','想法、看法'],
-  ['势','局面、劲头'],
   ['给结论','直接说结果','「你先给我个结论」= 别绕了。']
 ];
-/* 去重 + 按长度降序,建查询表 */
-const _seen={};const TERMS=DICT.filter(d=>_seen[d[0]]?false:(_seen[d[0]]=1)).slice().sort((a,b)=>b[0].length-a[0].length);
+/* 去重 + 丢掉单字词条 + 按长度降序,建查询表。
+   单字词条(曾有过一条「势」)会把「优势/趋势/姿势/形势/局势」全部误标,浓度虚高,故一律过滤。
+   以后往 DICT 里加词,只要长度 ≤1 就不会生效,踩不到这个坑。*/
+const _seen={};
+const TERMS=DICT.filter(d=>[...d[0]].length>=2).filter(d=>_seen[d[0]]?false:(_seen[d[0]]=1)).slice().sort((a,b)=>b[0].length-a[0].length);
 const MAP={};TERMS.forEach(d=>MAP[d[0]]=d);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+/* 易误伤的日常词:落在这些片段里的字不参与黑话匹配(「飞机落地」不是黑话) */
+const SAFE=['飞机落地','航班落地','落地窗','落地灯','落地生根','落地页','出风口','风口浪尖','认知障碍','认知功能','认知科学','心智障碍','重力势能','水位线'];
 
 /* 扫描输入:返回 翻译HTML、命中总次数 occ、命中的黑话字数、去重命中词(按出现顺序) */
 function scan(text){
   const chars=[...text];let html='',occ=0,hitChars=0;const order=[],ohit={};
+  // 先把 SAFE 片段占的位置标出来,这些位置不许起匹配
+  const safe=new Array(chars.length).fill(false);
+  for(const w of SAFE){const wc=[...w];
+    for(let i=0;i+wc.length<=chars.length;i++){
+      let ok=true;for(let k=0;k<wc.length;k++)if(chars[i+k]!==wc[k]){ok=false;break;}
+      if(ok)for(let k=0;k<wc.length;k++)safe[i+k]=true;
+    }
+  }
   for(let i=0;i<chars.length;){
     let hit=null;
-    for(const d of TERMS){const t=d[0];if(chars.slice(i,i+t.length).join('')===t){hit=d;break;}}
+    if(!safe[i])for(const d of TERMS){const t=d[0];if(chars.slice(i,i+t.length).join('')===t){hit=d;break;}}
     if(hit){
       html+='<span class="hh-hit">'+esc(hit[0])+'<i>('+esc(hit[1])+')</i></span>';
       occ++;hitChars+=hit[0].length;
@@ -196,9 +210,9 @@ const TWIST=[
   '其实,你未必爱这么说话,是会议室和汇报文化一点点把你训练成这样。能意识到这点,你已经比大多数张口闭环的人清醒。',
   '其实,真正厉害的人能把复杂的事说到外婆都听懂。黑话是门槛,人话才是本事。下次少一个抓手,多一句大白话试试。',
   '其实测出多少都无所谓。从今天起,能说「帮个忙」就别说「赋能一下」,能说「想清楚」就别说「对齐颗粒度」。省下的力气,留给真正想表达的人。'];
-/* 浓度称号 */
-const TITLE=[['人话十级·清流罕见',0],['轻度沾染·偶尔上头',20],['中度黑话·会议常客',45],['资深黑话·张口就来',68],['黑话结晶体·翻译失败',88]];
-function titleOf(n){let t=TITLE[0][0];for(const x of TITLE)if(n>=x[1])t=x[0];return t;}
+/* 浓度称号:直接按档位 band 取,和 REVIEW 共用同一套分档,
+   称号与锐评永远不会错开(以前称号用另一套阈值 0/20/45/68/88,和 band 差一级)。*/
+const TITLE={clean:'人话十级·清流罕见',low:'轻度沾染·偶尔上头',mid:'中度黑话·会议常客',high:'资深黑话·张口就来',max:'黑话结晶体·翻译失败'};
 
 const cfg={ id:'heihua', 名字:'互联网黑话翻译器', 图标:'💬' };
 
@@ -215,17 +229,16 @@ $('go').onclick=()=>{
     // countScore:命中越多越高,且饱和(0命中→0,1→.30,2→.51,3→.66,4→.76,5→.83,6→.88…)
     // density:黑话字数占全文比例(说得越密越浓)。二者各半,再叠 -4~+4 的种子微扰,数字不那么整。
     let pct;const band0=s.occ===0;
+    const density=Math.min(1,s.hitChars/Math.max(s.len,1));   // 黑话字数占比,浓度和「听不懂」共用
     if(band0){pct=0;}
     else{
       const countScore=1-Math.pow(0.70,s.occ);
-      const density=Math.min(1,s.hitChars/Math.max(s.len,1));
       const raw=100*(0.5*countScore+0.5*density);
       const jitter=Math.round(rng()*9-4);
       pct=Math.max(6,Math.min(99,Math.round(raw)+jitter));
     }
 
     // 四维(围绕总浓度波动,截图感强)
-    const density=Math.min(1,s.hitChars/Math.max(s.len,1));
     const dv=(b,sp)=>Math.max(12,Math.min(99,Math.round(b+(rng()*sp-sp/2))));
     const dimsArr = band0
       ? [['装X度',dv(9,14)],['废话度',dv(8,12)],['甩锅力',dv(12,16)],['听不懂',dv(7,10)]]
@@ -235,7 +248,7 @@ $('go').onclick=()=>{
     const band = band0?'clean' : pct<20?'low' : pct<45?'mid' : pct<68?'high' : 'max';
     const review = band0 ? CE.pick(rng,CLEAN) : CE.pick(rng,REVIEW[band]);
     const twist = CE.pick(rng,TWIST);
-    const title = titleOf(pct);
+    const title = TITLE[band];
 
     // 逐词拆解(锁区):去重命中词 → 人话,最多 7 条;末尾追一条吐槽
     let breakdown;

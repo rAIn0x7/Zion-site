@@ -145,23 +145,131 @@ window.CE = (function () {
       ornament(x,W,H,t){ x.save();x.globalAlpha=.42;x.fillStyle=t.accent;x.font='700 20px '+F_MONO;x.textAlign='center';x.textBaseline='middle';x.fillText('¥',52,60);x.fillText('$',W-52,62);x.restore(); _oDot(x,W-52,H-104,2.5,t.accent,.4); _oDot(x,54,H-122,2.5,t.accent,.4); _oDot(x,90,48,1.6,t.hook,.5); _oDot(x,W-92,H-142,1.6,t.hook,.4); } },
     // 人生进度条:时间冷蓝紫,角落沙漏 + 星点
     lifebar:{ bg:'#0b0a16', glow:'120,110,220', border:'rgba(150,140,230,.5)', accent:'#9a8fe8', hl:'#e2ddff', muted:'#8c86a8', rev:'#d69a78', cardBg:'#100e1c', divider:'rgba(150,140,230,.2)', hook:'#c8c0f0', accentDim:'#5f5a80',
-      ornament(x,W,H,t){ const hg=(cx,cy,s)=>{x.save();x.globalAlpha=.5;x.strokeStyle=t.accent;x.lineWidth=1.4;x.beginPath();x.moveTo(cx-s,cy-s);x.lineTo(cx+s,cy-s);x.lineTo(cx-s,cy+s);x.lineTo(cx+s,cy+s);x.closePath();x.stroke();x.restore();}; hg(52,62,10); hg(W-52,62,10); _oDot(x,52,H-106,2,t.accent,.4); _oDot(x,W-52,H-106,2,t.accent,.4); _oSpark(x,90,50,4,t.hook,.5); _oSpark(x,W-90,H-132,4,t.hook,.45); } },
+      ornament(x,W,H,t){ /* 沙漏:腔体(交叉双三角)+ 上下横盖 + 中间沙点 —— 有盖才读得出是沙漏,没盖只会读成 ✕ */
+        const hg=(cx,cy,s)=>{x.save();x.globalAlpha=.5;x.strokeStyle=t.accent;x.lineWidth=1.4;x.lineCap='round';
+          x.beginPath();x.moveTo(cx-s,cy-s);x.lineTo(cx+s,cy-s);x.lineTo(cx-s,cy+s);x.lineTo(cx+s,cy+s);x.closePath();x.stroke();
+          const cap=s*1.3;x.lineWidth=1.9;x.beginPath();x.moveTo(cx-cap,cy-s);x.lineTo(cx+cap,cy-s);x.moveTo(cx-cap,cy+s);x.lineTo(cx+cap,cy+s);x.stroke();
+          x.globalAlpha=.75;x.fillStyle=t.accent;x.beginPath();x.arc(cx,cy,1.2,0,6.2832);x.fill();x.restore();}; hg(52,62,10); hg(W-52,62,10); _oDot(x,52,H-106,2,t.accent,.4); _oDot(x,W-52,H-106,2,t.accent,.4); _oSpark(x,90,50,4,t.hook,.5); _oSpark(x,W-90,H-132,4,t.hook,.45); } },
     // 黑话翻译:黑绿终端感,角落 >_ 提示符 + 侧边扫描线刻度
     heihua:{ bg:'#060a07', glow:'80,200,120', border:'rgba(90,210,130,.45)', accent:'#5fd67a', hl:'#c8f5d4', muted:'#6f9a7e', rev:'#d69a78', cardBg:'#0a120c', divider:'rgba(90,210,130,.18)', hook:'#a8e6b8', accentDim:'#4a6a54',
-      ornament(x,W,H,t){ x.save();x.globalAlpha=.5;x.fillStyle=t.accent;x.font='700 15px '+F_MONO;x.textAlign='left';x.textBaseline='middle';x.fillText('>_',40,62);x.restore(); x.save();x.globalAlpha=.28;x.strokeStyle=t.accent;x.lineWidth=1;for(let i=0;i<6;i++){const yy=H-200-i*20;x.beginPath();x.moveTo(W-58,yy);x.lineTo(W-34,yy);x.stroke();}x.restore(); _oDot(x,W-46,60,2,t.hook,.5); } },
+      ornament(x,W,H,t){ x.save();x.globalAlpha=.5;x.fillStyle=t.accent;x.font='700 15px '+F_MONO;x.textAlign='left';x.textBaseline='middle';x.fillText('>_',40,62);x.restore();
+        /* 扫描线刻度:左右对称 + 压到底部区两侧(x≤44,永远不贴钩子文案)*/
+        x.save();x.globalAlpha=.28;x.strokeStyle=t.accent;x.lineWidth=1;for(let i=0;i<6;i++){const yy=H-100-i*16,len=i%2?16:10;x.beginPath();x.moveTo(28,yy);x.lineTo(28+len,yy);x.stroke();x.beginPath();x.moveTo(W-28,yy);x.lineTo(W-28-len,yy);x.stroke();}x.restore(); _oDot(x,W-46,60,2,t.hook,.5); } },
     // 人生重开:游戏像素暖橙,角落像素方块群 + 像素心(生命)
     chongkai:{ bg:'#140c06', glow:'240,150,60', border:'rgba(240,160,80,.5)', accent:'#f0994a', hl:'#ffd9a8', muted:'#b0917a', rev:'#d69a78', cardBg:'#1a0f08', divider:'rgba(240,160,80,.2)', hook:'#f5c890', accentDim:'#7a5a3a',
       ornament(x,W,H,t){ const px=(ox,oy,s,col,a)=>{x.save();x.globalAlpha=a;x.fillStyle=col;x.fillRect(ox,oy,s,s);x.restore();}; px(40,50,7,t.accent,.5);px(49,50,7,t.hook,.4);px(40,59,7,t.hook,.35); px(W-47,52,7,t.accent,.5);px(W-56,52,7,t.hook,.4);px(W-47,61,7,t.hook,.35); const ph=(ox,oy)=>{const s=4;[[1,0],[3,0],[0,1],[1,1],[2,1],[3,1],[4,1],[1,2],[2,2],[3,2],[2,3]].forEach(p=>px(ox+p[0]*s,oy+p[1]*s,s,t.accent,.4));}; ph(44,H-118); ph(W-72,H-118); } }
   };
 
+  /* 底部区(二维码/引导)占位高度:从"白底托的顶边 / 首行文案的顶边"到卡片底边 —— 卡片总高 = 内容高 + 留白 + 它 */
+  const BOT_QR=209, BOT_TXT=75;
+
   function drawCard(model, qr){
     const t=(model&&model.themeId&&THEMES[model.themeId])||THEMES._default; // 无主题 → 金黑(与现状逐字段等价)
     const cards=(Array.isArray(model.cards)&&model.cards.length)?model.cards:null; // 可选:牌面小图(塔罗用)
-    const cardsH=cards?228:0;
     const cc=(model.colorcard&&model.colorcard.main)?model.colorcard:null;         // 可选:本命色卡(主色+辅助色,sekapian 用)
     const ccAux=cc&&Array.isArray(cc.aux)?cc.aux.slice(0,4):[];
-    const ccH=cc?(150+20+(ccAux.length?52+31+22:0)):0;
-    const S=2,W=540,H=(qr?740:650)+cardsH+ccH,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
+    const S=2,W=540;
+
+    /* ── 内容流(kicker → 标题 → 牌面 → 色卡 → 大数字 → 四维 → 分隔 → 钩子)──
+       同一段代码跑两遍:第一遍在 8×8 离屏画布上"空跑"(只借它的 measureText 做折行,像素丢弃)拿到内容真实高度,
+       第二遍在按内容定好高的真画布上绘制。dy = 触发最小高时补给顶部的偏移。返回内容结束的 Y。 */
+    function flow(x,dy){
+      /* ── kicker + 短金线(把眉题与标题分层)── */
+      x.fillStyle=t.accent;x.font='12px '+F_MONO;_ls(x,'1.5px');x.fillText(model.kicker||'',W/2,57+dy);_ls(x,'0px');
+      x.save();x.globalAlpha=.75;x.strokeStyle=t.accent;x.lineWidth=1.4;x.beginPath();x.moveTo(W/2-15,71+dy);x.lineTo(W/2+15,71+dy);x.stroke();x.restore();
+
+      /* ── 标题(中文衬线;按长度自适应字号;最多 2 行,超长优雅省略)── */
+      const title=String(model.title||'');
+      let ts = title.length<=8?36 : title.length<=13?31 : 27;
+      x.fillStyle=t.hl;x.font='700 '+ts+'px '+F_CJK;
+      let lines=_wrap(x,title,W-92);
+      if(lines.length>2){let last=lines[1];while(last&&x.measureText(last+'…').width>W-92)last=last.slice(0,-1);lines=[lines[0],last+'…'];}
+      let Y=(lines.length>=2?106:114)+dy;const lh=ts+9;
+      lines.forEach(l=>{x.fillText(l,W/2,Y);Y+=lh;});
+      if(model.sub){Y+=4;x.fillStyle=t.muted;x.font='12px '+F_MONO;_ls(x,'.5px');x.fillText(model.sub,W/2,Y);_ls(x,'0px');Y+=8;}
+      Y+=40;
+
+      if(cards){
+        const n=cards.length,cw=92,ch=158,gap=16,totW=n*cw+(n-1)*gap,sx=(W-totW)/2,ly=Y,iy=Y+18;
+        cards.forEach((cd,i)=>{
+          const ix=sx+i*(cw+gap),mx=ix+cw/2;
+          x.fillStyle=t.muted;x.font='11px '+F_CJK;x.fillText(cd.pos||'',mx,ly+8);
+          x.save();x.shadowColor='rgba(0,0,0,.45)';x.shadowBlur=10;x.shadowOffsetY=4;         // 牌面投影,增立体
+          x.fillStyle=t.accent;_rr(x,ix-2,iy-2,cw+4,ch+4,8);x.fill();x.restore();             // 牌框(主强调色)
+          x.save();_rr(x,ix,iy,cw,ch,6);x.clip();x.translate(mx,iy+ch/2);if(cd.rev)x.rotate(Math.PI);
+          if(cd.el)x.drawImage(cd.el,-cw/2,-ch/2,cw,ch);else{x.fillStyle=t.cardBg;x.fillRect(-cw/2,-ch/2,cw,ch);}
+          x.restore();
+          x.fillStyle=t.hl;x.font='700 12.5px '+F_CJK;x.fillText(cd.name||'',mx,iy+ch+19);
+          x.fillStyle=cd.rev?t.rev:t.muted;x.font='10px '+F_MONO;x.fillText(cd.rev?'逆位':'正位',mx,iy+ch+33);
+        });
+        Y=iy+ch+33+22;
+      }
+
+      /* ── 本命色卡(colorcard 工具用:主色 hero 大色块 + 一排辅助色小块;无 colorcard 时整段跳过,向后兼容)── */
+      if(cc){
+        const mx0=44,mw=W-88,mh=150;
+        x.save();x.shadowColor='rgba(0,0,0,.42)';x.shadowBlur=18;x.shadowOffsetY=6;x.fillStyle=cc.main.hex||'#888';_rr(x,mx0,Y,mw,mh,16);x.fill();x.restore();
+        x.save();x.globalAlpha=.12;x.strokeStyle='#000';x.lineWidth=1;_rr(x,mx0,Y,mw,mh,16);x.stroke();x.restore();
+        const tc=_txtOn(cc.main.hex);x.fillStyle=tc;x.textAlign='left';
+        x.save();x.globalAlpha=.72;x.font='11px '+F_MONO;_ls(x,'2px');x.fillText('本命主色',mx0+22,Y+34);_ls(x,'0px');x.restore();
+        x.font='700 40px '+F_CJK;x.fillText(String(cc.main.name||''),mx0+20,Y+mh-42);
+        x.save();x.globalAlpha=.85;x.font='13px '+F_MONO;_ls(x,'1.5px');x.fillText(String(cc.main.hex||'').toUpperCase(),mx0+22,Y+mh-16);_ls(x,'0px');x.restore();
+        x.textAlign='center';Y+=mh+20;
+        if(ccAux.length){
+          const n=ccAux.length,gap=12,aw=(mw-(n-1)*gap)/n,ah=52;
+          ccAux.forEach((a,i)=>{const ax=mx0+i*(aw+gap),acx=ax+aw/2;
+            x.save();x.shadowColor='rgba(0,0,0,.3)';x.shadowBlur=8;x.shadowOffsetY=3;x.fillStyle=a.hex||'#888';_rr(x,ax,Y,aw,ah,10);x.fill();x.restore();
+            x.save();x.globalAlpha=.1;x.strokeStyle='#000';x.lineWidth=1;_rr(x,ax,Y,aw,ah,10);x.stroke();x.restore();
+            x.fillStyle=t.hl;x.font='700 12px '+F_CJK;x.fillText(String(a.name||''),acx,Y+ah+18);
+            x.fillStyle=t.muted;x.font='9px '+F_MONO;x.fillText(String(a.hex||'').toUpperCase(),acx,Y+ah+31);
+          });
+          Y+=ah+31+22;
+        }
+      }
+
+      /* ── 大数字(全卡主角:光晕 + Bebas,跳出来)── */
+      if(model.big!=null){
+        x.fillStyle=t.muted;x.font='12px '+F_MONO;_ls(x,'1px');x.fillText(model.bigLabel||'',W/2,Y);_ls(x,'0px');Y+=58;
+        x.save();x.shadowColor='rgba('+t.glow+',.55)';x.shadowBlur=24;x.fillStyle=t.hl;x.font='700 76px '+F_NUM;x.fillText(String(model.big),W/2,Y);x.restore();
+        Y+=44;
+      }
+
+      /* ── 四维(收进一块淡底面板,配竖分隔,成组更清楚)── */
+      const dims=model.dims||[];
+      if(dims.length){
+        const pt=Y-8,ph=54;
+        x.save();x.globalAlpha=.4;x.fillStyle='rgba('+t.glow+',.06)';_rr(x,44,pt,W-88,ph,12);x.fill();x.globalAlpha=.6;x.strokeStyle=t.divider;x.lineWidth=1;_rr(x,44,pt,W-88,ph,12);x.stroke();x.restore();
+        dims.forEach((d,i,a)=>{const cx=W*(i+0.5)/a.length;
+          if(i){x.save();x.globalAlpha=.5;x.strokeStyle=t.divider;x.lineWidth=1;const lx=W*i/a.length;x.beginPath();x.moveTo(lx,pt+12);x.lineTo(lx,pt+ph-12);x.stroke();x.restore();}
+          x.fillStyle=t.hl;x.font='700 24px '+F_NUM;x.fillText(String(d[1]),cx,pt+29);
+          x.fillStyle=t.muted;x.font='10.5px '+F_CJK;x.fillText(d[0],cx,pt+45);
+        });
+        Y=pt+ph+26;
+      }
+
+      /* ── 分隔:细线 + 中点菱形 ── */
+      x.strokeStyle=t.divider;x.lineWidth=1;x.beginPath();x.moveTo(66,Y);x.lineTo(W/2-14,Y);x.moveTo(W/2+14,Y);x.lineTo(W-66,Y);x.stroke();
+      x.save();x.fillStyle=t.accent;x.globalAlpha=.8;x.translate(W/2,Y);x.rotate(Math.PI/4);x.fillRect(-3,-3,6,6);x.restore();
+      Y+=30;
+
+      /* ── 钩子(衬线金句,最多 3 行)── */
+      if(model.hook){x.fillStyle=t.hook;x.font='15px '+F_CJK;let hk=String(model.hook);if(hk.length>60)hk=hk.slice(0,60)+'…';_wrap(x,hk,W-100).slice(0,3).forEach(l=>{x.fillText(l,W/2,Y);Y+=26;});}
+      return Y;
+    }
+
+    /* ── ① 量:离屏空跑一遍,拿到内容真实高度(与真绘制同一份代码,不会量错)── */
+    let contentH;
+    try{const mc=document.createElement('canvas');mc.width=mc.height=8;contentH=flow(mc.getContext('2d'),0);}
+    catch(e){contentH=(qr?740:650)-(qr?BOT_QR:BOT_TXT)-26;}   // 极端兜底:退回原固定高度的等效值
+
+    /* ── ② 定高:高度跟着内容走,不再写死 ── */
+    const BOT=qr?BOT_QR:BOT_TXT, GAP=qr?26:24, MINH=qr?560:430;   // GAP=内容与底部区之间的呼吸;MINH=兜底,只对最短的卡(如起名:标题+副标+钩子)生效
+    const need=Math.round(contentH+GAP+BOT);
+    const H=Math.max(MINH,need);
+    const dy=Math.min(56,Math.max(0,Math.round((H-need)*0.7)));    // 触发最小高时富余主要补到顶部(至多 56),别全堆在二维码上方变死区
+
+    /* ── ③ 画 ── */
+    const c=document.createElement('canvas');c.width=W*S;c.height=H*S;
     const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';x.textBaseline='alphabetic';
 
     /* ── 底 + 顶部光晕(略上移,把光托在标题/大数字后面)── */
@@ -173,86 +281,7 @@ window.CE = (function () {
     x.strokeStyle=t.border;x.lineWidth=1.5;_rr(x,16,16,W-32,H-32,18);x.stroke();
     x.save();x.globalAlpha=.55;x.strokeStyle=t.divider;x.lineWidth=1;_rr(x,23,23,W-46,H-46,13);x.stroke();x.restore();
 
-    /* ── kicker + 短金线(把眉题与标题分层)── */
-    x.fillStyle=t.accent;x.font='12px '+F_MONO;_ls(x,'1.5px');x.fillText(model.kicker||'',W/2,57);_ls(x,'0px');
-    x.save();x.globalAlpha=.75;x.strokeStyle=t.accent;x.lineWidth=1.4;x.beginPath();x.moveTo(W/2-15,71);x.lineTo(W/2+15,71);x.stroke();x.restore();
-
-    /* ── 标题(中文衬线;按长度自适应字号;最多 2 行,超长优雅省略)── */
-    const title=String(model.title||'');
-    let ts = title.length<=8?36 : title.length<=13?31 : 27;
-    x.fillStyle=t.hl;x.font='700 '+ts+'px '+F_CJK;
-    let lines=_wrap(x,title,W-92);
-    if(lines.length>2){let last=lines[1];while(last&&x.measureText(last+'…').width>W-92)last=last.slice(0,-1);lines=[lines[0],last+'…'];}
-    let Y=(lines.length>=2?106:114);const lh=ts+9;
-    lines.forEach(l=>{x.fillText(l,W/2,Y);Y+=lh;});
-    if(model.sub){Y+=4;x.fillStyle=t.muted;x.font='12px '+F_MONO;_ls(x,'.5px');x.fillText(model.sub,W/2,Y);_ls(x,'0px');Y+=8;}
-    Y+=40;
-
-    if(cards){
-      const n=cards.length,cw=92,ch=158,gap=16,totW=n*cw+(n-1)*gap,sx=(W-totW)/2,ly=Y,iy=Y+18;
-      cards.forEach((cd,i)=>{
-        const ix=sx+i*(cw+gap),mx=ix+cw/2;
-        x.fillStyle=t.muted;x.font='11px '+F_CJK;x.fillText(cd.pos||'',mx,ly+8);
-        x.save();x.shadowColor='rgba(0,0,0,.45)';x.shadowBlur=10;x.shadowOffsetY=4;         // 牌面投影,增立体
-        x.fillStyle=t.accent;_rr(x,ix-2,iy-2,cw+4,ch+4,8);x.fill();x.restore();             // 牌框(主强调色)
-        x.save();_rr(x,ix,iy,cw,ch,6);x.clip();x.translate(mx,iy+ch/2);if(cd.rev)x.rotate(Math.PI);
-        if(cd.el)x.drawImage(cd.el,-cw/2,-ch/2,cw,ch);else{x.fillStyle=t.cardBg;x.fillRect(-cw/2,-ch/2,cw,ch);}
-        x.restore();
-        x.fillStyle=t.hl;x.font='700 12.5px '+F_CJK;x.fillText(cd.name||'',mx,iy+ch+19);
-        x.fillStyle=cd.rev?t.rev:t.muted;x.font='10px '+F_MONO;x.fillText(cd.rev?'逆位':'正位',mx,iy+ch+33);
-      });
-      Y=iy+ch+33+22;
-    }
-
-    /* ── 本命色卡(colorcard 工具用:主色 hero 大色块 + 一排辅助色小块;无 colorcard 时整段跳过,向后兼容)── */
-    if(cc){
-      const mx0=44,mw=W-88,mh=150;
-      x.save();x.shadowColor='rgba(0,0,0,.42)';x.shadowBlur=18;x.shadowOffsetY=6;x.fillStyle=cc.main.hex||'#888';_rr(x,mx0,Y,mw,mh,16);x.fill();x.restore();
-      x.save();x.globalAlpha=.12;x.strokeStyle='#000';x.lineWidth=1;_rr(x,mx0,Y,mw,mh,16);x.stroke();x.restore();
-      const tc=_txtOn(cc.main.hex);x.fillStyle=tc;x.textAlign='left';
-      x.save();x.globalAlpha=.72;x.font='11px '+F_MONO;_ls(x,'2px');x.fillText('本命主色',mx0+22,Y+34);_ls(x,'0px');x.restore();
-      x.font='700 40px '+F_CJK;x.fillText(String(cc.main.name||''),mx0+20,Y+mh-42);
-      x.save();x.globalAlpha=.85;x.font='13px '+F_MONO;_ls(x,'1.5px');x.fillText(String(cc.main.hex||'').toUpperCase(),mx0+22,Y+mh-16);_ls(x,'0px');x.restore();
-      x.textAlign='center';Y+=mh+20;
-      if(ccAux.length){
-        const n=ccAux.length,gap=12,aw=(mw-(n-1)*gap)/n,ah=52;
-        ccAux.forEach((a,i)=>{const ax=mx0+i*(aw+gap),acx=ax+aw/2;
-          x.save();x.shadowColor='rgba(0,0,0,.3)';x.shadowBlur=8;x.shadowOffsetY=3;x.fillStyle=a.hex||'#888';_rr(x,ax,Y,aw,ah,10);x.fill();x.restore();
-          x.save();x.globalAlpha=.1;x.strokeStyle='#000';x.lineWidth=1;_rr(x,ax,Y,aw,ah,10);x.stroke();x.restore();
-          x.fillStyle=t.hl;x.font='700 12px '+F_CJK;x.fillText(String(a.name||''),acx,Y+ah+18);
-          x.fillStyle=t.muted;x.font='9px '+F_MONO;x.fillText(String(a.hex||'').toUpperCase(),acx,Y+ah+31);
-        });
-        Y+=ah+31+22;
-      }
-    }
-
-    /* ── 大数字(全卡主角:光晕 + Bebas,跳出来)── */
-    if(model.big!=null){
-      x.fillStyle=t.muted;x.font='12px '+F_MONO;_ls(x,'1px');x.fillText(model.bigLabel||'',W/2,Y);_ls(x,'0px');Y+=58;
-      x.save();x.shadowColor='rgba('+t.glow+',.55)';x.shadowBlur=24;x.fillStyle=t.hl;x.font='700 76px '+F_NUM;x.fillText(String(model.big),W/2,Y);x.restore();
-      Y+=44;
-    }
-
-    /* ── 四维(收进一块淡底面板,配竖分隔,成组更清楚)── */
-    const dims=model.dims||[];
-    if(dims.length){
-      const pt=Y-8,ph=54;
-      x.save();x.globalAlpha=.4;x.fillStyle='rgba('+t.glow+',.06)';_rr(x,44,pt,W-88,ph,12);x.fill();x.globalAlpha=.6;x.strokeStyle=t.divider;x.lineWidth=1;_rr(x,44,pt,W-88,ph,12);x.stroke();x.restore();
-      dims.forEach((d,i,a)=>{const cx=W*(i+0.5)/a.length;
-        if(i){x.save();x.globalAlpha=.5;x.strokeStyle=t.divider;x.lineWidth=1;const lx=W*i/a.length;x.beginPath();x.moveTo(lx,pt+12);x.lineTo(lx,pt+ph-12);x.stroke();x.restore();}
-        x.fillStyle=t.hl;x.font='700 24px '+F_NUM;x.fillText(String(d[1]),cx,pt+29);
-        x.fillStyle=t.muted;x.font='10.5px '+F_CJK;x.fillText(d[0],cx,pt+45);
-      });
-      Y=pt+ph+26;
-    }
-
-    /* ── 分隔:细线 + 中点菱形 ── */
-    x.strokeStyle=t.divider;x.lineWidth=1;x.beginPath();x.moveTo(66,Y);x.lineTo(W/2-14,Y);x.moveTo(W/2+14,Y);x.lineTo(W-66,Y);x.stroke();
-    x.save();x.fillStyle=t.accent;x.globalAlpha=.8;x.translate(W/2,Y);x.rotate(Math.PI/4);x.fillRect(-3,-3,6,6);x.restore();
-    Y+=30;
-
-    /* ── 钩子(衬线金句,最多 3 行)── */
-    if(model.hook){x.fillStyle=t.hook;x.font='15px '+F_CJK;let hk=String(model.hook);if(hk.length>60)hk=hk.slice(0,60)+'…';_wrap(x,hk,W-100).slice(0,3).forEach(l=>{x.fillText(l,W/2,Y);Y+=26;});}
+    flow(x,dy);
 
     /* ── 底部:二维码 / 引导 ── */
     if(qr){const q=104,qx=(W-q)/2,qy=H-198;
@@ -305,14 +334,15 @@ window.CE = (function () {
     _last={toolId:cfg.id,toolName:cfg.名字||cfg.name,card:result.card,shareText:result.shareText};
     if(result.card&&cfg&&cfg.id!=null&&result.card.themeId==null)result.card.themeId=cfg.id; // 按工具 id 选主题(工具页零改动;未列入 THEMES 者自动回落金黑)
     const box=document.getElementById('ce-report');
-    const dimsHtml=(result.dims||[]).map(d=>`<div class="ce-dim"><span class="n">${d[1]}</span>${d[0]}</div>`).join('');
     const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    // 四维/大数字一律走 esc:现在传的都是常量或数字,但下一个工具往里塞用户输入时就是 XSS,这里先堵死
+    const dimsHtml=(result.dims||[]).map(d=>`<div class="ce-dim"><span class="n">${esc(d[1])}</span>${esc(d[0])}</div>`).join('');
     const nl=s=>esc(s).replace(/\n/g,'<br>');
     const sec=x=>`<div class="ce-sec"><h4>${esc(x.h)}</h4><p>${nl(x.p)}</p></div>`;
     const parts=result.parts||[];const first=parts[0],rest=parts.slice(1);
     box.innerHTML=`<div class="ce-rt">${cfg.图标||''} ${esc(result.heading||cfg.名字||'')}</div>
       <div class="ce-tag">${esc(result.tag||'')}</div>${result.sub?`<div class="ce-sub">${esc(result.sub)}</div>`:''}
-      ${result.big!=null?`<div class="ce-score"><div class="big">${result.bigLabel||''} <b>${result.big}</b></div><div class="ce-dims">${dimsHtml}</div></div>`:''}
+      ${result.big!=null?`<div class="ce-score"><div class="big">${esc(result.bigLabel||'')} <b>${esc(result.big)}</b></div><div class="ce-dims">${dimsHtml}</div></div>`:''}
       <div id="ce-body">${first?sec(first):''}
         ${rest.length?`<div class="ce-lockcta" id="ce-lockCta">🔒 下面还有你的<b>完整深度版</b>(藏了后半段)<div style="margin:6px 0 12px;color:#c7c2b8;font-size:12.5px">分享给一个朋友,立刻解锁全部 👇</div><button class="ce-btn g" id="ce-lockShare">📤 分享一下 · 解锁完整版</button><div style="color:#8a8378;font-size:11px;margin-top:8px">分享/保存后自动解锁,只需一次 · 也可微信搜「Zion降噪」</div></div>
         <div class="ce-lockZone ce-blur" id="ce-lockZone">${rest.map(sec).join('')}</div>`:''}

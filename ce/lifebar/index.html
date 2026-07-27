@@ -12,6 +12,7 @@
 <meta property="og:url" content="https://qizh.space/ce/lifebar/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="人生进度条 · 测你这辈子已经用掉多少">
 <meta name="twitter:description" content="填出生日期,算你人生已用 XX% + 发薪/下班/周末/退休倒计时全家桶。按真实时间每天变。趣味测试。">
 <meta name="twitter:image" content="https://qizh.space/og-default.png">
@@ -21,7 +22,7 @@
 {"@type":"WebApplication","name":"人生进度条","url":"https://qizh.space/ce/lifebar/","description":"人生进度条:填出生日期,算你这辈子已经用掉的百分比,再加上今年/本月/本周进度、今天到下班还剩几小时、距发薪/周末/退休倒计时全家桶。按真实时间每天变,附一段清醒提醒。趣味测试,分享解锁完整版。","applicationCategory":"LifestyleApplication","operatingSystem":"Web","inLanguage":"zh-CN","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"publisher":{"@type":"Person","name":"Zion","url":"https://qizh.space/"}},
 {"@type":"FAQPage","mainEntity":[
 {"@type":"Question","name":"人生进度条测什么?","acceptedAnswer":{"@type":"Answer","text":"用出生日期和当前时间,算出你人生已经用掉的百分比,再加上今年、本月、本周进度,以及距下班、距发薪、距周末、距退休的一组倒计时进度条。"}},
-{"@type":"Question","name":"数字准吗?会变吗?","acceptedAnswer":{"@type":"Answer","text":"进度按真实时间计算,每天都会变。走心提醒那段文字用生日做种子固定不变,方便截图分享。"}},
+{"@type":"Question","name":"数字准吗?会变吗?","acceptedAnswer":{"@type":"Answer","text":"进度按真实时间计算。走心提醒按你所处的人生阶段选,同一阶段内固定不变;进度数字每天都在变。"}},
 {"@type":"Question","name":"免费吗?","acceptedAnswer":{"@type":"Answer","text":"免费。趣味测试,仅供娱乐,分享后可解锁完整的清醒提醒。"}}
 ]}
 ]}
@@ -38,6 +39,15 @@
 .lb-bar .lb b{font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--gold-lt);letter-spacing:.03em;font-weight:400}
 .lb-bar .lb-tk{height:9px;border-radius:6px;background:rgba(201,168,76,.1);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(201,168,76,.16)}
 .lb-bar .lb-fl{height:100%;border-radius:6px;background:linear-gradient(90deg,rgba(201,168,76,.5),var(--gold-lt));width:0;transition:width 1.1s cubic-bezier(.2,.8,.2,1)}
+/* 首屏只留生日 + 大按钮,其余 4 项收进折叠(仅本页内联,不改 ce.css)*/
+.lb-hint{display:block;font-style:normal;color:var(--muted);font-size:11.5px;margin-top:2px;letter-spacing:0}
+.lb-adv{margin-top:14px;border:1px solid var(--border);border-radius:12px;background:var(--panel);overflow:hidden}
+.lb-adv summary{list-style:none;cursor:pointer;padding:12px 14px;font-size:13.5px;color:#c7c2b8;position:relative}
+.lb-adv summary::-webkit-details-marker{display:none}
+.lb-adv summary::after{content:"+";position:absolute;right:15px;top:9px;color:var(--gold);font-size:19px;line-height:1.4}
+.lb-adv[open] summary::after{content:"−"}
+.lb-adv[open]{border-color:rgba(201,168,76,.4)}
+.lb-adv-in{padding:0 14px 6px}
 /* 人生进度这条更醒目一点 */
 .lb-bar.lb-hero .lb-tk{height:12px}
 .lb-bar.lb-hero .lb b{font-size:19px}
@@ -56,17 +66,22 @@
 
 <div class="wrap">
   <div class="ce-stage" id="ce-stage">
-    <div class="ce-field"><label>你的出生日期(必填)</label><input type="date" id="bd" autocomplete="off"></div>
-    <div class="ce-two">
-      <div class="ce-field"><label>预期寿命(岁)</label><input type="number" id="exp" value="80" min="40" max="130" inputmode="numeric"></div>
-      <div class="ce-field"><label>打算退休(岁)</label><input type="number" id="ret" value="60" min="40" max="90" inputmode="numeric"></div>
-    </div>
-    <div class="ce-two">
-      <div class="ce-field"><label>每月发薪日(几号)</label><input type="number" id="pay" value="10" min="1" max="28" inputmode="numeric"></div>
-      <div class="ce-field"><label>下班时间</label><input type="time" id="off" value="18:00"></div>
-    </div>
+    <div class="ce-field"><label>你的出生日期(必填)<i class="lb-hint">点年份可以一步翻回 19xx</i></label><input type="date" id="bd" min="1900-01-01" autocomplete="off"></div>
     <button class="ce-btn g ce-go" id="go">⏳ 生成我的人生进度条</button>
     <div class="ce-err" id="err"></div>
+    <details class="lb-adv">
+      <summary>⚙️ 高级设置(可选)</summary>
+      <div class="lb-adv-in">
+        <div class="ce-two">
+          <div class="ce-field"><label>预期寿命(岁)</label><input type="number" id="exp" value="80" min="40" max="130" inputmode="numeric"></div>
+          <div class="ce-field"><label>打算退休(岁)</label><input type="number" id="ret" value="60" min="40" max="90" inputmode="numeric"></div>
+        </div>
+        <div class="ce-two">
+          <div class="ce-field"><label>每月发薪日(几号)</label><input type="number" id="pay" value="10" min="1" max="28" inputmode="numeric"></div>
+          <div class="ce-field"><label>下班时间</label><input type="time" id="off" value="18:00"></div>
+        </div>
+      </div>
+    </details>
   </div>
   <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在核对你和时间的账…</p></div>
   <div class="ce-report" id="ce-report"></div>
@@ -86,7 +101,7 @@
 <section class="ce-faq" aria-label="常见问题">
   <h2>常见问题</h2>
   <details><summary>人生进度条测什么?</summary><div class="a">用出生日期和当前时间,算出你人生已经用掉的百分比,再加上今年、本月、本周进度,以及距下班、距发薪、距周末、距退休的一组倒计时进度条。</div></details>
-  <details><summary>数字准吗?会变吗?</summary><div class="a">进度按真实时间计算,每天都会变。走心提醒那段文字用生日做种子固定不变,方便截图分享。</div></details>
+  <details><summary>数字准吗?会变吗?</summary><div class="a">进度按真实时间计算。走心提醒按你所处的人生阶段选,同一阶段内固定不变;进度数字每天都在变。</div></details>
   <details><summary>免费吗?</summary><div class="a">免费。趣味测试,仅供娱乐,分享后可解锁完整的清醒提醒。</div></details>
 </section>
 
@@ -147,6 +162,13 @@ function bandOf(n){return n<25?'young':n<42?'rise':n<60?'mid':n<80?'late':n<100?
 const cfg={ id:'lifebar', 名字:'人生进度条', 图标:'⏳' };
 const DAY=864e5, YEARMS=365.2425*DAY;
 
+/* 出生日期不预填(预填会变成"已填"的假象,用户不填也能提交出一个假结果),
+   只把上限锁到今天:日历翻不到未来,选年份一步就能回到 19xx */
+(function(){
+  const t=new Date(), p=n=>String(n).padStart(2,'0');
+  $('bd').max=t.getFullYear()+'-'+p(t.getMonth()+1)+'-'+p(t.getDate());
+})();
+
 $('go').onclick=()=>{
   const bd=$('bd').value;
   if(!bd){$('err').textContent='先填一下出生日期吧 ⏳';return;}
@@ -180,12 +202,15 @@ $('go').onclick=()=>{
     const weekStart=new Date(y,m,d-dowMon);          // 本周一 00:00
     const weekPct=(now-weekStart)/(7*DAY)*100;
 
-    // 今天到下班(工作日 09:00 → 下班时间)
+    // 今天到下班(工作日 09:00 → 下班时间;周末不按上班算)
+    const dow=now.getDay();                            // 0 周日 … 6 周六
+    const isWeekend=(dow===0||dow===6);
     const op=offStr.split(':'); const oh=+op[0]||18, om=+op[1]||0;
     const offHourDec=oh+om/60;
     const workStart=new Date(y,m,d,9,0,0), offTime=new Date(y,m,d,oh,om,0);
     let offPct,offDisp;
-    if(now>=offTime){offPct=100;offDisp='已下班 🎉';}
+    if(isWeekend){offPct=100;offDisp='今天不上班 🎉';}
+    else if(now>=offTime){offPct=100;offDisp='已下班 🎉';}
     else if(now<workStart){offPct=0;offDisp='还剩 '+((offTime-workStart)/36e5).toFixed(1)+' 小时';}
     else{offPct=(now-workStart)/(offTime-workStart)*100;offDisp='还剩 '+((offTime-now)/36e5).toFixed(1)+' 小时';}
 
@@ -199,10 +224,8 @@ $('go').onclick=()=>{
     const payDisp=payToday?'发薪日 🎉':'还剩 '+payDays+' 天';
 
     // 距周末(周六算周末)
-    const dow=now.getDay();                            // 0 周日 … 6 周六
-    const weekendNow=(dow===6||dow===0);
     let wkPct,wkDisp;
-    if(weekendNow){wkPct=100;wkDisp='就是周末 🎉';}
+    if(isWeekend){wkPct=100;wkDisp='就是周末 🎉';}
     else{const wkDays=6-dow; wkPct=Math.max(0,Math.min(100,(now-weekStart)/(5*DAY)*100)); wkDisp='还剩 '+wkDays+' 天';}
 
     // 距退休
@@ -216,8 +239,9 @@ $('go').onclick=()=>{
     const workShare=Math.round(workPerWeek/wakePerWeek*100);
     const freeShare=Math.max(0,100-workShare);
     const weekendsLeft=Math.max(0,Math.round((lifeExp-ageYears)*52));
+    const livedDays=Math.max(0,Math.round((now.getTime()-birth.getTime())/DAY));
     const dims=[
-      ['已用寿命%',Math.round(Math.min(100,lifePctNum))],
+      ['已活天数',livedDays.toLocaleString('en-US')],       // 不再和大数字/人生进度条重复同一个数
       ['搬砖占比%',workShare],
       ['自由%',freeShare],
       ['剩余周末',weekendsLeft]];
@@ -255,10 +279,11 @@ $('go').onclick=()=>{
     if(egg)parts.push({h:'✨ 藏了个小彩蛋', p:egg});
 
     const tag='【'+title+'】';
+    const ageInt=Math.max(0,Math.floor(ageYears));            // 只露年龄,不露精确生日(生日属可社工的隐私)
     const result={
-      heading:'人生进度报告', tag, sub:bd+' · 预期 '+lifeExp+' 岁 · 退休 '+retireAge+' 岁',
+      heading:'人生进度报告', tag, sub:ageInt+'岁 · 预期 '+lifeExp+' 岁 · 退休 '+retireAge+' 岁',
       big:lifePctDisp, bigLabel:'人生已用 %', dims, parts,
-      card:{kicker:'⏳ 人生进度条', title:'我的人生进度条', sub:bd+' · 预期 '+lifeExp+' 岁',
+      card:{kicker:'⏳ 人生进度条', title:tag, sub:ageInt+'岁 · 预期 '+lifeExp+' 岁',
             big:lifePctDisp, bigLabel:'人生已用 %', dims, hook:reflect},
       shareText:'我的人生已用 '+lifePctDisp+'%,你敢看你的吗👉 qizh.space/ce/lifebar'
     };

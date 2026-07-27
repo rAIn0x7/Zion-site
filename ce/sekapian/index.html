@@ -12,6 +12,7 @@
 <meta property="og:url" content="https://qizh.space/ce/sekapian/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="本命色卡测试 · 输名字测你的专属中国传统色">
 <meta name="twitter:description" content="输入名字,选出你的本命主色 + 辅助色,附色彩性格 · 幸运色 · 穿搭建议。一张色卡,美到值得截图。趣味测试。">
 <meta name="twitter:image" content="https://qizh.space/og-default.png">
@@ -34,8 +35,8 @@
 .sk-card{background:linear-gradient(168deg,#fbf8f2 0%,#f4eee3 100%);border-radius:22px;padding:22px 20px 16px;color:#33302a;font-family:var(--body);box-shadow:0 20px 54px -20px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.65);opacity:0;transform:translateY(12px);transition:opacity .6s cubic-bezier(.2,.8,.2,1),transform .6s cubic-bezier(.2,.8,.2,1)}
 .sk-card.in{opacity:1;transform:none}
 .sk-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:13px}
-.sk-kick{font-family:var(--body);font-weight:700;font-size:12.5px;letter-spacing:.3em;color:#9a854f}
-.sk-idx{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#b7ab8c}
+.sk-kick{font-family:var(--body);font-weight:700;font-size:11.5px;letter-spacing:.18em;color:#9a854f;white-space:nowrap}
+.sk-idx{font-family:var(--mono);font-size:10px;letter-spacing:.14em;color:#8a7c58;white-space:nowrap;flex:none}
 .sk-hero{position:relative;border-radius:16px;padding:26px 22px 22px;min-height:196px;display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;box-shadow:inset 0 0 0 1px rgba(0,0,0,.07),0 8px 22px -12px rgba(0,0,0,.35)}
 .sk-hero-lb{position:absolute;top:20px;left:22px;font-family:var(--mono);font-size:10.5px;letter-spacing:.26em;opacity:.72}
 .sk-hero-name{font-family:var(--body);font-weight:700;font-size:42px;letter-spacing:.08em;line-height:1.02}
@@ -45,10 +46,11 @@
 .sk-chip{flex:1;text-align:center;min-width:0}
 .sk-chip .sw{display:block;width:100%;height:54px;border-radius:12px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.07)}
 .sk-chip b{display:block;font-size:12.5px;font-weight:600;color:#3a352c;margin-top:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sk-chip i{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.04em;color:#a1946f;font-style:normal;margin-top:2px}
-.sk-foot{text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:#b7ab8c;margin-top:16px}
+.sk-chip i{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:#7d7048;font-style:normal;margin-top:2px}
+.sk-foot{text-align:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;color:#8a7c58;margin-top:16px}
 .sk-foot b{color:#9a854f;font-weight:600}
-@media(max-width:380px){.sk-hero{min-height:172px;padding:22px 18px 18px}.sk-hero-name{font-size:34px}.sk-chip .sw{height:46px}}
+@media(max-width:380px){.sk-hero{min-height:172px;padding:22px 18px 18px}.sk-hero-name{font-size:34px}.sk-chip .sw{height:46px}.sk-kick{font-size:10.5px}}
+@media(min-width:1024px){.sk-hero-name{font-size:56px}.sk-chip .sw{height:72px}}
 /* 页面可见 FAQ(与 head 中 FAQPage 一致;仅本页内联,不改 ce.css)*/
 .ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
 .ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
@@ -144,48 +146,54 @@ const PALETTE=[
 /* ══ 分色系「性格解读」内容库(锁区,针对本命色所属色系)══ */
 const TRAIT={
   cool:[
-    '你天生是个内心有主张的人——表面平和,决定却做得干脆。别人还在纠结,你早已想清楚了下一步。',
-    '你不太爱把情绪挂在脸上,却对身边的人事看得极清。这份冷静,是你最容易被低估、也最值钱的天赋。',
-    '你享受独处胜过热闹,不是孤僻,是你更清楚什么值得花时间。慢一点的人,往往走得更远。'],
+    '你表面平和,决定却做得干脆。别人还在纠结第三轮,你已经在做第二步了。',
+    '情绪很少写在你脸上,身边的人和事你却看得极清。这份冷静,是你最容易被低估、也最值钱的天赋。',
+    '你享受独处胜过热闹。旁人以为你孤僻,你只是更清楚什么值得花时间。慢一点的人,往往走得更远。',
+    '你不吵。但你不好惹。真到要拿主意的时候,最后拍板的往往是你。'],
   warm:[
-    '你身上有种一靠近就能感觉到的热度——爱起来毫无保留,认真起来全世界都挡不住。',
+    '你身上有种一靠近就能感觉到的热度,爱起来毫无保留,认真起来全世界都挡不住。',
     '你是那种能把日子过得有声有色的人,情绪来得快去得也快,但从不会假装冷淡。',
-    '你天生自带一点舞台感,不必刻意,人群里也总有人先注意到你。别怕明亮,那是你的天赋。'],
+    '你天生自带一点舞台感,不必刻意,人群里也总有人先注意到你。别怕明亮,那是你的天赋。',
+    '热闹的地方总有你。安静下来的时候,你比谁都清楚自己要什么。'],
   soft:[
-    '你温柔,但不软弱——你的善意是有分寸的,只给值得的人。这份温柔,本身就是一种力量。',
-    '你很容易让人放下防备,因为你身上没有攻击性,却有一种让人安心的稳。',
-    '你把很多情绪都留给了自己,习惯先照顾别人。记得,偶尔也把那份温柔,分一点给自己。'],
+    '你温柔,但不软弱。你的善意是有分寸的,只给值得的人。这份温柔本身就是一种力量。',
+    '在你面前,人很容易放下防备。你身上没有攻击性,却有一种让人安心的稳。',
+    '你把很多情绪都留给了自己,习惯先照顾别人。记得,偶尔也把那份温柔,分一点给自己。',
+    '你软,但不塌。该说不的时候,你从来没含糊过。'],
   neutral:[
-    '你是那种越相处越耐看的人——不抢眼,但可靠;不喧哗,却有分量。时间站在你这边。',
-    '你懂得克制,也懂得取舍。你的高级感不在外表,而在你处理事情时那份不慌不忙。',
-    '你不需要靠外界的热闹来确认自己,你的底气,是从里往外一点点长出来的。']
+    '你是那种越相处越耐看的人,不抢眼,但可靠。时间站在你这边。',
+    '你懂得克制,也懂得取舍。你的高级感不在外表,在你处理事情时那份不慌不忙。',
+    '你不需要靠外界的热闹来确认自己,你的底气,是从里往外一点点长出来的。',
+    '不用抢。你耐得住。好位置常常是等出来的,挤是挤不到的。']
 };
 /* ══ 缘分解读(引用主色名 {C})══ */
 const FATE=[
-  '你和「{C}」的缘分,藏在你那些没说出口的坚持里——你们都是外表安静、内里有火的一类。',
+  '你和「{C}」的缘分,藏在你那些没说出口的坚持里。你们都是外表安静、内里有火的一类。',
   '会被「{C}」选中的人,往往正走在一段悄悄成长的日子里。它像一面镜子,照出你想成为的样子。',
   '「{C}」认领你,不是偶然。你身上那点和别人不太一样的气质,刚好和它同一个频率。',
-  '如果最近的你常觉得有点累,「{C}」正是你需要的那种颜色——它不吵不闹,却能稳稳托住你。'];
-/* ══ 幸运色 & 搭配(引用辅助色名 {A})══ */
+  '如果最近的你常觉得有点累,「{C}」正是你需要的那种颜色。它不吵不闹,却能稳稳托住你。'];
+/* ══ 幸运色 & 搭配(引用辅助色名 {A};{Y} = 当前年份,别写死)══ */
 const LUCKY=[
-  '今年,让「{A}」多出现在你身边:一支笔、一件小物、一个手机壳都好。同色系的呼应,会让你做事更顺、心里更定。',
-  '把「{A}」当作你今年的幸运搭子。它们和你的本命色是天生一对,一起用,气场会更完整。',
-  '运气有时就藏在细节里。今年不妨多亲近「{A}」,让它们替你把那些不经意的小机会,轻轻接住。'];
+  '{Y} 年,让「{A}」多出现在你身边:一支笔、一件小物、一个手机壳都好。同色系的呼应,会让你做事更顺,心里更定。',
+  '把「{A}」当作你这一阵子的幸运搭子。它们和你的本命色是天生一对,一起用,气场会更完整。',
+  '运气有时就藏在细节里。这一阵子不妨多亲近「{A}」,让它们替你把那些不经意的小机会,轻轻接住。'];
 /* ══ 穿搭 / 头像建议(引用主色名 {C})══ */
 const STYLE=[
-  '穿搭上,把「{C}」放在最靠近脸的地方——上衣、围巾、耳饰都行,它会替你把气色和气质一起提亮。',
+  '穿搭上,把「{C}」放在最靠近脸的地方,上衣、围巾、耳饰都行,它会替你把气色和气质一起提亮。',
   '不必全身都是「{C}」,一处点睛就够了。真正的高级,从来是留白多过堆砌。',
-  '头像换成以「{C}」为主色调、留一点空白,清清爽爽——第一眼的记忆点,常常就是这么攒下来的。',
+  '头像换成以「{C}」为主色调,留一点空白,清清爽爽。第一眼的记忆点,常常就是这么攒下来的。',
   '把「{C}」用进你的日常小物里:笔记本、壁纸、水杯。让喜欢的颜色,悄悄替你稳住每一天的心情。'];
 /* ══ 色彩箴言(必出,温柔收尾)══ */
 const PROVERB=[
   '其实,颜色没有高下,就像人没有标准答案。你喜欢的样子,就是你最好的样子。',
-  '其实,本命色只是一面温柔的镜子。真正让你发光的,从来不是颜色,而是认真生活的你自己。',
+  '其实,本命色只是一面温柔的镜子。颜色只是替你说了句话,真正被人记住的,是你把日子过成什么样。',
   '其实,不必等某个颜色来定义你。你走过的路、爱过的人,早就把你调成了独一无二的那一种。',
-  '其实,愿你活成自己最爱的那个色号——该明亮时尽情明亮,想沉静时安心沉静。'];
+  '其实,今天想穿什么颜色就穿。这件事从来不用请示谁,也不用等一张色卡点头。'];
 
 /* ── 工具 ── */
-const fill=(s,m)=>String(s).replace(/\{C\}/g,m.C).replace(/\{A\}/g,m.A);
+const esc=s=>String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const YEAR=new Date().getFullYear();
+const fill=(s,m)=>String(s).replace(/\{C\}/g,m.C).replace(/\{A\}/g,m.A).replace(/\{Y\}/g,YEAR);
 function hexToHsl(hex){
   let r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
   const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;
@@ -228,18 +236,18 @@ $('go').onclick=()=>{
     const trait =CE.pick(rng,TRAIT[main.f]||TRAIT.cool);
     const auxNames=aux.map(c=>c.n).join('」、「');
     const fate  =fill(CE.pick(rng,FATE),{C:main.n});
-    const lucky =fill(CE.pick(rng,LUCKY),{A:auxNames});
+    const lucky =fill(CE.pick(rng,LUCKY),{C:main.n,A:auxNames});
     const style =fill(CE.pick(rng,STYLE),{C:main.n});
     const prov  =CE.pick(rng,PROVERB);
 
-    const bdayTxt=bday?bday.replace(/-/g,'.'):'';
-    const subLine=nick+(bdayTxt?' · '+bdayTxt:'');
+    // 生日只进种子,不印在任何可截图的地方(完整出生日期属 PII,对读者也没信息量)
+    const subLine=nick+(bday?' · 已按生日微调':'');
 
     const parts=[
       {h:'🎨 你的专属色卡', p:''},                     // 色卡富文本注入到这里(可见,值得截图)
       {h:'🌈 「'+main.n+'」是一种怎样的性格', p:main.d+' '+trait},
       {h:'🔗 你和这个颜色的缘分', p:fate},
-      {h:'🍀 今年的幸运色 · 这样搭', p:lucky},
+      {h:'🍀 '+YEAR+' 幸运色 · 这样搭', p:lucky},
       {h:'👗 穿搭 / 头像 小建议', p:style},
       {h:'🌙 一句色彩箴言', p:prov}
     ];
@@ -247,9 +255,10 @@ $('go').onclick=()=>{
     const result={
       heading:'本命色卡', tag:'本命色 · '+main.n, sub:subLine,
       big:match, bigLabel:'本命契合度', dims, parts,
-      card:{ kicker:'🎨 本命色卡', title:nick+' · '+main.n, sub:main.n+' '+main.h.toUpperCase()+(bdayTxt?' · '+bdayTxt:''),
+      card:{ kicker:'🎨 本命色卡', title:nick+' · '+main.n,
+             /* sub 去掉:色名和 hex 下方大色块里已有;生日属 PII,分享卡上不印 */
              colorcard:{ main:{hex:main.h, name:main.n}, aux:aux.map(c=>({hex:c.h, name:c.n})) },
-             big:match, bigLabel:'本命契合度', dims, hook:'我的本命色是 '+main.n },
+             big:match, bigLabel:'本命契合度', dims, hook:main.d },
       shareText:'我的本命色是「'+main.n+'」,你的呢👉 qizh.space/ce/sekapian'
     };
 
@@ -258,7 +267,7 @@ $('go').onclick=()=>{
       '<div class="sk-chip"><span class="sw" style="background:'+c.h+'"></span><b>'+c.n+'</b><i>'+c.h.toUpperCase()+'</i></div>').join('');
     const cardHtml=
       '<div class="sk-card" id="skCard">'
-      +'<div class="sk-top"><span class="sk-kick">SEKAPIAN 本命色卡</span><span class="sk-idx">No.'+(PALETTE.indexOf(main)+1).toString().padStart(2,'0')+' · 2026</span></div>'
+      +'<div class="sk-top"><span class="sk-kick">SEKAPIAN 本命色卡</span><span class="sk-idx">No.'+(PALETTE.indexOf(main)+1).toString().padStart(2,'0')+' · '+YEAR+'</span></div>'
       +'<div class="sk-hero" style="background:'+main.h+';color:'+textOn(main.h)+'">'
         +'<span class="sk-hero-lb">本命主色</span>'
         +'<div class="sk-hero-name">'+main.n+'</div>'
@@ -266,7 +275,7 @@ $('go').onclick=()=>{
       +'</div>'
       +'<div class="sk-mood">'+main.d+'</div>'
       +'<div class="sk-aux">'+auxHtml+'</div>'
-      +'<div class="sk-foot"><b>'+nick+'</b>'+(bdayTxt?' · '+bdayTxt:'')+' · 我的专属色卡</div>'
+      +'<div class="sk-foot"><b>'+esc(nick)+'</b> · 我的专属色卡</div>'
       +'</div>';
 
     $('loading').style.display='none';

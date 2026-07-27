@@ -12,6 +12,7 @@
 <meta property="og:url" content="https://qizh.space/ce/moyu/">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="摸鱼时薪计算器 · 算算你摸一次鱼帮老板花了多少钱">
 <meta name="twitter:description" content="填月薪,秒算你的时薪 + 算上通勤的真实时薪,把摸鱼/发呆/上厕所/喝咖啡都折算成钱 + 分档毒舌锐评。纯计算。趣味测试。">
 <meta name="twitter:image" content="https://qizh.space/og-default.png">
@@ -37,6 +38,8 @@
 .my-row .k{color:#cfc9bd;font-size:13.5px;line-height:1.5}
 .my-row .k i{display:block;font-style:normal;color:var(--muted);font-size:11.5px;margin-top:1px}
 .my-row .v{flex:none;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.02em;color:var(--gold-lt);white-space:nowrap}
+/* 四维数字恒单行:极值(月薪一个亿 → 1250万)不再断成"数字/万"两行,高度和真实薪资一致 */
+.ce-dim .n{white-space:nowrap;font-size:clamp(18px,5.4vw,24px)}
 </style>
 </head>
 <body>
@@ -116,10 +119,12 @@ const TWIST=[
 /* ── 称号(按时薪分档)── */
 const TITLE=[['时薪打工人·慢慢回本',0],['半自由牛马·零售青春',30],['体面搬砖工·价高活累',80],['顶配按秒工·钱到自由跑',200]];
 function titleOf(hr){let t=TITLE[0][0];for(const x of TITLE)if(hr>=x[1])t=x[0];return t;}
-function bandOf(hr){return hr<30?'low':hr<80?'mid':hr<=200?'high':'top';}
+/* 分档边界与 titleOf 严格对齐:200 整 → 称号「顶配」+ 锐评 top 池(此前 200 会串档)*/
+function bandOf(hr){return hr<30?'low':hr<80?'mid':hr<200?'high':'top';}
 
 const cfg={ id:'moyu', 名字:'摸鱼时薪计算器', 图标:'🐟' };
-const money=v=>'¥'+Math.round(v).toLocaleString('en-US');
+/* 小额保留一位小数:月薪很低时「摸一次鱼」不再四舍五入成 ¥0(毒舌会变成笑话)*/
+const money=v=>v<10?'¥'+v.toFixed(1):'¥'+Math.round(v).toLocaleString('en-US');
 /* 四维用的紧凑数字:<10万 走千分位(和账单一致),超大用 万/亿,保证一行放得下 */
 const shortNum=v=>{v=Math.round(v);if(v>=1e8){const n=v/1e8;return (n>=100?Math.round(n):+n.toFixed(1))+'亿';}if(v>=1e5){const n=v/1e4;return (n>=1000?Math.round(n):+n.toFixed(1))+'万';}return v.toLocaleString('en-US');};
 
@@ -150,7 +155,7 @@ $('go').onclick=()=>{
     const commuteWaste=hr*commuteDayH*days;                   // 通勤白干:每月通勤时间折算
     const commuteHMonth=commuteDayH*days;                     // 每月通勤总小时
     const dims=[
-      ['时薪',shortNum(hr)],
+      ['年薪',shortNum(sal*12)],                              // 不再和大数字重复,四维四格四个信息
       ['真实时薪',shortNum(hrReal)],
       ['摸鱼回血/月',shortNum(moyuBack)],
       ['通勤白干/月',shortNum(commuteWaste)]];
@@ -196,9 +201,10 @@ $('go').onclick=()=>{
     const tag='【'+title+'】';
     const result={
       heading:'摸鱼时薪账单', tag, sub:'月薪 '+money(sal)+' · '+hrs+' 时/天 · '+days+' 天/月'+(cmt>0?' · 通勤 '+cmt+' 分':''),
-      big:Math.round(hr), bigLabel:'时薪 元/时', dims, parts,
-      card:{kicker:'🐟 摸鱼时薪计算器', title:'我的时薪 '+money(hr)+'/时', sub:'真实时薪 '+money(hrReal)+' · 摸一次鱼 '+money(fish15),
-            big:Math.round(hr), bigLabel:'时薪 元/时', dims, hook:review},
+      big:shortNum(hr), bigLabel:'时薪 元/时', dims, parts,
+      // 标题位放称号(唯一能被朋友复述的身份标签),副标题放差异化信息,不再和大数字重复三遍
+      card:{kicker:'🐟 摸鱼时薪计算器', title:tag, sub:'真实时薪 '+money(hrReal)+' · 摸一次鱼 '+money(fish15),
+            big:shortNum(hr), bigLabel:'时薪 元/时', dims, hook:review},
       shareText:'我的真实时薪才 '+money(hrReal)+',摸鱼才是回本👉 qizh.space/ce/moyu'
     };
     $('loading').style.display='none';
