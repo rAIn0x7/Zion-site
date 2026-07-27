@@ -7,25 +7,40 @@
 <meta name="description" content="选赛道+主题,AI 一键生成结构完整、原创、可直接使用的学习资料(考研/考公/教资/中小学/职场)。Markdown 输出,复制即用。">
 <link rel="canonical" href="https://qizh.space/gen/">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%93%9D%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Zion · qizh.space">
+<meta property="og:title" content="AI 资料生成器 · 一键产出原创学习资料">
+<meta property="og:description" content="选赛道+主题,AI 一键生成结构完整、原创、可直接使用的学习资料。Markdown 输出,复制即用。">
+<meta property="og:url" content="https://qizh.space/gen/">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI 资料生成器 · 一键产出原创学习资料">
+<meta name="twitter:description" content="选赛道+主题,AI 一键生成结构完整、原创、可直接使用的学习资料。Markdown 输出,复制即用。">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--black:#0a0908;--bg2:#12100d;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);--panel:#15130f;--display:'Bebas Neue',sans-serif;--body:'Outfit',-apple-system,'PingFang SC','Microsoft YaHei','Hiragino Sans GB','Songti SC',sans-serif;--mono:'DM Mono',monospace;--radius:12px}
 html{scroll-behavior:smooth}
-body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.7;min-height:100vh}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.7;min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 a{color:inherit;text-decoration:none}
 .wrap{max-width:820px;margin:0 auto;padding:0 20px}
-nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;padding:16px 20px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+nav{position:sticky;top:0;z-index:50;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:18px 24px;background:rgba(10,9,8,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
 .logo{font-family:var(--display);font-size:24px;letter-spacing:.16em}.logo span{color:var(--gold)}
-.nav-r{display:flex;gap:18px;align-items:center;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r a{padding:10px 5px;transition:color .2s}
 .nav-r a:hover{color:var(--gold)}
+.nav-r a.here{color:var(--gold)}
 header{text-align:center;padding:46px 20px 8px}
 header h1{font-family:var(--display);font-size:clamp(38px,9vw,60px);letter-spacing:.03em;color:var(--gold-lt)}
 header .sub{color:var(--muted);font-size:14px;margin-top:6px}
 .card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-top:20px}
 label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--muted);text-transform:uppercase;margin:14px 0 6px}
 label:first-child{margin-top:0}
-select,input,textarea{width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--body);font-size:14px;padding:11px 13px;outline:none;transition:border-color .2s}
+/* 16px 是 iOS Safari 不触发聚焦自动缩放的下限,别再调小 */
+select,input,textarea{width:100%;max-width:100%;background:#0c0b09;border:1px solid var(--border);border-radius:8px;color:var(--white);font-family:var(--body);font-size:16px;padding:12px 13px;outline:none;transition:border-color .2s}
 select:focus,input:focus,textarea:focus{border-color:rgba(201,168,76,.5)}
 select option{background:#111}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -42,29 +57,43 @@ select option{background:#111}
 .doc h1{font-family:var(--body);font-weight:700;font-size:22px;color:var(--gold-lt);margin:0 0 10px;line-height:1.35}
 .doc h2,.doc h3{font-family:var(--body);font-weight:600;font-size:16px;color:var(--gold-lt);margin:18px 0 6px}
 .doc h4{font-weight:600;font-size:15px;color:var(--white);margin:14px 0 4px}
-.doc p{font-size:14.5px;color:var(--white);margin:6px 0}
-.doc li{font-size:14.5px;color:var(--white);margin:3px 0 3px 20px}
-.doc strong{color:var(--gold-lt)}
-.doc hr{border:none;border-top:1px dashed var(--border);margin:16px 0}
-.doc table{width:100%;border-collapse:collapse;margin:10px 0;font-size:13.5px}
-.doc th,.doc td{border:1px solid var(--border);padding:7px 10px;text-align:left}
-.doc th{color:var(--gold);font-weight:600}
+.doc p{font-size:15.5px;line-height:1.85;color:#ded8cc;margin:8px 0;overflow-wrap:break-word}
+.doc li{font-size:15.5px;line-height:1.8;color:#ded8cc;margin:4px 0 4px 20px;overflow-wrap:break-word}
+.doc strong{color:var(--gold-lt);font-weight:600}
+.doc hr{border:none;border-top:1px dashed var(--border);margin:18px 0}
+/* AI 生成的表格列数/内容长度不可控 → 套一层滚动容器,窄屏只滚表格,页面不横滚 */
+.doc .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:12px 0;border-radius:8px}
+.doc table{width:100%;border-collapse:collapse;margin:0;font-size:13.5px}
+.doc th,.doc td{border:1px solid var(--border);padding:8px 10px;text-align:left}
+.doc th{color:var(--gold);font-weight:600;white-space:nowrap}
 .docbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .keybox{margin-top:16px;font-family:var(--mono);font-size:12px}
 .keybox summary{color:var(--muted);cursor:pointer}
-.keybox input{margin-top:10px;font-family:var(--mono);font-size:12px}
-.keybox .kh{color:var(--dim);margin-top:8px;line-height:1.6}
+.keybox input{margin-top:10px;font-family:var(--mono);font-size:16px}
+.keybox .kh{color:var(--muted);margin-top:8px;line-height:1.6}
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--black);font-family:var(--mono);font-size:12px;padding:9px 18px;border-radius:99px;opacity:0;transition:.25s;pointer-events:none;z-index:99}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-footer{border-top:1px solid var(--border);padding:22px 20px;text-align:center;color:var(--dim);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:36px}
-footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
+footer{border-top:1px solid var(--border);padding:22px 20px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.08em;margin-top:36px;line-height:1.9}
+footer a{color:var(--gold-lt);display:inline-block;padding:11px 0;margin:-11px 0}footer a:hover{color:var(--gold)}
 @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+@media(max-width:600px){header{padding:34px 20px 6px}.card{padding:18px 16px}.doc{padding:20px 16px}.btn{font-size:12.5px;padding:12px 18px}}
+/* 360px:nav 4 项 + logo 精算约 327px < 360,单行安全 */
+@media(max-width:420px){nav{padding:14px 20px}.nav-r{gap:12px}}
+@media(min-width:1024px){
+  .wrap{max-width:880px}
+  .nav-r{font-size:13px;color:#9d968a}
+  header .sub{font-size:15.5px;color:#9d968a}
+  .card{padding:28px}
+  .doc{padding:30px 34px}
+  .doc p,.doc li{font-size:16px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 <nav>
   <a href="/" class="logo">ZI<span>O</span>N</a>
-  <div class="nav-r"><a href="/tool/">工具</a><a href="/prompt/">prompt</a><a href="/">← 主站</a></div>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
 </nav>
 <header>
   <h1>AI 资料生成器</h1>
@@ -151,7 +180,7 @@ function mdRender(md){
       const head=ln.split('|').slice(1,-1).map(c=>`<th>${inline(c.trim())}</th>`).join('');
       let rows='';i+=2;
       while(i<lines.length&&/^\|(.+)\|\s*$/.test(lines[i])){rows+='<tr>'+lines[i].split('|').slice(1,-1).map(c=>`<td>${inline(c.trim())}</td>`).join('')+'</tr>';i++;}
-      html+=`<table><tr>${head}</tr>${rows}</table>`;continue;
+      html+=`<div class="tw"><table><tr>${head}</tr>${rows}</table></div>`;continue;
     }
     if(/^#\s/.test(ln))html+=`<h1>${inline(ln.slice(2))}</h1>`;
     else if(/^##\s/.test(ln))html+=`<h2>${inline(ln.slice(3))}</h2>`;

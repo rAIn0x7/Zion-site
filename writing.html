@@ -27,41 +27,57 @@
 --rust:#d98a5f;--sage:#9bb088;--slate:#9bb0c2;
 --display:'Bebas Neue',sans-serif;--serif:'Instrument Serif','Songti SC','SimSun',serif;--body:'Outfit',system-ui,-apple-system,'PingFang SC','Microsoft YaHei','Hiragino Sans GB','Songti SC',sans-serif;--mono:'DM Mono',monospace;}
 html{scroll-behavior:smooth}
-body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.7;overflow-x:hidden}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
 a{color:inherit;text-decoration:none}
 .aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
 .aurora i{position:absolute;width:46vw;height:46vw;right:-8vw;top:-12vw;border-radius:50%;filter:blur(110px);opacity:.26;background:radial-gradient(circle,rgba(216,162,74,.5),transparent 70%)}
-nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:20px 48px;backdrop-filter:blur(12px);background:rgba(10,9,8,.72);border-bottom:1px solid var(--border)}
-.logo{font-family:var(--display);font-size:25px;letter-spacing:.16em}.logo span{color:var(--gold)}
-.nav-r{display:flex;gap:22px;align-items:center}
-.nav-r a{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:lowercase}
-.nav-r a:hover{color:var(--white)}
-.nav-r .cta{color:var(--gold);border:1px solid var(--border);padding:8px 16px;border-radius:99px;text-transform:none}
-.nav-r .cta:hover{background:var(--gold);color:var(--black)}
-.head{max-width:1000px;margin:0 auto;padding:80px 32px 40px}
+nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;padding:18px 24px;backdrop-filter:blur(12px);background:rgba(10,9,8,.82);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:24px;letter-spacing:.16em}.logo span{color:var(--gold)}
+.nav-r{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r a{padding:10px 5px;transition:color .2s}
+.nav-r a:hover{color:var(--gold)}
+.nav-r a.here{color:var(--gold)}
+.head{max-width:1000px;margin:0 auto;padding:72px 32px 36px}
 .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.3em;color:var(--gold);text-transform:uppercase;margin-bottom:18px}
-.head h1{font-family:var(--display);font-size:clamp(56px,10vw,120px);line-height:.9;letter-spacing:.03em}
-.head p{font-size:15px;color:var(--muted);margin-top:18px;max-width:480px}
+.head h1{font-family:var(--display);font-size:clamp(56px,10vw,120px);line-height:.9;letter-spacing:.03em;color:var(--white)}
+.head p{font-size:15px;color:var(--muted);margin-top:18px;max-width:480px;line-height:1.75}
 .grid{max-width:1000px;margin:0 auto;padding:20px 32px 90px;display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.ecard{border:1px solid var(--border);border-radius:10px;padding:34px;background:rgba(201,168,76,.02);transition:transform .3s,border-color .3s;display:flex;flex-direction:column}
-.ecard:hover{transform:translateY(-4px);border-color:rgba(201,168,76,.4)}
+/* 卡片质感与 ce.css 的 .ce-card 一致:暗金渐变底 + hover 抬升发光 */
+.ecard{position:relative;overflow:hidden;border:1px solid var(--border);border-radius:14px;padding:30px 26px;background:linear-gradient(165deg,#16130f,#100e0b);transition:transform .3s,border-color .3s,box-shadow .3s;display:flex;flex-direction:column}
+.ecard::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 50% -10%,rgba(201,168,76,.12),transparent 60%);opacity:0;transition:opacity .25s;pointer-events:none}
+.ecard:hover{transform:translateY(-4px);border-color:rgba(201,168,76,.45);box-shadow:0 18px 40px -18px rgba(201,168,76,.45)}
+.ecard:hover::before{opacity:1}
+.ecard>*{position:relative;z-index:1}
 .chip{display:inline-block;width:max-content;padding:5px 12px;border-radius:99px;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px}
 .chip.ai{background:rgba(155,176,194,.18);color:var(--slate)}.chip.wealth{background:rgba(201,168,76,.16);color:var(--gold-lt)}
 .chip.startup{background:rgba(217,138,95,.16);color:var(--rust)}.chip.mindset{background:rgba(155,176,136,.18);color:var(--sage)}
-.ecard h3{font-family:var(--serif);font-size:26px;line-height:1.25;margin-bottom:12px}
-.ecard p{font-size:14px;color:var(--muted);line-height:1.75;margin-bottom:24px;flex:1}
-.emeta{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--dim)}
+.ecard h3{font-family:var(--serif);font-size:26px;line-height:1.3;margin-bottom:12px;overflow-wrap:break-word}
+/* 摘要 14 → 15px:窄屏正文不低于 15px */
+.ecard p{font-size:15px;color:#bdb7ab;line-height:1.75;margin-bottom:22px;flex:1;overflow-wrap:break-word}
+/* --dim 在黑底上只有 2:1 对比,换 --muted → 5.3:1 */
+.emeta{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted)}
 .emeta .r{color:var(--gold)}
-footer{border-top:1px solid var(--border);padding:28px 32px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--dim)}
+footer{border-top:1px solid var(--border);padding:26px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted)}
+footer a{display:inline-block;padding:11px 0;margin:-11px 0}
 footer a:hover{color:var(--gold)}
-@media(max-width:720px){.grid{grid-template-columns:1fr}nav{padding:14px 20px}.head{padding:56px 22px 30px}.grid{padding:16px 22px 70px}}
+@media(max-width:720px){.grid{grid-template-columns:1fr;padding:16px 22px 70px}.head{padding:52px 22px 28px}.ecard{padding:26px 22px}.ecard h3{font-size:23px}footer{justify-content:center;text-align:center;font-size:10.5px}}
+/* 窄屏 nav 精算(CJK=1em,DM Mono=.6em,Bebas 取 .55em 上界,letter-spacing 逐字累加):
+   5 项 + logo 在 pad18/gap10 下合计约 360px;.nav-r 另有 flex-wrap 兜底,任何情况都不会横向滚动 */
+@media(max-width:420px){nav{padding:14px 18px;gap:10px}.nav-r{gap:10px}}
+@media(min-width:1024px){
+  .nav-r{font-size:13px;color:#9d968a}
+  .head p{font-size:15.5px;color:#9d968a}
+  .head{padding:84px 32px 40px}
+  .ecard p{font-size:15.5px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
 </style>
 </head>
 <body>
 <div class="aurora"><i></i></div>
 <nav>
-  <a href="index.html" class="logo">ZI<span>O</span>N</a>
-  <div class="nav-r"><a href="index.html#ventures">ventures</a><a href="about.html">about</a><a href="index.html#subscribe" class="cta">Subscribe →</a></div>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a><a href="/writing.html" class="here">文章</a></div>
 </nav>
 <div class="head">
   <div class="eyebrow">— Essays · Building in public —</div>

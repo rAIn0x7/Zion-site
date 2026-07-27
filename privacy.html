@@ -4,68 +4,97 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Privacy Policy — Zion</title>
+<meta name="description" content="qizh.space 隐私政策 — 本站收集哪些信息、如何使用、以及你的权利。">
+<link rel="canonical" href="https://qizh.space/privacy.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='62' font-family='Georgia,serif' font-weight='700' fill='%23c9a84c' text-anchor='middle'%3EZ%3C/text%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Zion · qizh.space">
+<meta property="og:title" content="Privacy Policy — Zion">
+<meta property="og:description" content="qizh.space 隐私政策 — 本站收集哪些信息、如何使用、以及你的权利。">
+<meta property="og:url" content="https://qizh.space/privacy.html">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Privacy Policy — Zion">
+<meta name="twitter:description" content="qizh.space 隐私政策 — 本站收集哪些信息、如何使用、以及你的权利。">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
 <link rel="stylesheet" href="/assets/fonts/fonts.css">
 <style>
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 :root {
-  --black:   #080808;
-  --white:   #f4f1ec;
+  --black:   #0a0908;
+  --white:   #f5f1ea;
   --gold:    #c9a84c;
-  --gold-lt: #e8c97a;
-  --dim:     #3a3a3a;
-  --muted:   #6b6b6b;
-  --border:  rgba(201,168,76,.18);
+  --gold-lt: #f0d488;
+  --dim:     #46423b;
+  --muted:   #8a8378;
+  --border:  rgba(201,168,76,.16);
   --font-display: 'Bebas Neue', sans-serif;
   --font-serif:   'Instrument Serif', serif;
   --font-body:    'Outfit',-apple-system,'PingFang SC','Microsoft YaHei','Hiragino Sans GB','Songti SC',sans-serif;
   --font-mono:    'DM Mono', monospace;
 }
 html { scroll-behavior: smooth; }
-body { background: var(--black); color: var(--white); font-family: var(--font-body); font-weight: 300; overflow-x: hidden; cursor: none; }
+body { background: var(--black); color: var(--white); font-family: var(--font-body); font-weight: 300; overflow-x: hidden; cursor: none; line-height:1.7; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
 .cursor { position: fixed; width: 8px; height: 8px; background: var(--gold); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width .25s, height .25s; }
 .cursor-ring { position: fixed; width: 32px; height: 32px; border: 1px solid rgba(201,168,76,.5); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: all .15s ease; }
 body::before { content:''; position: fixed; inset:0; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E"); pointer-events:none; z-index:1000; opacity:.4; }
 
-nav { position: fixed; top:0; left:0; right:0; z-index:100; display:flex; justify-content:space-between; align-items:center; padding:20px 48px; border-bottom:1px solid var(--border); backdrop-filter:blur(12px); background:rgba(8,8,8,.85); }
-.nav-logo { font-family:var(--font-display); font-size:22px; letter-spacing:.12em; color:var(--white); text-decoration:none; }
+nav { position: sticky; top:0; z-index:100; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; padding:18px 24px; border-bottom:1px solid var(--border); backdrop-filter:blur(12px); background:rgba(10,9,8,.82); }
+/* border-bottom:0 —— 下面全局 a{} 给正文外链加了金色下划线,nav/logo 必须显式免疫 */
+.nav-logo { font-family:var(--font-display); font-size:24px; letter-spacing:.16em; color:var(--white); text-decoration:none; border-bottom:0; }
 .nav-logo span { color:var(--gold); }
-.nav-back { font-family:var(--font-mono); font-size:11px; letter-spacing:.12em; color:var(--gold); text-decoration:none; border:1px solid var(--border); padding:8px 18px; border-radius:2px; transition:all .25s; }
-.nav-back:hover { background:var(--gold); color:var(--black); }
+.nav-r { display:flex; gap:18px; align-items:center; flex-wrap:wrap; justify-content:flex-end; font-family:var(--font-mono); font-size:12px; letter-spacing:.1em; color:var(--muted); }
+.nav-r a { padding:10px 5px; color:var(--muted); text-decoration:none; border-bottom:0; transition:color .2s; }
+.nav-r a:hover { color:var(--gold); }
 
-.page-wrap { max-width: 760px; margin: 0 auto; padding: 140px 48px 100px; }
-.page-eyebrow { font-family:var(--font-mono); font-size:11px; letter-spacing:.2em; color:var(--gold); margin-bottom:16px; }
+/* 正文列 712px(760 - 2×24):16.5px 拉丁正文约 78 字符/行,长度舒适 */
+.page-wrap { max-width: 760px; margin: 0 auto; padding: 56px 24px 90px; overflow-wrap:break-word; }
+.page-eyebrow { font-family:var(--font-mono); font-size:11.5px; letter-spacing:.2em; color:var(--gold); margin-bottom:16px; }
 h1 { font-family:var(--font-display); font-size:clamp(48px,8vw,96px); letter-spacing:.04em; line-height:.9; color:var(--white); margin-bottom:32px; }
-.updated { font-family:var(--font-mono); font-size:11px; color:var(--muted); letter-spacing:.1em; margin-bottom:56px; padding-bottom:32px; border-bottom:1px solid var(--border); }
+.updated { font-family:var(--font-mono); font-size:11.5px; color:var(--muted); letter-spacing:.1em; margin-bottom:48px; padding-bottom:30px; border-bottom:1px solid var(--border); }
 
-h2 { font-family:var(--font-display); font-size:22px; letter-spacing:.08em; color:var(--white); margin:48px 0 16px; }
-p { font-size:16px; line-height:1.85; color:rgba(244,241,236,.72); margin-bottom:20px; }
+h2 { font-family:var(--font-display); font-size:24px; letter-spacing:.08em; color:var(--white); margin:48px 0 16px; position:relative; padding-left:14px; }
+h2::before { content:""; position:absolute; left:0; top:.16em; bottom:.16em; width:3px; border-radius:2px; background:linear-gradient(180deg,var(--gold-lt),var(--gold)); }
+p { font-size:16.5px; line-height:1.9; color:#ded8cc; margin-bottom:20px; }
 p strong { color:var(--white); font-weight:500; }
-ul { list-style:none; margin-bottom:20px; }
-ul li { font-size:16px; line-height:1.8; color:rgba(244,241,236,.72); padding:8px 0 8px 24px; border-bottom:1px solid rgba(201,168,76,.07); position:relative; }
-ul li::before { content:'—'; position:absolute; left:0; color:var(--gold); font-family:var(--font-mono); font-size:12px; }
-a { color:var(--gold); text-decoration:none; }
-a:hover { color:var(--gold-lt); }
+ul { list-style:none; margin-bottom:24px; }
+ul li { font-size:16.5px; line-height:1.85; color:#ded8cc; padding:10px 0 10px 24px; border-bottom:1px solid rgba(201,168,76,.07); position:relative; }
+ul li:last-child { border-bottom:0; }
+ul li::before { content:'—'; position:absolute; left:0; top:10px; color:var(--gold); font-family:var(--font-mono); font-size:12px; }
+/* 外链可辨识 + 长 URL 可断行,窄屏不横滚 */
+a { color:var(--gold); text-decoration:none; border-bottom:1px solid rgba(201,168,76,.42); overflow-wrap:anywhere; transition:.2s; }
+a:hover { color:var(--gold-lt); border-bottom-color:var(--gold-lt); }
 
-footer { border-top:1px solid var(--border); padding:28px 48px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
-.footer-logo { font-family:var(--font-display); font-size:18px; letter-spacing:.1em; color:var(--white); text-decoration:none; }
+footer { border-top:1px solid var(--border); padding:26px 24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.footer-logo { font-family:var(--font-display); font-size:18px; letter-spacing:.1em; color:var(--white); text-decoration:none; border-bottom:0; }
 .footer-logo span { color:var(--gold); }
-.footer-copy { font-family:var(--font-mono); font-size:10px; letter-spacing:.12em; color:var(--dim); }
-.footer-right { display:flex; gap:24px; }
-.footer-right a { font-family:var(--font-mono); font-size:10px; letter-spacing:.1em; color:var(--muted); text-decoration:none; transition:color .2s; }
+.footer-copy { font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; color:var(--muted); }
+.footer-right { display:flex; gap:18px; flex-wrap:wrap; justify-content:center; }
+.footer-right a { font-family:var(--font-mono); font-size:11px; letter-spacing:.1em; color:var(--muted); text-decoration:none; border-bottom:0; display:inline-block; padding:11px 0; margin:-11px 0; transition:color .2s; }
 .footer-right a:hover { color:var(--gold); }
 
 @media (hover: none) { .cursor, .cursor-ring { display:none; } body { cursor:auto; } }
-@media (max-width: 900px) {
-  nav { padding: 16px 24px; }
-  .nav-back { display: block; }
-  .page-wrap { padding: 110px 24px 80px; }
-  footer { padding: 20px 24px; }
+@media (max-width: 860px) { body { cursor:auto; } .cursor, .cursor-ring { display:none; } }
+@media (max-width: 600px) {
+  .page-wrap { padding: 44px 22px 70px; }
+  p, ul li { font-size:16px; }
+  h2 { font-size:22px; margin:40px 0 14px; }
+  footer { justify-content:center; text-align:center; }
 }
+/* 360px:nav 4 项 + logo 精算约 327px < 360,单行安全 */
+@media (max-width: 420px) { nav { padding:14px 20px; } .nav-r { gap:12px; } }
 @media (max-width: 480px) {
   h1 { font-size: clamp(40px, 14vw, 64px); }
-  .footer-right { display: none; }
 }
+@media (min-width: 1024px) {
+  .nav-r { font-size:13px; color:#9d968a; }
+  p, ul li { font-size:17px; }
+  .updated { font-size:12px; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation:none!important; transition:none!important; } html { scroll-behavior:auto; } }
 </style>
 </head>
 <body>
@@ -73,8 +102,8 @@ footer { border-top:1px solid var(--border); padding:28px 48px; display:flex; ju
 <div class="cursor-ring" id="cursorRing"></div>
 
 <nav>
-  <a href="index.html" class="nav-logo">ZI<span>O</span>N</a>
-  <a href="index.html" class="nav-back">← HOME</a>
+  <a href="/" class="nav-logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
 </nav>
 
 <div class="page-wrap">
@@ -126,6 +155,7 @@ footer { border-top:1px solid var(--border); padding:28px 48px; display:flex; ju
   <div class="footer-right">
     <a href="index.html">Home</a>
     <a href="writing.html">Writing</a>
+    <a href="about.html">About</a>
     <a href="privacy.html">Privacy Policy</a>
   </div>
 </footer>
