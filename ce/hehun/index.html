@@ -165,10 +165,11 @@ $('go').onclick=()=>{
     const tag='【'+CE.pick(rng,TAG1)+CE.pick(rng,TAG2)+'】';
     /* 四维先出;稀有缘分整体抬升各维基线(彩蛋 → 维度高 → 总分自然高) */
     const D=(lo,hi)=>Math.min(99,Math.round(lo+rng()*(hi-lo)));
-    const dXin  = rare?D(84,99):D(58,97);   // 心动
-    const dMo   = rare?D(84,99):D(58,97);   // 默契
-    const dMag  = rare?D(78,96):D(52,93);   // 磨合
-    const dChang= rare?D(85,99):D(56,96);   // 长久
+    /* 分数整体偏高是刻意的:这是娱乐工具,人爱听好话,低分没人愿意截图转发 */
+    const dXin  = rare?D(90,99):D(72,97);   // 心动
+    const dMo   = rare?D(90,99):D(72,97);   // 默契
+    const dMag  = rare?D(86,97):D(68,94);   // 磨合
+    const dChang= rare?D(91,99):D(71,97);   // 长久
     const dims=[['💘心动',dXin],['🤝默契',dMo],['⚡磨合',dMag],['💍长久',dChang]];
     /* 配对度 = 四维加权平均(长久/默契最能决定一段关系走多远)+ 微扰,并锁死在四维区间内 */
     const _w=0.22*dXin+0.28*dMo+0.18*dMag+0.32*dChang;

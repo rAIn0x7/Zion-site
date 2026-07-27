@@ -196,9 +196,10 @@ ${care?'用户此刻最在意:'+care:''}
   }
 
   /* 三维(确定性):该冲指数承接上面算出的信心值,让它和决策指数不打架 */
-  const dCong=Math.max(40,Math.min(99,Math.round(conf+(rng()*10-5))));
-  const dJiu =Math.min(99,40+Math.round(rng()*45));   // 纠结浓度:负向,越低越好
-  const dHou =Math.min(80,15+Math.round(rng()*45));   // 后悔风险:负向,越低越好
+  /* 正向维抬高、负向维压低 —— 这工具是来给人壮胆的,决策指数太低起不到作用 */
+  const dCong=Math.max(62,Math.min(99,Math.round(conf+8+(rng()*10-5))));
+  const dJiu =Math.min(78,26+Math.round(rng()*38));   // 纠结浓度:负向,越低越好
+  const dHou =Math.min(62,10+Math.round(rng()*32));   // 后悔风险:负向,越低越好
   const dims=[['该冲指数',dCong],['纠结浓度',dJiu],['后悔风险',dHou]];
   /* 决策指数 = 该冲得分高 + 纠结低 + 后悔低(两个负向维取反后加权),不再独立随机 */
   conf=Math.max(40,Math.min(99,Math.round(0.5*dCong+0.2*(100-dJiu)+0.3*(100-dHou))));

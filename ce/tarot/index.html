@@ -217,10 +217,11 @@ $('go').onclick=()=>{
     const kw=CE.pick(rng,TAGS);
     const tag='【'+kw+'】';
     const dims=[
-      ['🔮指引',Math.min(99,66+Math.round(rng()*33))],
-      ['🍀时运',Math.min(99,58+Math.round(rng()*41))],
-      ['💗情感',Math.min(99,58+Math.round(rng()*41))],
-      ['💰财运',Math.min(99,58+Math.round(rng()*41))]];
+      /* 偏高是刻意的:娱乐工具,分数好看才有人截图 */
+      ['🔮指引',Math.min(99,76+Math.round(rng()*23))],
+      ['🍀时运',Math.min(99,70+Math.round(rng()*29))],
+      ['💗情感',Math.min(99,70+Math.round(rng()*29))],
+      ['💰财运',Math.min(99,70+Math.round(rng()*29))]];
     /* 能量指数 = 四维加权平均(指引是塔罗的核心)+ 微扰,并锁死在四维区间内 */
     const _dv=dims.map(d=>d[1]);
     const energy=Math.max(Math.min(..._dv),Math.min(Math.max(..._dv),
