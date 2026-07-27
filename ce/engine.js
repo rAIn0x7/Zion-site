@@ -30,7 +30,9 @@ window.CE = (function () {
     {id:'nongdu',  name:'牛马浓度',   icon:'🐂', url:'/ce/nongdu/',  hook:'测你被工作腌入味了几成'},
     {id:'decide',  name:'帮你做决定', icon:'🎲', url:'/ce/decide/',  hook:'选 A 还是选 B?让 AI 替你拍板'},
     {id:'fuye',    name:'副业测评',   icon:'💼', url:'/ce/fuye/',    hook:'6 题测你适合搞什么副业'},
-    {id:'heihua',  name:'黑话翻译',   icon:'💬', url:'/ce/heihua/',  hook:'粘句工作发言,测黑话浓度+翻人话'}
+    {id:'heihua',  name:'黑话翻译',   icon:'💬', url:'/ce/heihua/',  hook:'粘句工作发言,测黑话浓度+翻人话'},
+    {id:'lifebar', name:'人生进度条', icon:'⏳', url:'/ce/lifebar/', hook:'输生日,看你人生已用百分之几'},
+    {id:'sekapian',name:'本命色卡',   icon:'🎨', url:'/ce/sekapian/',hook:'输名字,测你的专属本命色'}
   ];
 
   /* ── 结果页底部"再测下一个"导流条(排除当前工具,按 toolId 稳定挑 3 个)── */
