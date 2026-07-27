@@ -248,6 +248,7 @@ $('go').onclick=()=>{
       heading:'本命色卡', tag:'本命色 · '+main.n, sub:subLine,
       big:match, bigLabel:'本命契合度', dims, parts,
       card:{ kicker:'🎨 本命色卡', title:nick+' · '+main.n, sub:main.n+' '+main.h.toUpperCase()+(bdayTxt?' · '+bdayTxt:''),
+             colorcard:{ main:{hex:main.h, name:main.n}, aux:aux.map(c=>({hex:c.h, name:c.n})) },
              big:match, bigLabel:'本命契合度', dims, hook:'我的本命色是 '+main.n },
       shareText:'我的本命色是「'+main.n+'」,你的呢👉 qizh.space/ce/sekapian'
     };

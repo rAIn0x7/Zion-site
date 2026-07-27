@@ -51,7 +51,7 @@
 
 <div class="wrap">
   <div class="ce-stage" id="ce-stage">
-    <div class="ce-field"><label>你的月薪(元,必填)</label><input type="number" id="sal" min="1" step="100" placeholder="如:10000" inputmode="numeric" autocomplete="off"></div>
+    <div class="ce-field"><label>你的月薪(元,必填)</label><input type="number" id="sal" min="1" max="100000000" step="100" placeholder="如:10000" inputmode="numeric" autocomplete="off"></div>
     <div class="ce-two">
       <div class="ce-field"><label>每天工作小时</label><input type="number" id="hrs" value="8" min="1" max="24" step="0.5" inputmode="decimal"></div>
       <div class="ce-field"><label>每月工作天数</label><input type="number" id="days" value="22" min="1" max="31" inputmode="numeric"></div>
@@ -120,11 +120,14 @@ function bandOf(hr){return hr<30?'low':hr<80?'mid':hr<=200?'high':'top';}
 
 const cfg={ id:'moyu', 名字:'摸鱼时薪计算器', 图标:'🐟' };
 const money=v=>'¥'+Math.round(v).toLocaleString('en-US');
+/* 四维用的紧凑数字:<10万 走千分位(和账单一致),超大用 万/亿,保证一行放得下 */
+const shortNum=v=>{v=Math.round(v);if(v>=1e8){const n=v/1e8;return (n>=100?Math.round(n):+n.toFixed(1))+'亿';}if(v>=1e5){const n=v/1e4;return (n>=1000?Math.round(n):+n.toFixed(1))+'万';}return v.toLocaleString('en-US');};
 
 $('go').onclick=()=>{
   // ── 输入解析 + 兜底(不白屏、不除零)──
-  const sal=parseFloat($('sal').value);
+  let sal=parseFloat($('sal').value);
   if(isNaN(sal)||sal<=0){$('err').textContent='先填一个大于 0 的月薪吧 💰';return;}
+  sal=Math.min(sal,1e8);                                    // 月薪上限 1 亿,防极值撑爆四维
   let hrs=parseFloat($('hrs').value); if(isNaN(hrs))hrs=8;
   if(hrs<=0){$('err').textContent='每天工作小时得大于 0 呀(不然没法算)';return;}
   hrs=Math.min(24,hrs);
@@ -147,10 +150,10 @@ $('go').onclick=()=>{
     const commuteWaste=hr*commuteDayH*days;                   // 通勤白干:每月通勤时间折算
     const commuteHMonth=commuteDayH*days;                     // 每月通勤总小时
     const dims=[
-      ['时薪',Math.round(hr)],
-      ['真实时薪',Math.round(hrReal)],
-      ['摸鱼回血/月',Math.round(moyuBack)],
-      ['通勤白干/月',Math.round(commuteWaste)]];
+      ['时薪',shortNum(hr)],
+      ['真实时薪',shortNum(hrReal)],
+      ['摸鱼回血/月',shortNum(moyuBack)],
+      ['通勤白干/月',shortNum(commuteWaste)]];
 
     // ── 摸鱼账单清单(可见、不锁)──
     const rows=[

@@ -106,6 +106,9 @@ window.CE = (function () {
   }
   function _rr(x,px,py,w,h,r){x.beginPath();x.moveTo(px+r,py);x.arcTo(px+w,py,px+w,py+h,r);x.arcTo(px+w,py+h,px,py+h,r);x.arcTo(px,py+h,px,py,r);x.arcTo(px,py,px+w,py,r);x.closePath();}
   function _wrap(x,t,max){const o=[];let l='';for(const ch of String(t)){if(x.measureText(l+ch).width>max&&l){o.push(l);l=ch;}else l+=ch;}if(l)o.push(l);return o;}
+  /* 色块上文字亮/暗自适应(按感知明度;colorcard 用)*/
+  function _lum(hex){hex=String(hex||'').replace('#','');if(hex.length<6)return 1;const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);if(isNaN(r+g+b))return 1;return (0.299*r+0.587*g+0.114*b)/255;}
+  function _txtOn(hex){return _lum(hex)>0.62?'#2b2721':'#fdfbf6';}
   /* ── 分享卡装饰基元(纯 canvas,无外链;每个都 save/restore 自洽,不污染后续文字样式)── */
   function _oDot(x,cx,cy,r,col,a){x.save();x.globalAlpha=a;x.fillStyle=col;x.beginPath();x.arc(cx,cy,r,0,6.2832);x.fill();x.restore();}
   function _oSpark(x,cx,cy,r,col,a){x.save();x.globalAlpha=a;x.fillStyle=col;x.beginPath();x.moveTo(cx,cy-r);x.quadraticCurveTo(cx+r*.16,cy-r*.16,cx+r,cy);x.quadraticCurveTo(cx+r*.16,cy+r*.16,cx,cy+r);x.quadraticCurveTo(cx-r*.16,cy+r*.16,cx-r,cy);x.quadraticCurveTo(cx-r*.16,cy-r*.16,cx,cy-r);x.closePath();x.fill();x.restore();}
@@ -136,14 +139,29 @@ window.CE = (function () {
       ornament(x,W,H,t){ const pts=[[44,50],[80,72],[120,44],[W-60,54],[W-98,86],[W-40,112],[60,H-82],[W-70,H-72],[W-120,H-112],[100,H-124]]; pts.forEach((p,i)=>_oDot(x,p[0],p[1],i%3===0?2.2:1.3,t.hl,.5)); x.save();x.globalAlpha=.3;x.strokeStyle=t.accent;x.lineWidth=1;x.beginPath();x.moveTo(44,50);x.lineTo(80,72);x.lineTo(120,44);x.stroke();x.restore(); _oSpark(x,W-58,60,7,t.hl,.6); } },
     // 前世今生:青绿古卷,祥云卷草点缀
     qianshi:{ bg:'#08120f', glow:'70,160,130', border:'rgba(100,180,150,.5)', accent:'#5fbf9a', hl:'#dfeccb', muted:'#7fa094', rev:'#d69a78', cardBg:'#0c1712', divider:'rgba(100,180,150,.2)', hook:'#b8d8c0', accentDim:'#5a7068',
-      ornament(x,W,H,t){ _oCloud(x,48,66,12,t.accent,.45); _oCloud(x,W-72,60,12,t.accent,.45); _oCloud(x,52,H-98,10,t.accent,.35); _oCloud(x,W-66,H-94,10,t.accent,.35); _oDot(x,W-40,112,2,t.hook,.4); _oDot(x,50,120,2,t.hook,.4); } }
+      ornament(x,W,H,t){ _oCloud(x,48,66,12,t.accent,.45); _oCloud(x,W-72,60,12,t.accent,.45); _oCloud(x,52,H-98,10,t.accent,.35); _oCloud(x,W-66,H-94,10,t.accent,.35); _oDot(x,W-40,112,2,t.hook,.4); _oDot(x,50,120,2,t.hook,.4); } },
+    // 摸鱼时薪:钞票冷绿,角落 ¥/$ 货币符 + 散落"铜钱"点
+    moyu:{ bg:'#08120c', glow:'80,180,120', border:'rgba(110,200,150,.5)', accent:'#6fce9a', hl:'#d6f5e2', muted:'#7ea08c', rev:'#d69a78', cardBg:'#0c1712', divider:'rgba(110,200,150,.2)', hook:'#b8e6cc', accentDim:'#5a7a68',
+      ornament(x,W,H,t){ x.save();x.globalAlpha=.42;x.fillStyle=t.accent;x.font='700 20px '+F_MONO;x.textAlign='center';x.textBaseline='middle';x.fillText('¥',52,60);x.fillText('$',W-52,62);x.restore(); _oDot(x,W-52,H-104,2.5,t.accent,.4); _oDot(x,54,H-122,2.5,t.accent,.4); _oDot(x,90,48,1.6,t.hook,.5); _oDot(x,W-92,H-142,1.6,t.hook,.4); } },
+    // 人生进度条:时间冷蓝紫,角落沙漏 + 星点
+    lifebar:{ bg:'#0b0a16', glow:'120,110,220', border:'rgba(150,140,230,.5)', accent:'#9a8fe8', hl:'#e2ddff', muted:'#8c86a8', rev:'#d69a78', cardBg:'#100e1c', divider:'rgba(150,140,230,.2)', hook:'#c8c0f0', accentDim:'#5f5a80',
+      ornament(x,W,H,t){ const hg=(cx,cy,s)=>{x.save();x.globalAlpha=.5;x.strokeStyle=t.accent;x.lineWidth=1.4;x.beginPath();x.moveTo(cx-s,cy-s);x.lineTo(cx+s,cy-s);x.lineTo(cx-s,cy+s);x.lineTo(cx+s,cy+s);x.closePath();x.stroke();x.restore();}; hg(52,62,10); hg(W-52,62,10); _oDot(x,52,H-106,2,t.accent,.4); _oDot(x,W-52,H-106,2,t.accent,.4); _oSpark(x,90,50,4,t.hook,.5); _oSpark(x,W-90,H-132,4,t.hook,.45); } },
+    // 黑话翻译:黑绿终端感,角落 >_ 提示符 + 侧边扫描线刻度
+    heihua:{ bg:'#060a07', glow:'80,200,120', border:'rgba(90,210,130,.45)', accent:'#5fd67a', hl:'#c8f5d4', muted:'#6f9a7e', rev:'#d69a78', cardBg:'#0a120c', divider:'rgba(90,210,130,.18)', hook:'#a8e6b8', accentDim:'#4a6a54',
+      ornament(x,W,H,t){ x.save();x.globalAlpha=.5;x.fillStyle=t.accent;x.font='700 15px '+F_MONO;x.textAlign='left';x.textBaseline='middle';x.fillText('>_',40,62);x.restore(); x.save();x.globalAlpha=.28;x.strokeStyle=t.accent;x.lineWidth=1;for(let i=0;i<6;i++){const yy=H-200-i*20;x.beginPath();x.moveTo(W-58,yy);x.lineTo(W-34,yy);x.stroke();}x.restore(); _oDot(x,W-46,60,2,t.hook,.5); } },
+    // 人生重开:游戏像素暖橙,角落像素方块群 + 像素心(生命)
+    chongkai:{ bg:'#140c06', glow:'240,150,60', border:'rgba(240,160,80,.5)', accent:'#f0994a', hl:'#ffd9a8', muted:'#b0917a', rev:'#d69a78', cardBg:'#1a0f08', divider:'rgba(240,160,80,.2)', hook:'#f5c890', accentDim:'#7a5a3a',
+      ornament(x,W,H,t){ const px=(ox,oy,s,col,a)=>{x.save();x.globalAlpha=a;x.fillStyle=col;x.fillRect(ox,oy,s,s);x.restore();}; px(40,50,7,t.accent,.5);px(49,50,7,t.hook,.4);px(40,59,7,t.hook,.35); px(W-47,52,7,t.accent,.5);px(W-56,52,7,t.hook,.4);px(W-47,61,7,t.hook,.35); const ph=(ox,oy)=>{const s=4;[[1,0],[3,0],[0,1],[1,1],[2,1],[3,1],[4,1],[1,2],[2,2],[3,2],[2,3]].forEach(p=>px(ox+p[0]*s,oy+p[1]*s,s,t.accent,.4));}; ph(44,H-118); ph(W-72,H-118); } }
   };
 
   function drawCard(model, qr){
     const t=(model&&model.themeId&&THEMES[model.themeId])||THEMES._default; // 无主题 → 金黑(与现状逐字段等价)
     const cards=(Array.isArray(model.cards)&&model.cards.length)?model.cards:null; // 可选:牌面小图(塔罗用)
     const cardsH=cards?228:0;
-    const S=2,W=540,H=(qr?740:650)+cardsH,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
+    const cc=(model.colorcard&&model.colorcard.main)?model.colorcard:null;         // 可选:本命色卡(主色+辅助色,sekapian 用)
+    const ccAux=cc&&Array.isArray(cc.aux)?cc.aux.slice(0,4):[];
+    const ccH=cc?(150+20+(ccAux.length?52+31+22:0)):0;
+    const S=2,W=540,H=(qr?740:650)+cardsH+ccH,c=document.createElement('canvas');c.width=W*S;c.height=H*S;
     const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';x.textBaseline='alphabetic';
 
     /* ── 底 + 顶部光晕(略上移,把光托在标题/大数字后面)── */
@@ -184,6 +202,28 @@ window.CE = (function () {
         x.fillStyle=cd.rev?t.rev:t.muted;x.font='10px '+F_MONO;x.fillText(cd.rev?'逆位':'正位',mx,iy+ch+33);
       });
       Y=iy+ch+33+22;
+    }
+
+    /* ── 本命色卡(colorcard 工具用:主色 hero 大色块 + 一排辅助色小块;无 colorcard 时整段跳过,向后兼容)── */
+    if(cc){
+      const mx0=44,mw=W-88,mh=150;
+      x.save();x.shadowColor='rgba(0,0,0,.42)';x.shadowBlur=18;x.shadowOffsetY=6;x.fillStyle=cc.main.hex||'#888';_rr(x,mx0,Y,mw,mh,16);x.fill();x.restore();
+      x.save();x.globalAlpha=.12;x.strokeStyle='#000';x.lineWidth=1;_rr(x,mx0,Y,mw,mh,16);x.stroke();x.restore();
+      const tc=_txtOn(cc.main.hex);x.fillStyle=tc;x.textAlign='left';
+      x.save();x.globalAlpha=.72;x.font='11px '+F_MONO;_ls(x,'2px');x.fillText('本命主色',mx0+22,Y+34);_ls(x,'0px');x.restore();
+      x.font='700 40px '+F_CJK;x.fillText(String(cc.main.name||''),mx0+20,Y+mh-42);
+      x.save();x.globalAlpha=.85;x.font='13px '+F_MONO;_ls(x,'1.5px');x.fillText(String(cc.main.hex||'').toUpperCase(),mx0+22,Y+mh-16);_ls(x,'0px');x.restore();
+      x.textAlign='center';Y+=mh+20;
+      if(ccAux.length){
+        const n=ccAux.length,gap=12,aw=(mw-(n-1)*gap)/n,ah=52;
+        ccAux.forEach((a,i)=>{const ax=mx0+i*(aw+gap),acx=ax+aw/2;
+          x.save();x.shadowColor='rgba(0,0,0,.3)';x.shadowBlur=8;x.shadowOffsetY=3;x.fillStyle=a.hex||'#888';_rr(x,ax,Y,aw,ah,10);x.fill();x.restore();
+          x.save();x.globalAlpha=.1;x.strokeStyle='#000';x.lineWidth=1;_rr(x,ax,Y,aw,ah,10);x.stroke();x.restore();
+          x.fillStyle=t.hl;x.font='700 12px '+F_CJK;x.fillText(String(a.name||''),acx,Y+ah+18);
+          x.fillStyle=t.muted;x.font='9px '+F_MONO;x.fillText(String(a.hex||'').toUpperCase(),acx,Y+ah+31);
+        });
+        Y+=ah+31+22;
+      }
     }
 
     /* ── 大数字(全卡主角:光晕 + Bebas,跳出来)── */
@@ -279,7 +319,7 @@ window.CE = (function () {
       </div>
       <div class="ce-cta"><div class="ct">🔓 解锁更深 · 每天一条「降噪信号」帮你少焦虑</div>
         <div class="ce-qrs">
-          <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪" loading="lazy"><b>扫码关注公众号</b><span>「Zion降噪」· 每天降噪信号 + 新测试抢先玩</span></div>
+          <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪"><b>扫码关注公众号</b><span>「Zion降噪」· 每天降噪信号 + 新测试抢先玩</span></div>
           <div class="ce-qr"><img src="/planet-qr.png" alt="知识星球" loading="lazy"><b>扫码进知识星球</b><span>和同频的人一起搞事、拿工具</span></div>
         </div>
         <a class="ce-btn g" href="/join/" style="display:inline-block;margin:6px 0 4px;text-decoration:none">加入「降噪·静音舱」→</a>

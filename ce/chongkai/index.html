@@ -300,13 +300,23 @@ let G={gender:'男',nick:'',rng:null,attrs:null,candidates:[],picked:[],sim:null
 let gender='男';
 $('gender').querySelectorAll('button').forEach(b=>b.onclick=()=>{$('gender').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');gender=b.dataset.v;});
 
-function show(id){document.querySelectorAll('.ck-screen').forEach(s=>s.classList.remove('on'));$(id).classList.add('on');window.scrollTo({top:0,behavior:'smooth'});}
+function show(id){
+  document.querySelectorAll('.ck-screen').forEach(s=>s.classList.remove('on'));
+  $(id).classList.add('on');
+  if(id==='sc-end'){ // 结局:滚到总评报告容器(带 sticky nav 偏移),而非页顶静态大标题
+    const el=$('end-report');
+    const y=el.getBoundingClientRect().top+window.pageYOffset-84;
+    window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
+  }else{
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
 
 /* ── 属性条 HTML ── */
 function attrBars(a){
   return '<div class="ck-attrs">'+ATTR_KEYS.map(k=>{
     const w=clamp(a[k],0,100);
-    return '<div class="ck-attr"><div class="lb"><span>'+ATTR_ICON[k]+' '+k+'</span><b>'+Math.round(a[k])+'</b></div><div class="tk"><div class="fl" style="width:'+w+'%"></div></div></div>';
+    return '<div class="ck-attr"><div class="lb"><span>'+ATTR_ICON[k]+' '+k+'</span><b>'+Math.round(w)+'</b></div><div class="tk"><div class="fl" style="width:'+w+'%"></div></div></div>';
   }).join('')+'</div>';
 }
 
@@ -381,11 +391,16 @@ function simulate(){
 
   const used=new Set();
   const timeline=[];
+  const RECENT_WINDOW=5;      // 最近 N 年已触发的事件,避免连年一字不差地重复
+  let recent=[];              // 滑动窗口 [{ev,age}]
   let peakHappy=s.快乐,sumHappy=0,years=0,cause=null,realDeath=deathAge;
 
   for(let age=0;age<=deathAge && age<=120;age++){
     // 大器晚成:35 岁后稳定回升
     if(flags.has('大器晚成')&&age>=35){s.家境+=1.2;s.智力+=1;s.快乐+=0.6;}
+    // 滑动窗口:丢弃超出 N 年的记录,得到「近 N 年已用」事件集合
+    recent=recent.filter(x=>x.age>age-RECENT_WINDOW);
+    const recentSet=new Set(recent.map(x=>x.ev));
     // 候选事件
     const cand=[];
     for(const e of EVENTS){
@@ -396,8 +411,11 @@ function simulate(){
       if(w<0.01)w=0.01;
       cand.push({ev:e,w});
     }
+    // 优先从「近 N 年未触发」的池子抽;若被排空则放宽回完整候选池,保证每年都有事件
+    const fresh=cand.filter(c=>!recentSet.has(c.ev));
+    const pool=fresh.length?fresh:cand;
     const n=age===0?1:(rng()<0.42?2:1);
-    let chosen=weightedNoRep(rng,cand,n);
+    let chosen=weightedNoRep(rng,pool,n);
     if(!chosen.length)chosen=[{a:[0,120],w:1,eff:{快乐:1},t:'这一年悄无声息地过去了,没什么值得写进日记。'}];
     const lines=[];let delta=0,fatal=false;
     for(const ev of chosen){
@@ -416,6 +434,7 @@ function simulate(){
         if(rng()<r){fatal=true;cause=ev.cause;realDeath=age;}
       }
     }
+    for(const ev of chosen)recent.push({ev,age});   // 登记本年事件,供后续年份滑动窗口去重
     peakHappy=Math.max(peakHappy,s.快乐);sumHappy+=s.快乐;years++;
     timeline.push({age,lines,delta,snap:{...s}});
     if(s.体质<=0){cause=cause||pickN(rng,DEATH.weak);realDeath=age;break;}
@@ -486,19 +505,33 @@ function verdict(s,score,tals){
 }
 
 /* ═══════════ ③ 逐年播放 ═══════════ */
-let TL=[],ti=0,timer=null,speed=560;
+let TL=[],ti=0,timer=null,speed=300,manualFast=false;
 function runPlayback(){
   TL=G.sim.timeline;ti=0;
   $('life-log').innerHTML='';
   updateHud(G.attrs);
   show('sc-life');
-  speed=560;$('btn-speed').textContent='⏩ 加速';
-  clearInterval(timer);timer=setInterval(step,speed);
+  speed=300;manualFast=false;$('btn-speed').textContent='⏩ 加速';   // 默认已提速到 ~300ms/年
+  scheduleNext();
+}
+/* 每年间隔:手动加速 or 到中老年(60/90 岁)后自动再加速,让爽点更快到 */
+function curInterval(){
+  let iv=speed;
+  const age=(ti<TL.length&&TL[ti])?TL[ti].age:0;
+  if(age>=60)iv=Math.min(iv,150);
+  if(age>=90)iv=Math.min(iv,90);
+  return iv;
+}
+function scheduleNext(){
+  clearTimeout(timer);
+  if(ti>=TL.length)return;
+  timer=setTimeout(step,curInterval());
 }
 function step(){
-  if(ti>=TL.length){clearInterval(timer);return;}
+  if(ti>=TL.length)return;
   reveal(TL[ti]);ti++;
-  if(ti>=TL.length){clearInterval(timer);setTimeout(showEnd,650);}
+  if(ti>=TL.length){clearTimeout(timer);setTimeout(showEnd,650);return;}
+  scheduleNext();
 }
 function reveal(e){
   const log=$('life-log');const div=document.createElement('div');
@@ -517,15 +550,16 @@ function reveal(e){
   log.appendChild(div);log.scrollTop=log.scrollHeight;
 }
 function updateHud(a){
-  $('hud').innerHTML=ATTR_KEYS.map(k=>'<span class="h">'+ATTR_ICON[k]+k+'<b>'+Math.round(a[k])+'</b></span>').join('');
+  $('hud').innerHTML=ATTR_KEYS.map(k=>'<span class="h">'+ATTR_ICON[k]+k+'<b>'+Math.round(clamp(a[k],0,100))+'</b></span>').join('');
 }
 $('btn-speed').onclick=()=>{
-  speed=speed>200?120:560;
-  $('btn-speed').textContent=speed>200?'⏩ 加速':'▶ 正常速度';
-  if(timer){clearInterval(timer);timer=setInterval(step,speed);}
+  manualFast=!manualFast;
+  speed=manualFast?120:300;
+  $('btn-speed').textContent=manualFast?'▶ 正常速度':'⏩ 加速';
+  scheduleNext();
 };
 $('btn-skip').onclick=()=>{
-  clearInterval(timer);
+  clearTimeout(timer);
   while(ti<TL.length){reveal(TL[ti]);ti++;}
   showEnd();
 };
@@ -540,7 +574,7 @@ function showEnd(){
     title:nick+'的一生',
     sub:G.gender+' · 享年 '+r.deathAge+' 岁',
     big:r.score,bigLabel:'综合评分',
-    dims:ATTR_KEYS.map(k=>[k,Math.round(r.attrs[k])]),
+    dims:ATTR_KEYS.map(k=>[k,Math.round(clamp(r.attrs[k],0,100))]),
     hook:r.tag+' '+r.comment
   };
   END_SHARE=shareText;
@@ -549,7 +583,7 @@ function showEnd(){
     '<div class="ce-rt">🎮 一生总评</div>'+
     '<div class="ck-end-tag">'+r.tag+'</div>'+
     '<div class="ce-score"><div class="big">综合评分 <b>'+r.score+'</b></div>'+
-      '<div class="ce-dims">'+ATTR_KEYS.map(k=>'<div class="ce-dim"><span class="n">'+Math.round(r.attrs[k])+'</span>'+k+'</div>').join('')+'</div>'+
+      '<div class="ce-dims">'+ATTR_KEYS.map(k=>'<div class="ce-dim"><span class="n">'+Math.round(clamp(r.attrs[k],0,100))+'</span>'+k+'</div>').join('')+'</div>'+
     '</div>'+
     '<div class="ck-end-cause">'+G.nick+(G.nick?' · ':'')+G.gender+' · 享年 '+r.deathAge+' 岁<br>🕯️ '+r.cause+'</div>'+
     '<div class="ce-sec"><h4>这辈子值不值</h4><p>'+r.comment+'</p></div>'+
@@ -558,7 +592,7 @@ function showEnd(){
       '<div class="row"><div class="k">💔 遗憾</div><div class="v">'+esc(r.regret)+'</div></div>'+
       '<div class="row"><div class="k">🎁 天赋</div><div class="v">'+r.tals.map(t=>t.icon+t.name).join('、')+'</div></div>'+
     '</div>'+
-    '<button class="ce-btn g ck-again" id="btn-restart">🔄 不服,再重开一次</button>'+
+    '<button class="ce-btn g ck-again" id="btn-quick">🔄 保留设置,换个人生</button>'+
     // ── 统一双二维码引流闭环(照抄站点规范)──
     '<div class="ce-cta"><div class="ct">🔓 解锁更多离谱人生 · 每天一条「降噪信号」帮你少焦虑</div>'+
       '<div class="ce-qrs">'+
@@ -567,23 +601,34 @@ function showEnd(){
       '</div>'+
       '<a class="ce-btn g" href="/join/" style="display:inline-block;margin:6px 0 4px;text-decoration:none">加入「降噪·静音舱」→</a>'+
       '<div class="cb">微信里打不开链接?复制到浏览器:<b>'+CE.JOIN_URL+'</b></div></div>'+
-    '<div class="ce-row"><button class="ce-btn g" id="btn-share">📤 把这辈子甩给朋友</button><button class="ce-btn" id="btn-restart2">再重开</button></div>'+
+    '<div class="ce-row"><button class="ce-btn g" id="btn-share">📤 把这辈子甩给朋友</button><button class="ce-btn" id="btn-restart">↺ 重新捏人</button></div>'+
     '<div class="ce-retention">🌙 每一局天赋和事件都随机,没有两条一样的人生 · 把你最离谱的那局甩给朋友,看谁活得更爽 👀</div>'+
     CE.buildMore('chongkai')+
     '<div class="ce-wm">qizh.space · 微信搜「Zion降噪」· 仅供娱乐</div>';
 
   $('end-report').innerHTML=html;
+  $('btn-quick').onclick=quickRestart;
   $('btn-restart').onclick=restart;
-  $('btn-restart2').onclick=restart;
   $('btn-share').onclick=shareEnding;
   show('sc-end');
 }
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
+/* 完整重开:回到捏人页(性别/起名),保留昵称方便再来 */
 function restart(){
   $('nick').value=G.nick;
   $('err').textContent='';
   show('sc-start');
+}
+/* 快速重开:不退回捏人页,沿用当前性别/昵称/天赋,只换新随机种子直接重跑一局 */
+function quickRestart(){
+  if(!G.picked||!G.picked.length){restart();return;}
+  const seed=Date.now()+':'+Math.random()+':'+G.nick;
+  G.rng=CE.rngFrom(seed);
+  const rng=G.rng;
+  G.attrs={};ATTR_KEYS.forEach(k=>{G.attrs[k]=20+Math.floor(rng()*56);});
+  G.sim=simulate();
+  runPlayback();
 }
 
 /* ── 结局分享卡(复用 CE.drawCard 出 canvas;navigator.share 优先,否则长按保存浮层)── */

@@ -228,8 +228,8 @@ $('go').onclick=()=>{
     const density=Math.min(1,s.hitChars/Math.max(s.len,1));
     const dv=(b,sp)=>Math.max(12,Math.min(99,Math.round(b+(rng()*sp-sp/2))));
     const dimsArr = band0
-      ? [['🎭 装X度',dv(9,14)],['💨 废话浓度',dv(8,12)],['🫥 甩锅力',dv(12,16)],['🌫 听不懂',dv(7,10)]]
-      : [['🎭 装X度',dv(pct,28)],['💨 废话浓度',dv(pct+4,28)],['🫥 甩锅力',dv(pct*0.8+16,34)],['🌫 听不懂',dv(Math.min(99,pct+density*22),22)]];
+      ? [['装X度',dv(9,14)],['废话度',dv(8,12)],['甩锅力',dv(12,16)],['听不懂',dv(7,10)]]
+      : [['装X度',dv(pct,28)],['废话度',dv(pct+4,28)],['甩锅力',dv(pct*0.8+16,34)],['听不懂',dv(Math.min(99,pct+density*22),22)]];
 
     // 分档 + 锐评
     const band = band0?'clean' : pct<20?'low' : pct<45?'mid' : pct<68?'high' : 'max';
