@@ -33,7 +33,8 @@ window.CE = (function () {
     {id:'heihua',  name:'黑话翻译',   icon:'💬', url:'/ce/heihua/',  hook:'粘句工作发言,测黑话浓度+翻人话'},
     {id:'lifebar', name:'人生进度条', icon:'⏳', url:'/ce/lifebar/', hook:'输生日,看你人生已用百分之几'},
     {id:'sekapian',name:'本命色卡',   icon:'🎨', url:'/ce/sekapian/',hook:'输名字,测你的专属本命色'},
-    {id:'chongkai',name:'人生重开',   icon:'🎮', url:'/ce/chongkai/',hook:'抽个天赋,随机重开一次人生'}
+    {id:'chongkai',name:'人生重开',   icon:'🎮', url:'/ce/chongkai/',hook:'抽个天赋,随机重开一次人生'},
+    {id:'moyu',    name:'摸鱼时薪',   icon:'🐟', url:'/ce/moyu/',    hook:'算算你真实时薪,摸鱼才是回本'}
   ];
 
   /* ── 结果页底部"再测下一个"导流条(排除当前工具,按 toolId 稳定挑 3 个)── */

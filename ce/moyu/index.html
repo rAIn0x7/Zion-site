@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>摸鱼时薪计算器 · 算算你摸一次鱼帮老板花了多少钱 — qizh.space</title>
+<meta name="description" content="摸鱼时薪计算器:填月薪+每天工时+每月天数+通勤,秒算你的时薪与「算上通勤的真实时薪」,再把摸一次鱼、带薪上厕所、上班发呆、喝杯咖啡全折算成钱,配分档毒舌锐评 + 一句「其实」反转。纯计算不玄学,极易截图转发。趣味测试,分享解锁完整版。">
+<link rel="canonical" href="https://qizh.space/ce/moyu/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='%230a0908'/%3E%3Ctext x='50' y='72' font-size='58' text-anchor='middle'%3E%F0%9F%90%9F%3C/text%3E%3C/svg%3E">
+<meta property="og:title" content="摸鱼时薪计算器 · 算算你摸一次鱼帮老板花了多少钱">
+<meta property="og:description" content="填月薪,秒算你的时薪 + 算上通勤的真实时薪,把摸鱼/发呆/上厕所/喝咖啡都折算成钱 + 分档毒舌锐评。纯计算,极易截图转发。趣味测试。">
+<meta property="og:url" content="https://qizh.space/ce/moyu/">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta name="twitter:title" content="摸鱼时薪计算器 · 算算你摸一次鱼帮老板花了多少钱">
+<meta name="twitter:description" content="填月薪,秒算你的时薪 + 算上通勤的真实时薪,把摸鱼/发呆/上厕所/喝咖啡都折算成钱 + 分档毒舌锐评。纯计算。趣味测试。">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
+<meta name="keywords" content="摸鱼时薪计算器,时薪计算器,真实时薪,摸鱼计算器,通勤成本,时薪换算,打工人计算器,趣味测试,免费测试">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"摸鱼时薪计算器","url":"https://qizh.space/ce/moyu/","description":"摸鱼时薪计算器:填月薪、每天工时、每月工作天数与通勤时间,算出你的时薪与算上通勤的真实时薪,并把摸一次鱼、带薪上厕所、上班发呆、喝杯咖啡全部折算成钱,附分档毒舌锐评与一句「其实」反转。纯计算,同样输入结果一致,极易截图转发。趣味测试,分享解锁完整版。","applicationCategory":"LifestyleApplication","operatingSystem":"Web","inLanguage":"zh-CN","browserRequirements":"Requires JavaScript","offers":{"@type":"Offer","price":"0","priceCurrency":"CNY"},"publisher":{"@type":"Person","name":"Zion","url":"https://qizh.space/"}},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"摸鱼时薪计算器算什么?","acceptedAnswer":{"@type":"Answer","text":"输入月薪、每天工时、每月工作天数和单程通勤时间,算出你的时薪,以及算上通勤路上时间后的真实时薪,再把摸一次鱼、带薪上厕所、上班发呆、喝杯咖啡都折算成具体的钱。"}},
+{"@type":"Question","name":"结果准吗?会变吗?","acceptedAnswer":{"@type":"Answer","text":"数字是按你填的输入纯计算得出,不含任何玄学,同样的输入结果完全一样,方便截图对比。毒舌锐评用输入做种子固定不变。"}},
+{"@type":"Question","name":"免费吗?","acceptedAnswer":{"@type":"Answer","text":"免费。趣味测试,仅供娱乐,分享后可解锁完整的毒舌锐评与通勤这笔账。"}}
+]}
+]}
+</script>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/bebas-neue-400.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="/assets/fonts/outfit-300.woff2" crossorigin>
+<link rel="stylesheet" href="/ce/ce.css">
+<style>
+/* 摸鱼账单清单(可见、不锁;纯 CSS,无外链)*/
+.my-list{margin:4px 0 2px}
+.my-row{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:11px 0;border-bottom:1px dashed var(--border)}
+.my-row:last-child{border-bottom:none}
+.my-row .k{color:#cfc9bd;font-size:13.5px;line-height:1.5}
+.my-row .k i{display:block;font-style:normal;color:var(--muted);font-size:11.5px;margin-top:1px}
+.my-row .v{flex:none;font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.02em;color:var(--gold-lt);white-space:nowrap}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/" style="color:var(--gold)">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a></div>
+</nav>
+<header>
+  <h1>摸鱼时薪计算器</h1>
+  <p>填个月薪,算算你摸一次鱼帮老板花了多少钱 · 纯计算不玄学 · 仅供娱乐</p>
+</header>
+
+<div class="wrap">
+  <div class="ce-stage" id="ce-stage">
+    <div class="ce-field"><label>你的月薪(元,必填)</label><input type="number" id="sal" min="1" step="100" placeholder="如:10000" inputmode="numeric" autocomplete="off"></div>
+    <div class="ce-two">
+      <div class="ce-field"><label>每天工作小时</label><input type="number" id="hrs" value="8" min="1" max="24" step="0.5" inputmode="decimal"></div>
+      <div class="ce-field"><label>每月工作天数</label><input type="number" id="days" value="22" min="1" max="31" inputmode="numeric"></div>
+    </div>
+    <div class="ce-field"><label>单程通勤(分钟,选填)</label><input type="number" id="cmt" value="0" min="0" max="300" step="5" inputmode="numeric"></div>
+    <button class="ce-btn g ce-go" id="go">🐟 算算我的摸鱼时薪</button>
+    <div class="ce-err" id="err"></div>
+  </div>
+  <div class="ce-loading" id="loading"><div class="ce-spin"></div><p style="color:var(--muted);font-size:13px;margin-top:12px">正在核对你和老板的这笔账…</p></div>
+  <div class="ce-report" id="ce-report"></div>
+</div>
+<style>
+/* 页面可见 FAQ(与 head 中 FAQPage 结构化数据一致;仅本页内联,不改 ce.css)*/
+.ce-faq{max-width:640px;margin:38px auto 0;padding:0 20px}
+.ce-faq h2{font-family:var(--body);font-weight:600;font-size:18px;color:var(--gold-lt);text-align:center;letter-spacing:.02em;margin-bottom:16px}
+.ce-faq details{background:var(--panel);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.ce-faq details[open]{border-color:rgba(201,168,76,.4)}
+.ce-faq summary{list-style:none;cursor:pointer;padding:14px 46px 14px 16px;position:relative;font-size:14.5px;font-weight:500;color:var(--white);line-height:1.6}
+.ce-faq summary::-webkit-details-marker{display:none}
+.ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
+.ce-faq details[open] summary::after{content:"−"}
+.ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+</style>
+<section class="ce-faq" aria-label="常见问题">
+  <h2>常见问题</h2>
+  <details><summary>摸鱼时薪计算器算什么?</summary><div class="a">输入月薪、每天工时、每月工作天数和单程通勤时间,算出你的时薪,以及算上通勤路上时间后的真实时薪,再把摸一次鱼、带薪上厕所、上班发呆、喝杯咖啡都折算成具体的钱。</div></details>
+  <details><summary>结果准吗?会变吗?</summary><div class="a">数字是按你填的输入纯计算得出,不含任何玄学,同样的输入结果完全一样,方便截图对比。毒舌锐评用输入做种子固定不变。</div></details>
+  <details><summary>免费吗?</summary><div class="a">免费。趣味测试,仅供娱乐,分享后可解锁完整的毒舌锐评与通勤这笔账。</div></details>
+</section>
+
+<footer>摸鱼时薪计算器 · 趣味娱乐 · <a href="/ce/">更多测测</a> · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
+
+<script src="/ce/engine.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+
+/* ── 分档毒舌锐评(按时薪分档;低的安慰式毒舌,高的酸)── */
+const REVIEW={
+  low:[ // 时薪 < 30
+    '你的时薪不算高,但先别急着 emo——它只是老板此刻给你的报价,不是你这个人的价签。搬砖回本慢,不代表你回不了本。',
+    '时薪偏低说明一件事:你把大把时间卖了个不太划算的价。好消息是,时间还攥在你手里,下一份报价可以由你重新谈。',
+    '这个时薪,摸一次鱼大概够回本一瓶水的钱。别笑——能在便宜的班里把自己照顾好,本身就是一种本事。'],
+  mid:[ // 30 – 80
+    '你的时薪卡在「饿不死也爽不到」的中段:够体面,不够自由。典型的把青春按小时零售,还没谈到批发价。',
+    '中不溜的时薪,意味着你每一次摸鱼都在精打细算地回本。这不叫偷懒,这叫对自己的时间有基本的尊重。',
+    '你正处在最容易被「再拼一把」骗住的区间。清醒点:老板给的这点时薪,买不下你全部的周末。'],
+  high:[ // 80 – 200
+    '时薪不低,恭喜——但也别急着高兴。时薪越高,老板盯得越紧,你摸的每一条鱼都比别人贵。',
+    '这个时薪,你发呆一小时的成本够别人吃顿好的。所以你才更焦虑:不是钱不够,是每一分钟都被明码标价了。',
+    '你已经把自己卖出了不错的价钱。只是价钱越高,越容易忘了问一句:这价钱,是不是拿命换的。'],
+  top:[ // > 200
+    '顶配时薪。你摸一次鱼的钱够点两杯咖啡,发呆一小时够吃顿火锅——问题是,你根本没空发呆。',
+    '这个时薪,时间对你来说贵得离谱,贵到你连生个病都嫌浪费。钱是到位了,自由呢?',
+    '时薪爆表,恭喜你把自己卖出了高价。但高价的另一面是:你早就不是在上班,是在被按秒计费地消耗。']
+};
+/* ── 「其实」反转结尾(必出,治愈但不套话)── */
+const TWIST=[
+  '其实,时薪不是你的价值,只是你老板暂时的定价。定价会变,而你到底值多少,从来不该由一张工资条说了算。',
+  '其实这些数字最大的用处,是提醒你别把时间贱卖。算清楚一小时值多少钱,你才舍得对自己好一点。',
+  '其实摸鱼不是堕落,是你在用最低的成本,把被买走的时间悄悄赎回来一点。适度地摸,是一种自我保护。',
+  '其实真正贵的从来不是时薪,是你下班之后那些不计价的时间。别让这点工资,把它们也一起买断了。'];
+/* ── 称号(按时薪分档)── */
+const TITLE=[['时薪打工人·慢慢回本',0],['半自由牛马·零售青春',30],['体面搬砖工·价高活累',80],['顶配按秒工·钱到自由跑',200]];
+function titleOf(hr){let t=TITLE[0][0];for(const x of TITLE)if(hr>=x[1])t=x[0];return t;}
+function bandOf(hr){return hr<30?'low':hr<80?'mid':hr<=200?'high':'top';}
+
+const cfg={ id:'moyu', 名字:'摸鱼时薪计算器', 图标:'🐟' };
+const money=v=>'¥'+Math.round(v).toLocaleString('en-US');
+
+$('go').onclick=()=>{
+  // ── 输入解析 + 兜底(不白屏、不除零)──
+  const sal=parseFloat($('sal').value);
+  if(isNaN(sal)||sal<=0){$('err').textContent='先填一个大于 0 的月薪吧 💰';return;}
+  let hrs=parseFloat($('hrs').value); if(isNaN(hrs))hrs=8;
+  if(hrs<=0){$('err').textContent='每天工作小时得大于 0 呀(不然没法算)';return;}
+  hrs=Math.min(24,hrs);
+  let days=parseInt($('days').value,10); if(isNaN(days)||days<=0)days=22; days=Math.min(31,days);
+  let cmt=parseFloat($('cmt').value); if(isNaN(cmt)||cmt<0)cmt=0; cmt=Math.min(300,cmt);
+
+  $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
+  setTimeout(()=>{
+    // ── 纯计算(确定性)──
+    const hr=sal/(days*hrs);                                  // 时薪(分母恒 >0)
+    const commuteDayH=cmt*2/60;                               // 每天来回通勤小时
+    const hrReal=sal/(days*(hrs+commuteDayH));                // 真实时薪(算上通勤)
+    // 趣味换算(按时薪折算)
+    const fish15=hr*0.25;                                     // 摸一次鱼 15 分钟
+    const toiletYear=hr*(10/60)*days*12;                      // 带薪上厕所每天 10 分钟 · 一年
+    const daze1h=hr;                                          // 上班发呆 1 小时
+    const coffee20=hr*(20/60);                                // 喝杯咖啡 20 分钟
+    // 四维 dims
+    const moyuBack=hr*days;                                   // 摸鱼回血:每天摸 1 小时 · 一个月
+    const commuteWaste=hr*commuteDayH*days;                   // 通勤白干:每月通勤时间折算
+    const commuteHMonth=commuteDayH*days;                     // 每月通勤总小时
+    const dims=[
+      ['时薪',Math.round(hr)],
+      ['真实时薪',Math.round(hrReal)],
+      ['摸鱼回血/月',Math.round(moyuBack)],
+      ['通勤白干/月',Math.round(commuteWaste)]];
+
+    // ── 摸鱼账单清单(可见、不锁)──
+    const rows=[
+      {k:'摸一次鱼(15 分钟)',s:'老板帮你付的',v:fish15},
+      {k:'带薪上厕所(每天 10 分钟)· 一年',s:'蹲着也在回本',v:toiletYear},
+      {k:'上班发呆 1 小时',s:'走神也是钱',v:daze1h},
+      {k:'喝杯咖啡的功夫(20 分钟)',s:'续命顺便回血',v:coffee20}];
+    const listHtml='<div class="my-list">'+rows.map(r=>
+      '<div class="my-row"><span class="k">'+r.k+'<i>'+r.s+'</i></span><span class="v">'+money(r.v)+'</span></div>').join('')+'</div>';
+
+    // ── 毒舌 / 反转(输入做种子 → 同输入文案稳定)──
+    const seed=sal+'|'+hrs+'|'+days+'|'+cmt;
+    const rng=CE.rngFrom(seed);
+    const band=bandOf(hr);
+    const review=CE.pick(rng,REVIEW[band]);
+    const twist=CE.pick(rng,TWIST);
+    const title=titleOf(hr);
+
+    // 通勤这笔账(动态,含数字)
+    let commuteTalk;
+    if(cmt<=0){
+      commuteTalk='你没填通勤——那这一项算你白赚。不用把命耗在早晚高峰的地铁里,你的真实时薪没被路上偷走一分钱,这已经赢了一大批人。';
+    }else{
+      const t=[
+        '算上每天来回 '+Math.round(cmt*2)+' 分钟通勤,你的真实时薪从 '+money(hr)+' 缩水到 '+money(hrReal)+'。这段路你没拿一分钱,却实打实在为上班服务。',
+        '你每个月光通勤就白搭进去约 '+commuteHMonth.toFixed(1)+' 小时,折算 '+money(commuteWaste)+'。这笔钱老板不会补给你,地铁和油费倒是照收不误。'];
+      commuteTalk=CE.pick(rng,t);
+    }
+    // 今日摸鱼处方(动态)
+    const prescription='今天记得理直气壮地摸够本:泡杯咖啡按 '+money(coffee20)+' 报销自己,发会儿呆当 '+money(daze1h)+' 的带薪冥想。老板买走的是你的工时,不是你这个人——该歇就歇。';
+
+    const parts=[
+      {h:'💰 老板帮你付的「摸鱼账单」', p:''},                 // 摸鱼账单清单注入到这里(可见)
+      {h:'🔍 时薪毒舌诊断', p:review},
+      {h:'🚇 通勤这笔账', p:commuteTalk},
+      {h:'💊 一句「其实」', p:twist},
+      {h:'🐟 今日摸鱼处方', p:prescription}
+    ];
+
+    const tag='【'+title+'】';
+    const result={
+      heading:'摸鱼时薪账单', tag, sub:'月薪 '+money(sal)+' · '+hrs+' 时/天 · '+days+' 天/月'+(cmt>0?' · 通勤 '+cmt+' 分':''),
+      big:Math.round(hr), bigLabel:'时薪 元/时', dims, parts,
+      card:{kicker:'🐟 摸鱼时薪计算器', title:'我的时薪 '+money(hr)+'/时', sub:'真实时薪 '+money(hrReal)+' · 摸一次鱼 '+money(fish15),
+            big:Math.round(hr), bigLabel:'时薪 元/时', dims, hook:review},
+      shareText:'我的真实时薪才 '+money(hrReal)+',摸鱼才是回本👉 qizh.space/ce/moyu'
+    };
+    $('loading').style.display='none';
+    CE.render(cfg, result);
+    injectList(listHtml);
+  },600);
+};
+
+/* 把首段(空 p)替换为摸鱼账单清单(可见)*/
+function injectList(html){
+  const first=document.querySelector('#ce-body .ce-sec p');
+  if(!first)return;
+  first.innerHTML=html;first.style.margin='0';
+}
+</script>
+<script src="/wxtip.js" defer></script>
+</body>
+</html>
