@@ -181,13 +181,16 @@ $('go').onclick=()=>{
     let rare='';RARE.forEach(r=>{if(!rare&&rng()<r[1])rare=r[0];});
     if(rare)parts.push({h:'✨ 隐藏彩蛋', p:'你抽到了「'+rare+'」——这个组合不多见,今年请对自己更狠一点(褒义)。'});
     const tag='【'+CE.pick(rng,TAG1)+CE.pick(rng,TAG2)+'】';
-    const base=rare?Math.round(90+rng()*9):Math.round(62+rng()*35);
-    const score=Math.min(99,base);
+    /* 四维先出(彩蛋整体抬升基线),本命指数由四维推导 */
+    const _D=(lo,hi)=>Math.min(99,Math.round(lo+rng()*(hi-lo)));
     const dims=[
-      ['🔋能量',Math.min(99,60+Math.round(rng()*39))],
-      ['🍀运势',Math.min(99,60+Math.round(rng()*39))],
-      ['💗桃花',Math.min(99,58+Math.round(rng()*41))],
-      ['💰财气',Math.min(99,60+Math.round(rng()*39))]];
+      ['🔋能量',rare?_D(88,99):_D(58,97)],
+      ['🍀运势',rare?_D(86,99):_D(58,97)],
+      ['💗桃花',rare?_D(84,99):_D(56,97)],
+      ['💰财气',rare?_D(86,99):_D(58,97)]];
+    const _dv=dims.map(d=>d[1]);
+    const score=Math.max(Math.min(..._dv),Math.min(Math.max(..._dv),
+      Math.round(0.30*_dv[0]+0.26*_dv[1]+0.20*_dv[2]+0.24*_dv[3]+(rng()*4-2))));
     const summary='像'+sel.q1+' · 想要'+sel.q2+' · 电量'+sel.q3;
     const result={
       heading:'你的本命关键词', tag, sub:summary,

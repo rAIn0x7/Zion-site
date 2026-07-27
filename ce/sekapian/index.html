@@ -229,8 +229,12 @@ $('go').onclick=()=>{
     const gen =clamp(46+ll*40+(1-ss)*16+jit(),48,99);// 温柔度:越浅越柔
     const en  =clamp(34+ss*54+ll*10+jit(),42,99);    // 能量值:越艳越有能量
     const myst=clamp(42+(1-ll)*38+((hh>=200&&hh<=300)?12:0)+jit(),46,99); // 神秘度:越深越蓝紫越神秘
-    const match=clamp(85+rng()*14,85,99);            // 本命契合度:高且因人而异
     const dims=[['高级感',adv],['温柔度',gen],['能量值',en],['神秘度',myst]];
+    /* 色彩气场 = 四维加权平均 + 微扰,锁在四维区间内。
+       原来是恒定 85~99 的独立随机数,既没信息量、又会和四维打架(如 98 分配 46 神秘度)。*/
+    const _dv=[adv,gen,en,myst];
+    const match=Math.max(Math.min(..._dv),Math.min(Math.max(..._dv),
+      Math.round(0.28*adv+0.24*gen+0.24*en+0.24*myst+(rng()*4-2))));
 
     // 分段文案(确定性)
     const trait =CE.pick(rng,TRAIT[main.f]||TRAIT.cool);
@@ -254,11 +258,11 @@ $('go').onclick=()=>{
 
     const result={
       heading:'本命色卡', tag:'本命色 · '+main.n, sub:subLine,
-      big:match, bigLabel:'本命契合度', dims, parts,
+      big:match, bigLabel:'色彩气场', dims, parts,
       card:{ kicker:'🎨 本命色卡', title:nick+' · '+main.n,
              /* sub 去掉:色名和 hex 下方大色块里已有;生日属 PII,分享卡上不印 */
              colorcard:{ main:{hex:main.h, name:main.n}, aux:aux.map(c=>({hex:c.h, name:c.n})) },
-             big:match, bigLabel:'本命契合度', dims, hook:main.d },
+             big:match, bigLabel:'色彩气场', dims, hook:main.d },
       shareText:'我的本命色是「'+main.n+'」,你的呢👉 qizh.space/ce/sekapian'
     };
 

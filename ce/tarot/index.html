@@ -216,12 +216,15 @@ $('go').onclick=()=>{
 
     const kw=CE.pick(rng,TAGS);
     const tag='【'+kw+'】';
-    const energy=Math.min(99,Math.round(60+rng()*39));
     const dims=[
       ['🔮指引',Math.min(99,66+Math.round(rng()*33))],
       ['🍀时运',Math.min(99,58+Math.round(rng()*41))],
       ['💗情感',Math.min(99,58+Math.round(rng()*41))],
       ['💰财运',Math.min(99,58+Math.round(rng()*41))]];
+    /* 能量指数 = 四维加权平均(指引是塔罗的核心)+ 微扰,并锁死在四维区间内 */
+    const _dv=dims.map(d=>d[1]);
+    const energy=Math.max(Math.min(..._dv),Math.min(Math.max(..._dv),
+      Math.round(0.34*_dv[0]+0.24*_dv[1]+0.22*_dv[2]+0.20*_dv[3]+(rng()*4-2))));
     const spread=three.map(c=>c.n).join(' · ');
     const sub=hasQ ? ('问:'+(q.length>18?q.slice(0,18)+'…':q)) : '你心里默念的那个问题 · 牌都懂';
 

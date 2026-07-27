@@ -163,9 +163,17 @@ $('go').onclick=()=>{
     let rare='';RARE.forEach(r=>{if(!rare&&rng()<r[1])rare=r[0];});
     if(rare)parts.push({h:'✨ 特殊缘分', p:'你俩居然测出了「'+rare+'」——这种缘分几百对里才蹦出一对,截图存好别弄丢了。'});
     const tag='【'+CE.pick(rng,TAG1)+CE.pick(rng,TAG2)+'】';
-    const base=rare?Math.round(88+rng()*11):Math.round(62+rng()*34);
-    const score=Math.min(99,base);
-    const dims=[['💘心动',Math.min(99,60+Math.round(rng()*39))],['🤝默契',Math.min(99,60+Math.round(rng()*39))],['⚡磨合',Math.min(99,55+Math.round(rng()*40))],['💍长久',Math.min(99,60+Math.round(rng()*39))]];
+    /* 四维先出;稀有缘分整体抬升各维基线(彩蛋 → 维度高 → 总分自然高) */
+    const D=(lo,hi)=>Math.min(99,Math.round(lo+rng()*(hi-lo)));
+    const dXin  = rare?D(84,99):D(58,97);   // 心动
+    const dMo   = rare?D(84,99):D(58,97);   // 默契
+    const dMag  = rare?D(78,96):D(52,93);   // 磨合
+    const dChang= rare?D(85,99):D(56,96);   // 长久
+    const dims=[['💘心动',dXin],['🤝默契',dMo],['⚡磨合',dMag],['💍长久',dChang]];
+    /* 配对度 = 四维加权平均(长久/默契最能决定一段关系走多远)+ 微扰,并锁死在四维区间内 */
+    const _w=0.22*dXin+0.28*dMo+0.18*dMag+0.32*dChang;
+    const _lo=Math.min(dXin,dMo,dMag,dChang), _hi=Math.max(dXin,dMo,dMag,dChang);
+    const score=Math.max(_lo,Math.min(_hi,Math.round(_w+(rng()*4-2))));
     const result={
       heading:'你俩的配对度', tag, sub:a+' × '+b+' · '+rel,
       big:score, bigLabel:'配对度', dims, parts,

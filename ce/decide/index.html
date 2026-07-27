@@ -195,12 +195,13 @@ ${care?'用户此刻最在意:'+care:''}
     conf=Math.round(70+rng()*20);
   }
 
-  // 趣味四维(确定性,纯 flavor)
-  const dims=[
-    ['该冲指数',Math.min(99,55+Math.round(rng()*44))],
-    ['纠结浓度',Math.min(99,40+Math.round(rng()*45))],
-    ['后悔风险',Math.min(80,15+Math.round(rng()*45))]
-  ];
+  /* 三维(确定性):该冲指数承接上面算出的信心值,让它和决策指数不打架 */
+  const dCong=Math.max(40,Math.min(99,Math.round(conf+(rng()*10-5))));
+  const dJiu =Math.min(99,40+Math.round(rng()*45));   // 纠结浓度:负向,越低越好
+  const dHou =Math.min(80,15+Math.round(rng()*45));   // 后悔风险:负向,越低越好
+  const dims=[['该冲指数',dCong],['纠结浓度',dJiu],['后悔风险',dHou]];
+  /* 决策指数 = 该冲得分高 + 纠结低 + 后悔低(两个负向维取反后加权),不再独立随机 */
+  conf=Math.max(40,Math.min(99,Math.round(0.5*dCong+0.2*(100-dJiu)+0.3*(100-dHou))));
 
   const parts=[];
   parts.push({h:'🎯 建议你选:'+pick, p:(degraded

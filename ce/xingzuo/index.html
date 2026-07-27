@@ -223,13 +223,17 @@ $('go').onclick=()=>{
 
     const tag='【'+CE.pick(rng,TAG1)+'·'+CE.pick(rng,TAG2)+'】';
     // 综合指数(有彩蛋则封顶高分)
-    const base=rare?Math.round(92+rng()*7):Math.round(62+rng()*35);
-    const score=Math.min(99,base);
+    /* 四维先出(彩蛋日整体抬升基线);注意首维改成「心情」——原来叫「综合」和总分语义撞车 */
+    const _D=(lo,hi)=>Math.min(99,Math.round(lo+rng()*(hi-lo)));
     const dims=[
-      ['💛综合',Math.min(99,60+Math.round(rng()*39))],
-      ['💗爱情',Math.min(99,60+Math.round(rng()*39))],
-      ['💰财运',Math.min(99,60+Math.round(rng()*39))],
-      ['💼事业',Math.min(99,60+Math.round(rng()*39))]];
+      ['💛心情',rare?_D(88,99):_D(58,97)],
+      ['💗爱情',rare?_D(86,99):_D(58,97)],
+      ['💰财运',rare?_D(86,99):_D(58,97)],
+      ['💼事业',rare?_D(86,99):_D(58,97)]];
+    /* 今日运势 = 四维加权平均 + 微扰,锁死在四维区间内 */
+    const _dv=dims.map(d=>d[1]);
+    const score=Math.max(Math.min(..._dv),Math.min(Math.max(..._dv),
+      Math.round(0.28*_dv[0]+0.24*_dv[1]+0.24*_dv[2]+0.24*_dv[3]+(rng()*4-2))));
 
     const result={
       heading:'今日运势', tag, sub:sign+' · '+today,
