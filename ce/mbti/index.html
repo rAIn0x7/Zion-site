@@ -285,8 +285,10 @@ $('go').onclick=()=>{
       const a=ax.k[0],b=ax.k[1];
       let ca=0,cb=0;
       ax.qs.forEach(q=>{sel[q]===a?ca++:cb++;});
-      // 多数决;平票取默认(第一侧)
-      const win=ca>=cb?a:b;
+      /* 多数决;平票(1:1)时按**第 1 题**的答案定 —— 第一直觉优先。
+         原来写的是 ca>=cb?a:b,平票一律归第一侧(E/N/T/J),导致每轴首侧占 75%、
+         ENTJ 独吞 31.6% 的答案空间而 ISFP 只有 0.39%,整个测试严重偏向 ENTJ。 */
+      const win = ca===cb ? sel[ax.qs[0]] : (ca>cb?a:b);
       const winCnt=Math.max(ca,cb),total=ca+cb;
       const pct=Math.round(winCnt/total*100); // 2:0→100, 1:1→50
       type+=win;

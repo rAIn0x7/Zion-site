@@ -66,6 +66,11 @@
 .ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
 .ce-faq details[open] summary::after{content:"−"}
 .ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+/* 稀有度提示(结果分布,离线预计算;克制小字,不抢主信息)*/
+.ce-rare{max-width:520px;margin:8px auto 0;padding:0 12px;text-align:center;font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--muted);letter-spacing:.02em}
+.ce-rare b{color:var(--gold-lt);font-weight:400}
+.ce-rare .badge{display:inline-block;margin-right:6px;padding:1px 7px;border:1px solid rgba(201,168,76,.5);border-radius:99px;background:rgba(201,168,76,.09);color:var(--gold);font-size:10.5px;letter-spacing:.08em}
+.ce-rare .src{display:block;margin-top:2px;color:var(--dim);font-size:10.5px}
 </style>
 <section class="ce-faq" aria-label="常见问题">
   <h2>常见问题</h2>
@@ -151,6 +156,26 @@ const TAG1=['互补','同频','冰火','欢喜冤家','细水长流','一见如�
 const TAG2=['拉扯型','治愈型','黄金搭子','冒险家','过命之交','慢热型','互宠型','互怼型','合伙人','显眼包组合','搞钱搭档','养生局','事业线','嘴替型','充电宝','soulmate'];
 const RARE=[['天生一对·万里挑一',0.04],['前世冤家·相爱相杀',0.05],['贵人式姻缘',0.05],['祖传绝配·原厂配对',0.03],['互为嘴替·灵魂双胞胎',0.04],['官宣预定款·亲友团催得最凶那对',0.04]];
 
+/* ══ 稀有度表(离线预计算 · 硬编码静态数据)══
+   这个工具是确定性生成器(同输入同结果),所以结果分布可枚举:离线跑了 20 万个随机种子
+   (5 种关系轮转)过同一套算法,统计配对度与彩蛋的出现频率,把结果表贴在下面。
+   运行时只查表,不做任何统计、不采集也不上传任何用户数据。
+   RARITY_CUM[分数] = 配对度 ≥ 该分数的结果占比(%) */
+const RARITY_CUM={99:0.1,98:0.6,97:2.1,96:5.0,95:9.6,94:14.7,93:19.3,92:22.9,91:25.6,90:28.4,89:31.9,88:36.3,87:41.9,86:48.3,85:55.5,84:63.0,83:70.4,82:77.2,81:83.3,80:88.4,79:92.5,78:95.4,77:97.5,76:98.7,75:99.4,74:99.8,73:99.9};
+/* 各稀有缘分彩蛋自己的触发率(%);任一彩蛋触发的总概率 22.6% */
+const RARITY_EGG={'天生一对·万里挑一':4.1,'前世冤家·相爱相杀':4.8,'贵人式姻缘':4.6,'祖传绝配·原厂配对':2.6,'互为嘴替·灵魂双胞胎':3.3,'官宣预定款·亲友团催得最凶那对':3.2};
+const cumOf=s=>RARITY_CUM[s]!=null?RARITY_CUM[s]:(s>99?0.1:100);
+const fmtP=p=>(p>0&&p<0.1)?'<0.1%':(Math.round(p*10)/10).toFixed(1)+'%';   // 极小概率别显示成 0.0%
+const lead=p=>p<25?'只有 ':'';        // 常见档位别硬说"只有",不然一眼假
+/* 结果页:在大分数下方补一行克制的稀有度提示(engine.js 渲染完再插入,不改引擎)*/
+function injectRarity(html){
+  const box=document.getElementById('ce-report');
+  const a=box.querySelector('.ce-score')||box.querySelector('.ce-sub')||box.querySelector('.ce-tag');
+  if(!a)return;
+  const d=document.createElement('div');d.className='ce-rare';d.innerHTML=html;
+  a.parentNode.insertBefore(d,a.nextSibling);
+}
+
 $('go').onclick=()=>{
   const a=$('na').value.trim(), b=$('nb').value.trim();
   if(!a||!b){$('err').textContent='把两个名字都填上呀 💞';return;}
@@ -161,7 +186,7 @@ $('go').onclick=()=>{
     const parts=CE.buildParts(cfg,rng);
     // 稀有特殊(加权)
     let rare='';RARE.forEach(r=>{if(!rare&&rng()<r[1])rare=r[0];});
-    if(rare)parts.push({h:'✨ 特殊缘分', p:'你俩居然测出了「'+rare+'」——这种缘分几百对里才蹦出一对,截图存好别弄丢了。'});
+    if(rare)parts.push({h:'✨ 特殊缘分', p:'你俩测出了「'+rare+'」。所有结果里只有 '+fmtP(RARITY_EGG[rare])+' 能触发这个彩蛋,截图存好别弄丢了。'});
     const tag='【'+CE.pick(rng,TAG1)+CE.pick(rng,TAG2)+'】';
     /* 四维先出;稀有缘分整体抬升各维基线(彩蛋 → 维度高 → 总分自然高) */
     const D=(lo,hi)=>Math.min(99,Math.round(lo+rng()*(hi-lo)));
@@ -175,14 +200,21 @@ $('go').onclick=()=>{
     const _w=0.22*dXin+0.28*dMo+0.18*dMag+0.32*dChang;
     const _lo=Math.min(dXin,dMo,dMag,dChang), _hi=Math.max(dXin,dMo,dMag,dChang);
     const score=Math.max(_lo,Math.min(_hi,Math.round(_w+(rng()*4-2))));
+    const cum=cumOf(score);
     const result={
       heading:'你俩的配对度', tag, sub:a+' × '+b+' · '+rel,
       big:score, bigLabel:'配对度', dims, parts,
-      card:{kicker:'💞 AI 合婚 · 配对度', title:tag, sub:a+' × '+b, big:score, bigLabel:'配对度', dims, hook:(parts[0]&&parts[0].p)||''},
+      card:{kicker:'💞 AI 合婚 · 配对度', title:tag, sub:a+' × '+b, big:score,
+            bigLabel:'配对度 · '+score+' 分以上占 '+fmtP(cum), dims, hook:(parts[0]&&parts[0].p)||''},
       shareText:'我和 TA 的配对度是 '+score+' 分!'+tag+' 来测测你俩的 👉 微信搜「Zion降噪」,回复「测测」拿全部'
     };
     $('loading').style.display='none';
     CE.render(cfg, result);
+    injectRarity(
+      (cum<5?'<span class="badge">稀有</span>':'')+
+      lead(cum)+'<b>'+fmtP(cum)+'</b> 的结果能到 '+score+' 分或更高'+
+      (rare?'<br>稀有缘分「'+rare+'」的出现率 <b>'+fmtP(RARITY_EGG[rare])+'</b>':'')+
+      '<span class="src">占比由离线跑 20 万个随机种子统计得出 · 不含任何用户数据</span>');
   },600);
 };
 </script>

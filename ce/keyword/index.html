@@ -71,6 +71,11 @@
 .ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
 .ce-faq details[open] summary::after{content:"−"}
 .ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+/* 稀有度提示(结果分布,离线预计算;克制小字,不抢主信息)*/
+.ce-rare{max-width:520px;margin:8px auto 0;padding:0 12px;text-align:center;font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--muted);letter-spacing:.02em}
+.ce-rare b{color:var(--gold-lt);font-weight:400}
+.ce-rare .badge{display:inline-block;margin-right:6px;padding:1px 7px;border:1px solid rgba(201,168,76,.5);border-radius:99px;background:rgba(201,168,76,.09);color:var(--gold);font-size:10.5px;letter-spacing:.08em}
+.ce-rare .src{display:block;margin-top:2px;color:var(--dim);font-size:10.5px}
 </style>
 <section class="ce-faq" aria-label="常见问题">
   <h2>常见问题</h2>
@@ -169,6 +174,27 @@ const TAG1=['清醒','松弛','野生','温柔','热血','佛系','搞钱','自�
 const TAG2=['行动派','理想家','实干家','浪漫家','独行侠','破局者','氛围组','守护者','冒险家','长期主义者','显眼包','嘴替','养生咖','搞钱能手','细节控','气氛担当','头号玩家','躺赢派'];
 const RARE=[['万里挑一·天选气运',0.04],['隐藏款·大器晚成',0.05],['本命暴击·风口体质',0.04],['SSR·行走的锦鲤',0.03],['隐藏神格·闷声发大财',0.04],['限定款·越老越吃香',0.03]];
 
+/* ══ 稀有度表(离线预计算 · 硬编码静态数据)══
+   本工具的种子只由 4 道题的答案决定 → 输入空间就是 6×6×4×6 = 864 种组合,可以 100% 穷举。
+   离线把 864 种组合全跑了一遍,统计每个本命词/彩蛋/本命指数的出现频率,结果表贴在下面。
+   运行时只查表,不做统计、不采集也不上传任何用户数据。 */
+const RARITY_KW={"松弛感本命":5.0,"清醒搞钱":4.5,"向阳而生":3.7,"野生生命力":3.7,"搞事业脑":3.4,"闷头开挂":3.4,"长期主义":3.2,"热血续航":3.1,"小宇宙待爆发":3.1,"温柔且有刀":2.9,"先松弛后发力":2.9,"野心藏不住":2.8,"独狼美学":2.8,"慢热型选手":2.5,"闷声干大事":2.5,"嘴强王者":2.5,"回血中":2.5,"破局者":2.5,"低调狠人":2.4,"钝感力 MAX":2.3,"嘴上摆烂心里较劲":2.3,"风一样的自由人":2.2,"佛系躺赢":2.2,"主角光环":2.2,"内核超稳":2.2,"社交电量常年20%":2.2,"情绪稳定器":2.1,"反脆弱":2.1,"温柔一刀":2.1,"清醒到扎心":2.0,"精神小富婆":1.9,"风口体质":1.9,"卷又躺不平":1.7,"野路子高手":1.7,"自愈体质":1.7,"把日子过成诗":1.6,"暗涌":1.6,"稳中带浪":1.6,"佛且倔":1.4,"憋大招中":1.4};
+/* 各隐藏彩蛋自己的触发率(%);任一彩蛋触发的总概率 20.4% */
+const RARITY_EGG={'万里挑一·天选气运':3.8,'隐藏款·大器晚成':3.8,'本命暴击·风口体质':5.1,'SSR·行走的锦鲤':3.0,'隐藏神格·闷声发大财':2.8,'限定款·越老越吃香':1.9};
+/* RARITY_CUM[分数] = 本命指数 ≥ 该分数的结果占比(%) */
+const RARITY_CUM={99:0.1,98:1.6,97:5.1,96:9.1,95:13.1,94:17.6,93:20.5,92:22.3,91:24.5,90:28.0,89:32.4,88:37.2,87:44.0,86:49.9,85:57.3,84:65.6,83:73.8,82:78.9,81:85.4,80:90.3,79:94.1,78:96.8,77:98.2,76:99.2,75:99.5,74:99.8,73:99.9};
+const cumOf=s=>RARITY_CUM[s]!=null?RARITY_CUM[s]:(s>99?0.1:100);
+const fmtP=p=>(p>0&&p<0.1)?'<0.1%':(Math.round(p*10)/10).toFixed(1)+'%';   // 极小概率别显示成 0.0%
+const lead=p=>p<25?'只有 ':'';        // 常见档位别硬说"只有",不然一眼假
+/* 结果页:在大分数下方补一行克制的稀有度提示(engine.js 渲染完再插入,不改引擎)*/
+function injectRarity(html){
+  const box=document.getElementById('ce-report');
+  const a=box.querySelector('.ce-score')||box.querySelector('.ce-sub')||box.querySelector('.ce-tag');
+  if(!a)return;
+  const d=document.createElement('div');d.className='ce-rare';d.innerHTML=html;
+  a.parentNode.insertBefore(d,a.nextSibling);
+}
+
 $('go').onclick=()=>{
   $('err').textContent='';$('ce-stage').style.display='none';$('loading').style.display='block';
   setTimeout(()=>{
@@ -179,7 +205,7 @@ $('go').onclick=()=>{
     parts.unshift({h:'🔑 你的本命关键词', p:'「'+keyword+'」'});
     // 稀有特殊(加权)
     let rare='';RARE.forEach(r=>{if(!rare&&rng()<r[1])rare=r[0];});
-    if(rare)parts.push({h:'✨ 隐藏彩蛋', p:'你抽到了「'+rare+'」——这个组合不多见,今年请对自己更狠一点(褒义)。'});
+    if(rare)parts.push({h:'✨ 隐藏彩蛋', p:'你抽到了「'+rare+'」。全部 864 种答题组合里只有 '+fmtP(RARITY_EGG[rare])+' 能触发它,今年请对自己更狠一点(褒义)。'});
     const tag='【'+CE.pick(rng,TAG1)+CE.pick(rng,TAG2)+'】';
     /* 四维先出(彩蛋整体抬升基线),本命指数由四维推导 */
     const _D=(lo,hi)=>Math.min(99,Math.round(lo+rng()*(hi-lo)));
@@ -193,14 +219,22 @@ $('go').onclick=()=>{
     const score=Math.max(Math.min(..._dv),Math.min(Math.max(..._dv),
       Math.round(0.30*_dv[0]+0.26*_dv[1]+0.20*_dv[2]+0.24*_dv[3]+(rng()*4-2))));
     const summary='像'+sel.q1+' · 想要'+sel.q2+' · 电量'+sel.q3;
+    const kwRate=RARITY_KW[keyword], cum=cumOf(score);
     const result={
       heading:'你的本命关键词', tag, sub:summary,
       big:score, bigLabel:'本命指数', dims, parts,
-      card:{kicker:'🔮 本命关键词', title:'「'+keyword+'」', sub:tag, big:score, bigLabel:'本命指数', dims, hook:'「'+keyword+'」'},
+      card:{kicker:'🔮 本命关键词', title:'「'+keyword+'」',
+            sub:tag+(kwRate?' · 出现率 '+fmtP(kwRate):''), big:score, bigLabel:'本命指数', dims, hook:'「'+keyword+'」'},
       shareText:'我的本命关键词是「'+keyword+'」!'+tag+' 来测测你的 👉 微信搜「Zion降噪」,回复「测测」拿全部'
     };
     $('loading').style.display='none';
     CE.render(cfg, result);
+    injectRarity(
+      (kwRate&&kwRate<2?'<span class="badge">稀有</span>':'')+
+      (kwRate?'40 个本命词里,「'+keyword+'」的出现率 <b>'+fmtP(kwRate)+'</b><br>':'')+
+      '本命指数 '+score+':'+lead(cum)+'<b>'+fmtP(cum)+'</b> 的结果能到这个分或更高'+
+      (rare?'<br>隐藏彩蛋「'+rare+'」的触发率 <b>'+fmtP(RARITY_EGG[rare])+'</b>':'')+
+      '<span class="src">占比由离线穷举全部 864 种答题组合统计得出 · 不含任何用户数据</span>');
   },600);
 };
 </script>

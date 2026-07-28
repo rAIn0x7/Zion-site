@@ -101,6 +101,11 @@
 .ce-faq summary::after{content:"+";position:absolute;right:16px;top:12px;color:var(--gold);font-family:var(--mono);font-size:20px;line-height:1.4;transition:.2s}
 .ce-faq details[open] summary::after{content:"−"}
 .ce-faq details .a{padding:0 16px 15px;color:#c7c2b8;font-size:13.5px;line-height:1.75}
+/* 稀有度提示(结果分布,离线预计算;克制小字,不抢主信息)*/
+.ce-rare{max-width:520px;margin:8px auto 0;padding:0 12px;text-align:center;font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--muted);letter-spacing:.02em}
+.ce-rare b{color:var(--gold-lt);font-weight:400}
+.ce-rare .badge{display:inline-block;margin-right:6px;padding:1px 7px;border:1px solid rgba(201,168,76,.5);border-radius:99px;background:rgba(201,168,76,.09);color:var(--gold);font-size:10.5px;letter-spacing:.08em}
+.ce-rare .src{display:block;margin-top:2px;color:var(--dim);font-size:10.5px}
 </style>
 </head>
 <body>
@@ -512,10 +517,10 @@ function simulate(){
   for(const e of real){if(!best||e.delta>best.delta)best=e;if(!worst||e.delta<worst.delta)worst=e;}
   const lineOf=e=>e?(e.age+' 岁,'+e.lines.map(l=>l.t).join(' ')):'——';
 
-  const {tag,comment}=verdict(s,score,tals,rng);
+  const {tag,comment,band}=verdict(s,score,tals,rng);
 
   return {
-    attrs:s,score,deathAge:realDeath,cause,tag,comment,peakHappy,
+    attrs:s,score,deathAge:realDeath,cause,tag,comment,band,peakHappy,
     highlight:best&&best.delta>0?lineOf(best):'平平淡淡也是一种福气,你没经历太多惊涛骇浪。',
     regret:worst&&worst.delta<0?lineOf(worst):'回头看,好像没什么特别遗憾的,已经很难得。',
     timeline,tals
@@ -553,8 +558,22 @@ function verdict(s,score,tals,rng){
     '重开保底':'开局一副烂牌,你打得很吃力,但你从没弃过牌。'
   }[band];
   const tagWord=pickN(rng,flavor);
-  return {tag:'【'+tagWord+'】',comment:comment};
+  return {tag:'【'+tagWord+'】',comment:comment,band:band};   // band 透出来给稀有度那行用,别再写第二份阈值
 }
+
+/* ══ 稀有度表(离线预计算 · 硬编码静态数据)══
+   模拟器每局都是新种子,但它仍是同一套确定性规则 → 结果分布可枚举。
+   离线跑了 20 万局(每局:随机种子 → 随机初始属性 → 抽 6 张候选天赋 → 等概率随机选 3 张 → 跑完一生),
+   统计评分档位、享年、天赋进候选的频率,结果表如下。运行时只查表,不做统计、不采集任何用户数据。
+   注:表里的评分分布对应"随机选天赋";会挑天赋的玩家分数会比这个偏高一点。 */
+const RARITY_BAND={'封神':5.0,'人生赢家':50.9,'还算圆满':26.3,'普普通通':11.5,'一言难尽':5.8,'重开保底':0.5};
+/* [年龄门槛, 享年 ≥ 该门槛的人生占比(%)] */
+const RARITY_AGE=[[120,0.04],[115,0.4],[110,1.3],[105,2.9],[100,5.4],[95,9.7],[90,16.1],[85,24.0],[80,33.4],[75,44.5],[70,55.2],[65,64.5],[60,71.4],[55,77.4],[50,84.0],[45,86.6],[40,89.0],[35,92.1],[30,95.6],[25,97.5],[20,98.9]];
+/* 单张天赋出现在你那 6 张候选里的概率(%),按稀有度档位;同档各天赋差异在 ±0.3 以内 */
+const RARITY_TAL={N:44.1,R:31.9,SR:17.3,SSR:8.9};
+function ageRate(a){for(const x of RARITY_AGE)if(a>=x[0])return x;return null;}
+const fmtP=p=>(p>0&&p<0.1)?'<0.1%':(Math.round(p*10)/10).toFixed(1)+'%';   // 极小概率别显示成 0.0%
+const lead=p=>p<15?'只占 ':'占 ';       // 常见档位别硬说"只",不然一眼假
 
 /* ═══════════ ③ 逐年播放 ═══════════ */
 let TL=[],ti=0,timer=null,speed=300,manualFast=false;
@@ -638,12 +657,25 @@ function showEnd(){
   };
   END_SHARE=shareText;
 
+  /* ── 稀有度那行(查上面的离线预计算表,只讲结果分布)── */
+  const bandRate=RARITY_BAND[r.band];
+  const ar=ageRate(r.deathAge);
+  const rarestTal=(r.tals||[]).slice().sort((a,b)=>(RARITY_TAL[a.rar]||99)-(RARITY_TAL[b.rar]||99))[0];
+  const rareHtml='<div class="ce-rare">'+
+    (((bandRate!=null&&bandRate<=5)||(ar&&ar[1]<5))?'<span class="badge">稀有</span>':'')+
+    (bandRate!=null?'「'+r.band+'」这一档在 20 万局模拟里'+lead(bandRate)+'<b>'+fmtP(bandRate)+'</b>':'')+
+    (ar?'<br>活到 '+ar[0]+' 岁以上的人生'+lead(ar[1])+'<b>'+fmtP(ar[1])+'</b>':'')+
+    (rarestTal?'<br>你带的 '+rarestTal.rar+' 天赋「'+esc(rarestTal.name)+'」,能进你那 6 张候选的概率 <b>'+fmtP(RARITY_TAL[rarestTal.rar])+'</b>':'')+
+    '<span class="src">占比由离线跑 20 万局模拟统计得出(天赋随机选)· 不含任何用户数据</span></div>';
+  if(END_MODEL)END_MODEL.sub=END_MODEL.sub+(bandRate!=null?' · 这一档占 '+fmtP(bandRate):'');
+
   const html=
     '<div class="ce-rt">🎮 一生总评</div>'+
     '<div class="ck-end-tag">'+r.tag+'</div>'+
     '<div class="ce-score"><div class="big">综合评分 <b>'+r.score+'</b></div>'+
       '<div class="ce-dims">'+ATTR_KEYS.map(k=>'<div class="ce-dim"><span class="n">'+Math.round(clamp(r.attrs[k],0,ATTR_MAX))+'</span>'+k+'</div>').join('')+'</div>'+
     '</div>'+
+    rareHtml+
     '<div class="ck-end-cause">'+esc(nick)+' · '+esc(G.gender)+' · 享年 '+r.deathAge+' 岁<br>🕯️ '+esc(r.cause)+'</div>'+
     recapHTML()+
     '<div class="ce-sec"><h4>这辈子值不值</h4><p>'+r.comment+'</p></div>'+

@@ -36,6 +36,11 @@
 .nd-bar .lb b{font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--gold-lt);letter-spacing:.03em}
 .nd-bar .tk{height:8px;border-radius:6px;background:rgba(201,168,76,.1);overflow:hidden;box-shadow:inset 0 0 0 1px rgba(201,168,76,.16)}
 .nd-bar .fl{height:100%;border-radius:6px;background:linear-gradient(90deg,rgba(201,168,76,.55),var(--gold-lt));width:0;transition:width 1s cubic-bezier(.2,.8,.2,1)}
+/* 稀有度提示(结果分布,离线预计算;克制小字,不抢主信息)*/
+.ce-rare{max-width:520px;margin:8px auto 0;padding:0 12px;text-align:center;font-family:var(--mono);font-size:11.5px;line-height:1.85;color:var(--muted);letter-spacing:.02em}
+.ce-rare b{color:var(--gold-lt);font-weight:400}
+.ce-rare .badge{display:inline-block;margin-right:6px;padding:1px 7px;border:1px solid rgba(201,168,76,.5);border-radius:99px;background:rgba(201,168,76,.09);color:var(--gold);font-size:10.5px;letter-spacing:.08em}
+.ce-rare .src{display:block;margin-top:2px;color:var(--dim);font-size:10.5px}
 </style>
 </head>
 <body>
@@ -132,6 +137,34 @@ const TWIST=[
 const TITLE=[['见习牛马·尚有人味',0],['半熟牛马·摇摆不定',45],['资深牛马·班味入体',65],['顶级牛马·腌得入味',82],['满级牛马·工位一体',92]];
 function titleOf(n){let t=TITLE[0][0];for(const x of TITLE)if(n>=x[1])t=x[0];return t;}
 
+/* ══ 稀有度表(离线预计算 · 硬编码静态数据)══
+   浓度公式带"当前状态"的偏移(加班 +10、躺平 -10…),所以各档占比要按状态分开算,
+   否则「加班中」的人会看到一个偏低的数字。离线对每种状态各跑 20 万个随机种子
+   (昵称随机、职业轮转)过同一套算法,统计各档出现频率,结果表如下。
+   顺序 = TITLE 顺序:见习 / 半熟 / 资深 / 顶级 / 满级;0 = 该状态下不可能出现(浓度公式够不到)。
+   运行时只查表,不做统计、不采集也不上传任何用户数据。 */
+const RARITY_BAND={
+  '在工位':[0,31.3,37.1,21.8,9.8],
+  '加班中':[0,9.7,36.9,21.8,31.6],
+  '摸鱼中':[1.1,43.4,37.1,18.4,0],
+  '躺平中':[9.9,43.4,37.0,9.8,0],
+  '想离职':[0,18.6,36.9,21.7,22.8]
+};
+const fmtP=p=>(p>0&&p<0.1)?'<0.1%':(Math.round(p*10)/10).toFixed(1)+'%';   // 极小概率别显示成 0.0%
+function bandRate(st,title){
+  const row=RARITY_BAND[st];if(!row)return null;
+  const i=TITLE.findIndex(x=>x[0]===title);
+  return (i<0||!row[i])?null:row[i];
+}
+/* 结果页:在大数字下方补一行克制的稀有度提示(engine.js 渲染完再插入,不改引擎)*/
+function injectRarity(html){
+  const box=document.getElementById('ce-report');
+  const a=box.querySelector('.ce-score')||box.querySelector('.ce-sub')||box.querySelector('.ce-tag');
+  if(!a)return;
+  const d=document.createElement('div');d.className='ce-rare';d.innerHTML=html;
+  a.parentNode.insertBefore(d,a.nextSibling);
+}
+
 const cfg={ id:'nongdu', 名字:'牛马浓度测试', 图标:'🐂' };
 
 $('go').onclick=()=>{
@@ -173,15 +206,21 @@ $('go').onclick=()=>{
     ];
 
     const tag='【'+title+'】';
+    const rate=bandRate(state,title);
     const result={
       heading:'牛马浓度检测报告', tag, sub:nick+' · '+job+' · '+state,
       big:pct, bigLabel:'牛马浓度 %', dims:dimsArr, parts,
-      card:{kicker:'🐂 牛马浓度测试', title:nick+' '+tag, sub:job+' · '+state, big:pct, bigLabel:'牛马浓度 %', dims:dimsArr, hook:review},
+      card:{kicker:'🐂 牛马浓度测试', title:nick+' '+tag, sub:job+' · '+state+(rate?' · 这一档占 '+fmtP(rate):''),
+            big:pct, bigLabel:'牛马浓度 %', dims:dimsArr, hook:review},
       shareText:'我的牛马浓度 '+pct+'%!'+tag+' 🐂 来测测你被腌入味了几成 👉 微信搜「Zion降噪」,回复「测测」拿全部'
     };
     $('loading').style.display='none';
     CE.render(cfg, result);
     injectBars(barsHtml);
+    if(rate)injectRarity(
+      (rate<5?'<span class="badge">稀有</span>':'')+
+      '同样选「'+state+'」的结果里,「'+title+'」这一档'+(rate<15?'只占 ':'占 ')+'<b>'+fmtP(rate)+'</b>'+
+      '<span class="src">占比由离线跑 20 万个随机种子统计得出 · 不含任何用户数据</span>');
   },600);
 };
 
