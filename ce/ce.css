@@ -48,15 +48,30 @@ header p{color:var(--muted);font-size:14px;margin-top:6px}
 .ce-dim{font-family:var(--mono);font-size:10.5px;color:var(--muted);text-align:center}.ce-dim .n{display:block;font-family:var(--display);font-size:24px;color:var(--gold-lt)}
 .ce-sec{margin:16px 0}.ce-sec h4{font-size:14.5px;color:var(--white);margin-bottom:5px}.ce-sec p{color:#c7c2b8;font-size:14px;line-height:1.75}
 .ce-lockcta{margin:16px 0;border:1px solid rgba(201,168,76,.42);border-radius:12px;padding:16px;background:rgba(201,168,76,.06);text-align:center;font-size:13.5px;line-height:1.7}.ce-lockcta b{color:var(--gold-lt)}
-.ce-lockZone{transition:filter .3s}.ce-lockZone.ce-blur{filter:blur(6px);pointer-events:none;user-select:none}
+/* 锁区:不再整片高斯糊(那样看不出被拿走了什么)。JS 把字换成同类随机字符 → 行数/长度/段落形状照旧,
+   只是读不出内容;CSS 只做"降对比 + 极轻糊 + 底部渐隐",让人一眼看到"下面压着一大段具体的东西"。 */
+.ce-lockZone{transition:filter .3s,opacity .3s}
+.ce-lockZone.ce-blur{position:relative;filter:blur(.7px) saturate(.55);opacity:.5;pointer-events:none;user-select:none}
+.ce-lockZone.ce-blur .ce-sec p{color:#b8b3a9}
+.ce-lockZone.ce-blur::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(18,16,13,0) 30%,rgba(18,16,13,.55) 100%);pointer-events:none}
 .ce-cta{margin:18px 0 4px;text-align:center;border-top:1px solid var(--border);padding-top:18px}.ce-cta .ct{color:var(--gold-lt);font-size:14px}.ce-cta .cb{color:var(--muted);font-size:12px;margin-top:6px}
 .ce-wm{text-align:center;color:var(--dim);font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;margin-top:16px}
 /* 分享浮层 */
 .ce-shareov{position:fixed;inset:0;background:rgba(0,0,0,.86);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px;gap:14px}
 .ce-shareov.on{display:flex}
 .ce-shareov img{max-width:min(86vw,340px);max-height:70vh;border-radius:14px;box-shadow:0 10px 44px rgba(0,0,0,.6)}
-.ce-shareov .svtip{color:var(--gold-lt);font-family:var(--mono);font-size:12.5px;text-align:center}
+.ce-shareov .svtip{color:var(--gold-lt);font-family:var(--mono);font-size:12.5px;text-align:center;max-width:min(86vw,360px)}
 .ce-shareov .svbtns{display:flex;gap:10px}
+.ce-shareov img.r34{max-width:min(72vw,300px)}
+/* 导出比例切换(手机竖版 / 小红书 3:4)*/
+.ce-ratio{display:flex;gap:6px;background:rgba(255,255,255,.06);border:1px solid var(--border);border-radius:99px;padding:4px}
+.ce-ratio button{font-family:var(--mono);font-size:12px;color:var(--muted);background:transparent;border:0;border-radius:99px;padding:8px 14px;cursor:pointer;transition:.2s;white-space:nowrap}
+.ce-ratio button:hover{color:var(--gold-lt)}
+.ce-ratio button.on{color:var(--black);background:linear-gradient(180deg,#f0d488,#c9a84c);font-weight:600}
+/* 复制战报:toast + 复制失败时的手动兜底文本 */
+.ce-toast{position:fixed;left:50%;bottom:34px;transform:translate(-50%,14px);z-index:300;max-width:86vw;padding:11px 18px;border-radius:99px;background:rgba(20,17,13,.96);border:1px solid rgba(201,168,76,.45);color:var(--gold-lt);font-family:var(--mono);font-size:13px;box-shadow:0 12px 34px -10px rgba(0,0,0,.8);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s}
+.ce-toast.on{opacity:1;transform:translate(-50%,0)}
+.ce-copyfall{display:none;white-space:pre-wrap;user-select:all;-webkit-user-select:all;margin:12px 0 0;padding:12px 14px;border:1px dashed var(--border);border-radius:10px;background:rgba(201,168,76,.04);color:#c7c2b8;font-family:var(--mono);font-size:12px;line-height:1.7}
 /* 聚合页卡片墙 */
 .ce-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:640px;margin:24px auto;padding:0 20px}
 .ce-card{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:20px;transition:.2s;cursor:pointer;display:block}

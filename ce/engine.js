@@ -109,6 +109,32 @@ window.CE = (function () {
   /* 色块上文字亮/暗自适应(按感知明度;colorcard 用)*/
   function _lum(hex){hex=String(hex||'').replace('#','');if(hex.length<6)return 1;const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);if(isNaN(r+g+b))return 1;return (0.299*r+0.587*g+0.114*b)/255;}
   function _txtOn(hex){return _lum(hex)>0.62?'#2b2721':'#fdfbf6';}
+  /* ── 颜色工具(给"按分档做主题变体"用;纯函数,解析失败一律原样返回,永不炸卡)── */
+  function _hex2rgb(h){h=String(h||'').trim().replace('#','');if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];if(!/^[0-9a-fA-F]{6}$/.test(h))return null;const n=parseInt(h,16);return [n>>16&255,n>>8&255,n&255];}
+  function _rgb2hex(r,g,b){const f=v=>('0'+Math.max(0,Math.min(255,Math.round(v))).toString(16)).slice(-2);return '#'+f(r)+f(g)+f(b);}
+  function _rgb2hsl(r,g,b){r/=255;g/=255;b/=255;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2;let h=0,s=0;if(mx!==mn){const d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4);h*=60;}return [h,s,l];}
+  function _hsl2rgb(h,s,l){h=((h%360)+360)%360/360;if(s<=0){const v=l*255;return [v,v,v];}const q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;const f=t=>{t=(t+1)%1;return t<1/6?p+(q-p)*6*t:t<.5?q:t<2/3?p+(q-p)*(2/3-t)*6:p;};return [f(h+1/3)*255,f(h)*255,f(h-1/3)*255];}
+  function _hlerp(h,to,w){const d=((to-h+540)%360)-180;return (h+d*w+360)%360;}
+  /* k∈[-.5,+.5]:负=低档(更冷更暗更灰) / 正=高档(更亮更饱和) */
+  function _tune(hex,k){const rgb=_hex2rgb(hex);if(!rgb)return hex;let[h,s,l]=_rgb2hsl(rgb[0],rgb[1],rgb[2]);
+    if(k<0)h=_hlerp(h,214,Math.min(.42,-k*.8));                   // 低档:色相往冷蓝挪
+    s=Math.max(.02,Math.min(1,s*(1+k*1.5)+Math.max(0,k)*.16));    // 高档更饱和(并给一点绝对提升,冷灰主题也拉得开)
+    l=Math.max(.09,Math.min(.95,l+k*.26));                        // 高档更亮、低档更暗
+    const o=_hsl2rgb(h,s,l);return _rgb2hex(o[0],o[1],o[2]);}
+  function _tuneTriple(tri,k){const p=String(tri||'').split(',').map(Number);if(p.length!==3||p.some(v=>!isFinite(v)))return tri;
+    const hx=_tune(_rgb2hex(p[0],p[1],p[2]),k),o=_hex2rgb(hx);return o?o.join(','):tri;}
+  function _tuneAlpha(col,k){return String(col||'').replace(/rgba\(([^)]+)\)/i,(m,inner)=>{const p=inner.split(',');if(p.length!==4)return m;
+    const a=parseFloat(p[3]);if(!isFinite(a))return m;return 'rgba('+p[0]+','+p[1]+','+p[2]+','+Math.max(.08,Math.min(.95,a*(1+k*.5))).toFixed(3)+')';});}
+  /* tier:0~1 数值(>1 视为百分制)或 'low'|'mid'|'high'|'max';不认识 → null(视觉完全不变)*/
+  const TIER_MAP={low:.16,lo:.16,l:.16,mid:.45,middle:.45,m:.45,high:.72,hi:.72,h:.72,max:1,peak:1,top:1};
+  function _tierVal(v){
+    if(v==null||v==='')return null;
+    if(typeof v==='number'){if(!isFinite(v))return null;const n=v>1?v/100:v;return Math.max(0,Math.min(1,n));}
+    const k=String(v).trim().toLowerCase();
+    if(TIER_MAP[k]!=null)return TIER_MAP[k];
+    if(/^[\d.]+%?$/.test(k)){const n=parseFloat(k);if(isFinite(n))return Math.max(0,Math.min(1,n>1?n/100:n));}
+    return null;
+  }
   /* ── 分享卡装饰基元(纯 canvas,无外链;每个都 save/restore 自洽,不污染后续文字样式)── */
   function _oDot(x,cx,cy,r,col,a){x.save();x.globalAlpha=a;x.fillStyle=col;x.beginPath();x.arc(cx,cy,r,0,6.2832);x.fill();x.restore();}
   function _oSpark(x,cx,cy,r,col,a){x.save();x.globalAlpha=a;x.fillStyle=col;x.beginPath();x.moveTo(cx,cy-r);x.quadraticCurveTo(cx+r*.16,cy-r*.16,cx+r,cy);x.quadraticCurveTo(cx+r*.16,cy+r*.16,cx,cy+r);x.quadraticCurveTo(cx-r*.16,cy+r*.16,cx-r,cy);x.quadraticCurveTo(cx-r*.16,cy-r*.16,cx,cy-r);x.closePath();x.fill();x.restore();}
@@ -160,11 +186,35 @@ window.CE = (function () {
       ornament(x,W,H,t){ const px=(ox,oy,s,col,a)=>{x.save();x.globalAlpha=a;x.fillStyle=col;x.fillRect(ox,oy,s,s);x.restore();}; px(40,50,7,t.accent,.5);px(49,50,7,t.hook,.4);px(40,59,7,t.hook,.35); px(W-47,52,7,t.accent,.5);px(W-56,52,7,t.hook,.4);px(W-47,61,7,t.hook,.35); const ph=(ox,oy)=>{const s=4;[[1,0],[3,0],[0,1],[1,1],[2,1],[3,1],[4,1],[1,2],[2,2],[3,2],[2,3]].forEach(p=>px(ox+p[0]*s,oy+p[1]*s,s,t.accent,.4));}; ph(44,H-118); ph(W-72,H-118); } }
   };
 
+  /* ── 主题解析:工具主题 → 再按结果强度(model.tier)做"档位变体" ──
+     同一工具的不同称号(如牛马浓度 low/mid/high/max)出的卡不再是同一张:高档更亮更饱和、低档更冷更暗。
+     没传 tier 的工具 → 原封不动返回工具主题对象本身,视觉与升级前逐字段等价(零回归)。 */
+  function themeFor(model){
+    const base=(model&&model.themeId&&THEMES[model.themeId])||THEMES._default;
+    const tv=_tierVal(model&&model.tier);
+    if(tv==null)return base;
+    const k=tv-0.5;                                   // -0.5 最低档 → +0.5 最高档
+    const t=Object.assign({},base);                   // 浅拷贝:ornament 等原样带过来
+    t.accent   =_tune(base.accent,k);
+    t.hl       =_tune(base.hl,k*0.8);
+    t.hook     =_tune(base.hook,k*0.8);
+    t.muted    =_tune(base.muted,k*0.45);
+    t.accentDim=_tune(base.accentDim,k*0.5);
+    t.glow     =_tuneTriple(base.glow,k);
+    t.border   =_tuneAlpha(base.border,k);
+    t.divider  =_tuneAlpha(base.divider,k);
+    t.tierV=tv;                                       // 供光晕强度用
+    return t;
+  }
+
   /* 底部区(二维码/引导)占位高度:从"白底托的顶边 / 首行文案的顶边"到卡片底边 —— 卡片总高 = 内容高 + 留白 + 它 */
   const BOT_QR=209, BOT_TXT=75;
+  /* 导出比例:phone=现有手机竖版(540×动态高) / 34=小红书 1080×1440(逻辑 540×720,重新排版而非拉伸)*/
+  const RATIO_34_H=720;
 
-  function drawCard(model, qr){
-    const t=(model&&model.themeId&&THEMES[model.themeId])||THEMES._default; // 无主题 → 金黑(与现状逐字段等价)
+  function drawCard(model, qr, opts){
+    const t=themeFor(model);                                               // 无主题 → 金黑;有 tier → 档位变体
+    const wide=!!(opts&&/^3[:x_-]?4$/.test(String(opts.ratio||'')));       // '3:4' / '34' → 小红书比例
     const cards=(Array.isArray(model.cards)&&model.cards.length)?model.cards:null; // 可选:牌面小图(塔罗用)
     const cc=(model.colorcard&&model.colorcard.main)?model.colorcard:null;         // 可选:本命色卡(主色+辅助色,sekapian 用)
     const ccAux=cc&&Array.isArray(cc.aux)?cc.aux.slice(0,4):[];
@@ -230,7 +280,8 @@ window.CE = (function () {
       /* ── 大数字(全卡主角:光晕 + Bebas,跳出来)── */
       if(model.big!=null){
         x.fillStyle=t.muted;x.font='12px '+F_MONO;_ls(x,'1px');x.fillText(model.bigLabel||'',W/2,Y);_ls(x,'0px');Y+=58;
-        x.save();x.shadowColor='rgba('+t.glow+',.55)';x.shadowBlur=24;x.fillStyle=t.hl;x.font='700 76px '+F_NUM;x.fillText(String(model.big),W/2,Y);x.restore();
+        const bA=t.tierV==null?.55:(.34+.42*t.tierV), bB=t.tierV==null?24:Math.round(16+18*t.tierV); // 有分档:高档大数字光更炸
+        x.save();x.shadowColor='rgba('+t.glow+','+bA.toFixed(2)+')';x.shadowBlur=bB;x.fillStyle=t.hl;x.font='700 76px '+F_NUM;x.fillText(String(model.big),W/2,Y);x.restore();
         Y+=44;
       }
 
@@ -262,33 +313,44 @@ window.CE = (function () {
     try{const mc=document.createElement('canvas');mc.width=mc.height=8;contentH=flow(mc.getContext('2d'),0);}
     catch(e){contentH=(qr?740:650)-(qr?BOT_QR:BOT_TXT)-26;}   // 极端兜底:退回原固定高度的等效值
 
-    /* ── ② 定高:高度跟着内容走,不再写死 ── */
+    /* ── ② 定高:手机版高度跟着内容走;3:4 版高度写死 720(=1080×1440),靠留白/等比缩放重新排版 ── */
     const BOT=qr?BOT_QR:BOT_TXT, GAP=qr?26:24, MINH=qr?560:430;   // GAP=内容与底部区之间的呼吸;MINH=兜底,只对最短的卡(如起名:标题+副标+钩子)生效
     const need=Math.round(contentH+GAP+BOT);
-    const H=Math.max(MINH,need);
-    const dy=Math.min(56,Math.max(0,Math.round((H-need)*0.7)));    // 触发最小高时富余主要补到顶部(至多 56),别全堆在二维码上方变死区
+    let H, dy, cs=1;                                              // cs=内容等比缩放(仅 3:4 且内容超高时 <1,等比不变形)
+    if(wide){
+      H=RATIO_34_H;
+      const avail=H-BOT-GAP;                                      // 内容可用高度
+      if(contentH<=avail){dy=Math.max(0,Math.round((avail-contentH)/2));} // 内容居中,上下留白对称
+      else{dy=0;cs=avail/contentH;}                               // 内容超高 → 整块等比缩到刚好放下(宽度同步收,居中,绝不拉伸)
+    }else{
+      H=Math.max(MINH,need);
+      dy=Math.min(56,Math.max(0,Math.round((H-need)*0.7)));        // 触发最小高时富余主要补到顶部(至多 56),别全堆在二维码上方变死区
+    }
 
     /* ── ③ 画 ── */
     const c=document.createElement('canvas');c.width=W*S;c.height=H*S;
     const x=c.getContext('2d');x.scale(S,S);x.textAlign='center';x.textBaseline='alphabetic';
 
-    /* ── 底 + 顶部光晕(略上移,把光托在标题/大数字后面)── */
+    /* ── 底 + 顶部光晕(略上移,把光托在标题/大数字后面;有 tier 时光晕强度随档位走)── */
+    const gA=(t.tierV==null?.17:(.09+.17*t.tierV)).toFixed(3);
+    const gy=wide?Math.round(196+dy*0.55):196;
     x.fillStyle=t.bg;x.fillRect(0,0,W,H);
-    const g=x.createRadialGradient(W/2,196,30,W/2,196,450);g.addColorStop(0,'rgba('+t.glow+',.17)');g.addColorStop(1,'rgba('+t.glow+',0)');x.fillStyle=g;x.fillRect(0,0,W,H);
+    const g=x.createRadialGradient(W/2,gy,30,W/2,gy,450);g.addColorStop(0,'rgba('+t.glow+','+gA+')');g.addColorStop(1,'rgba('+t.glow+',0)');x.fillStyle=g;x.fillRect(0,0,W,H);
     if(t.ornament){try{t.ornament(x,W,H,t);}catch(e){}x.textAlign='center';x.textBaseline='alphabetic';x.globalAlpha=1;x.shadowBlur=0;_ls(x,'0px');} // 纹样后彻底复位,防污染文字
 
     /* ── 双描边外框(外实内虚,更精致)── */
     x.strokeStyle=t.border;x.lineWidth=1.5;_rr(x,16,16,W-32,H-32,18);x.stroke();
     x.save();x.globalAlpha=.55;x.strokeStyle=t.divider;x.lineWidth=1;_rr(x,23,23,W-46,H-46,13);x.stroke();x.restore();
 
-    flow(x,dy);
+    if(cs!==1){x.save();x.translate(W*(1-cs)/2,0);x.scale(cs,cs);flow(x,dy);x.restore();x.textAlign='center';x.textBaseline='alphabetic';}
+    else flow(x,dy);
 
-    /* ── 底部:二维码 / 引导 ── */
+    /* ── 底部:二维码 / 引导(微信封了域名 → 文案只教"长按识别"这个真能走通的动作)── */
     if(qr){const q=104,qx=(W-q)/2,qy=H-198;
       x.save();x.shadowColor='rgba(0,0,0,.4)';x.shadowBlur=14;x.fillStyle='#fff';_rr(x,qx-11,qy-11,q+22,q+22,14);x.fill();x.restore(); // 白底圆角托,扫码更稳更干净
       x.drawImage(qr,qx,qy,q,q);
-      x.fillStyle=t.accent;x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText('扫码关注「Zion降噪」· 每天一条信号帮你降噪',W/2,H-58);_ls(x,'0px');
-      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('qizh.space · 仅供娱乐',W/2,H-34);}
+      x.fillStyle=t.accent;x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText('长按这张图 · 识别二维码 → 关注「Zion降噪」',W/2,H-58);_ls(x,'0px');
+      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('识别不出?微信搜「Zion降噪」· 仅供娱乐',W/2,H-34);}
     else{x.fillStyle=t.accent;x.font='13px '+F_MONO;_ls(x,'.3px');x.fillText('微信搜「Zion降噪」测你的',W/2,H-60);_ls(x,'0px');
       x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('qizh.space · 仅供娱乐',W/2,H-36);}
     return c;
@@ -296,7 +358,46 @@ window.CE = (function () {
 
   /* ── 结果状态 & 分享即解锁 ── */
   let _last=null;
-  function applyLock(){const u=localStorage.getItem('ce_unlocked_'+(_last&&_last.toolId))==='1';const z=document.getElementById('ce-lockZone'),ct=document.getElementById('ce-lockCta');if(z)z.classList.toggle('ce-blur',!u);if(ct)ct.style.display=u?'none':'block';}
+
+  /* ── 锁区"保留词形的乱码"(替代整片高斯模糊)──
+     把锁区里的汉字/字母/数字逐字换成同类随机字符,标点、空格、换行、字数一律不动 →
+     行数/长度/段落形状与真文案完全一致,用户一眼看出"下面压着一大段具体内容",但读不出内容。
+     原文存在 _lockSnap(内存,不写 DOM),解锁时按节点逐个写回,100% 还原。 */
+  const SCRAM_CJK='的一是在不了有和人这中大为上个国我以要他时来用们生到作地于出就分对成会可主发年动同工也能下过子说产种面而方后多定行学法所民得经十三之进着等部度家电力里如水化高自二理起小物现实加量都两体制机当使点从业本去把性好应开它合还因由其些然前外天政四日那社义事平形相全表间样与关各重新线内数正心反你明看原又么利比或但质气第向道命此变条只没结解问意建月公无系军很情者最立代想已通并提直题党程展五果料象员革位入常文总次品式活设及管特件长求老头基资边流路级少图山统接知较将组见计别她手角期根论运农指几九区强放决西被干做必战先回则任取据处队南给色光门即保治北造百规热领七海口东导器压志世金增争济阶油思术极交受联什认六共权收证改清己美再采转更单风切打白教速花带安场身车例真务具万每目至达走积示议声报斗完类八离华名确才科张信马节话米整空元况今集温传土许步群广石记需段研界拉林律叫且究观越织装影算低持音众书布复容儿须际商非验连断深难近矿千周委素技备半办青省列习响约支般史感劳便团往酸历市克何除消构府称太准精值号率族维划选标写存候毛亲快效斯院查江型眼王按格养易置派层片始却专状育厂京识适属圆包火住调满县局照参红细引听该铁价严龙飞';
+  let _lockSnap=null;               // [[textNode, 原文], …];null=没有做过乱码
+  function _scrChar(ch,rnd){
+    if(/[㐀-鿿]/.test(ch))           return SCRAM_CJK[Math.floor(rnd()*SCRAM_CJK.length)];
+    if(/[a-z]/.test(ch))                    return 'abcdefghijklmnopqrstuvwxyz'[Math.floor(rnd()*26)];
+    if(/[A-Z]/.test(ch))                    return 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[Math.floor(rnd()*26)];
+    if(/[0-9]/.test(ch))                    return String(Math.floor(rnd()*10));
+    return ch;                               // 标点/空格/换行/emoji 一律保留 → 段落形状不变
+  }
+  function _walkText(root,fn){
+    try{const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,null);let n;while((n=w.nextNode()))fn(n);}
+    catch(e){}                               // 极端环境退化:不做乱码(仍有 CSS 兜底遮罩)
+  }
+  function scrambleLock(z){
+    if(!z||_lockSnap)return;
+    const rnd=Math.random, snap=[];
+    _walkText(z,n=>{
+      const s=n.nodeValue; if(!s||!/\S/.test(s))return;
+      snap.push([n,s]);
+      let o=''; for(const ch of s)o+=_scrChar(ch,rnd);
+      n.nodeValue=o;
+    });
+    _lockSnap=snap;
+  }
+  function unscrambleLock(){
+    if(!_lockSnap)return;
+    _lockSnap.forEach(p=>{try{p[0].nodeValue=p[1];}catch(e){}});   // 逐节点写回真文本,100% 还原
+    _lockSnap=null;
+  }
+  function applyLock(){
+    const u=localStorage.getItem('ce_unlocked_'+(_last&&_last.toolId))==='1';
+    const z=document.getElementById('ce-lockZone'),ct=document.getElementById('ce-lockCta');
+    if(z){z.classList.toggle('ce-blur',!u);if(u)unscrambleLock();else scrambleLock(z);}
+    if(ct)ct.style.display=u?'none':'block';
+  }
   async function shareCard(){
     if(!_last)return;
     try{await _warmFonts();}catch(e){}   // 画之前确保自托管拉丁字体已就绪,首图不掉字
@@ -309,30 +410,106 @@ window.CE = (function () {
     }
     const qr=await loadWxQR(); const canvas=drawCard(_last.card,qr),dataUrl=canvas.toDataURL('image/png');
     localStorage.setItem('ce_unlocked_'+_last.toolId,'1');applyLock();
-    const txt=_last.shareText||('我测了「'+_last.toolName+'」,来测测你的 👉 qizh.space');
+    const txt=_last.shareText||('我测了「'+_last.toolName+'」,微信搜「Zion降噪」测你的');
     try{const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));if(blob&&navigator.canShare){const f=new File([blob],'card.png',{type:'image/png'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],text:txt});return;}}}catch(e){}
-    const wx=/MicroMessenger/i.test(navigator.userAgent);
+    _shareQR=qr;_shareCache={phone:dataUrl};                    // 3:4 版按需再画,不白花时间
+    showShare('phone');
+  }
+
+  /* ── 分享浮层里的比例切换(手机竖版 / 小红书 3:4)── */
+  let _shareQR=null,_shareCache={},_shareRatio='phone';
+  function showShare(ratio){
+    if(!_last)return;
     const ov=document.getElementById('ce-shareov'),im=document.getElementById('ce-shareimg');
-    im.src=dataUrl;ov.classList.add('on');
-    document.getElementById('ce-svtip').textContent=wx?'长按图片保存,发朋友圈 📲':'长按图片保存,或点下方下载';
-    const dl=document.getElementById('ce-svdl');dl.style.display=wx?'none':'';dl.onclick=()=>{const a=document.createElement('a');a.href=dataUrl;a.download='card.png';a.click();};
+    if(!ov||!im)return;
+    _shareRatio=ratio==='34'?'34':'phone';
+    let url=_shareCache[_shareRatio];
+    if(!url){try{url=drawCard(_last.card,_shareQR,{ratio:_shareRatio==='34'?'3:4':'phone'}).toDataURL('image/png');_shareCache[_shareRatio]=url;}catch(e){return;}}
+    im.src=url;im.classList.toggle('r34',_shareRatio==='34');
+    ov.classList.add('on');
+    const wx=/MicroMessenger/i.test(navigator.userAgent);
+    const tip=document.getElementById('ce-svtip');
+    if(tip)tip.textContent=_shareRatio==='34'
+      ? (wx?'1080×1440 · 长按保存,发小红书 📕':'1080×1440 小红书尺寸 · 点下方下载')
+      : (wx?'长按图片保存,发朋友圈 📲(朋友长按图就能识别码)':'长按图片保存,或点下方下载');
+    const rw=document.getElementById('ce-ratio');
+    if(rw)rw.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.r===_shareRatio));
+    const dl=document.getElementById('ce-svdl');
+    if(dl){dl.style.display=wx?'none':'';dl.onclick=()=>{const a=document.createElement('a');a.href=url;a.download=_shareRatio==='34'?'card-1080x1440.png':'card.png';a.click();};}
   }
 
   /* ── 分享浮层(引擎自动注入,工具页无需重复)── */
   function ensureOverlay(){
     if(document.getElementById('ce-shareov'))return;
     const ov=document.createElement('div');ov.className='ce-shareov';ov.id='ce-shareov';
-    ov.innerHTML='<img id="ce-shareimg" alt="分享卡"><div class="svtip" id="ce-svtip">长按图片保存,发朋友圈 📲</div><div class="svbtns"><button class="ce-btn g" id="ce-svdl">下载图片</button><button class="ce-btn" id="ce-svclose">关闭</button></div>';
+    ov.innerHTML='<img id="ce-shareimg" alt="分享卡">'
+      +'<div class="ce-ratio" id="ce-ratio"><button type="button" class="on" data-r="phone">📱 手机竖版</button><button type="button" data-r="34">📕 小红书 3:4</button></div>'
+      +'<div class="svtip" id="ce-svtip">长按图片保存,发朋友圈 📲</div>'
+      +'<div class="svbtns"><button class="ce-btn g" id="ce-svdl">下载图片</button><button class="ce-btn" id="ce-svclose">关闭</button></div>';
     document.body.appendChild(ov);
     document.getElementById('ce-svclose').onclick=()=>ov.classList.remove('on');
+    document.getElementById('ce-ratio').querySelectorAll('button').forEach(b=>{b.onclick=()=>showShare(b.dataset.r);});
     ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');});
+  }
+
+  /* ── 纯文本战报(微信唯一 100% 能粘贴的通道:不放被封的域名,只放"搜公众号"这条活路径)──
+     数据全从 card model 里取 → 所有工具白嫖,工具页零改动。 */
+  function _bar(v){let n=Math.floor(v/10);if(v>0&&n<1)n=1;n=Math.max(0,Math.min(10,n));return '█'.repeat(n)+'░'.repeat(10-n);}
+  function buildReportText(){
+    if(!_last)return '';
+    const m=_last.card||{},L=[];
+    L.push(String(m.kicker||('🧪 '+(_last.toolName||'测测'))).trim());
+    if(m.title)L.push(String(m.title));
+    if(m.sub)L.push(String(m.sub));
+    if(m.big!=null){
+      const lb=String(m.bigLabel||'').trim();
+      L.push(/%$/.test(lb)?(lb.replace(/\s*%$/,'')+' '+m.big+'%'):((lb?lb+' ':'')+m.big));
+    }
+    if(Array.isArray(m.cards)&&m.cards.length)
+      L.push(m.cards.map(c=>(c&&c.pos?c.pos+':':'')+((c&&c.name)||'')+(c&&c.rev?'(逆)':'')).join(' / '));
+    if(m.colorcard&&m.colorcard.main)
+      L.push('本命主色 '+(m.colorcard.main.name||'')+' '+String(m.colorcard.main.hex||'').toUpperCase());
+    (m.dims||[]).forEach(d=>{
+      const raw=String(d[1]),v=parseFloat(raw.replace(/[^\d.\-]/g,''));
+      L.push(/^\s*[\d.]+\s*%?\s*$/.test(raw)&&isFinite(v)&&v<=100&&v>=0 ? String(d[0])+' '+_bar(v)+' '+raw : String(d[0])+' '+raw);
+    });
+    if(m.hook)L.push('「'+String(m.hook).replace(/\s+/g,' ').trim()+'」');
+    L.push('——————————');
+    L.push('👉 微信搜「Zion降噪」,回复「测测」,17 个测试随便玩');
+    L.push('(微信里链接打不开,搜公众号名字就行)');
+    return L.filter(s=>s&&String(s).trim()).join('\n');
+  }
+  function toast(msg){
+    let el=document.getElementById('ce-toast');
+    if(!el){el=document.createElement('div');el.id='ce-toast';el.className='ce-toast';document.body.appendChild(el);}
+    el.textContent=msg;el.classList.remove('on');void el.offsetWidth;el.classList.add('on');
+    clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),2000);
+  }
+  async function copyReport(){
+    const txt=buildReportText();
+    if(!txt){toast('还没有结果可复制');return false;}
+    let ok=false;
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(txt);ok=true;}}catch(e){}
+    if(!ok){                                        // 降级:老浏览器 / 非安全上下文 / 微信内核
+      try{
+        const ta=document.createElement('textarea');ta.value=txt;
+        ta.setAttribute('readonly','');ta.style.cssText='position:fixed;left:-9999px;top:0;opacity:0';
+        document.body.appendChild(ta);ta.select();ta.setSelectionRange(0,txt.length);
+        ok=document.execCommand('copy');document.body.removeChild(ta);
+      }catch(e){ok=false;}
+    }
+    toast(ok?'✅ 战报已复制 · 直接粘到微信群':'复制失败,长按下方文字手动复制');
+    if(!ok){const p=document.getElementById('ce-copyfall');if(p){p.textContent=txt;p.style.display='block';}}
+    return ok;
   }
 
   /* ── 渲染报告(标签/分数/四维/分段 + 锁区)── */
   function render(cfg, result){
     ensureOverlay();
+    _lockSnap=null;_shareCache={};                                    // 换一次结果 → 旧原文快照/旧分享图一律作废
     _last={toolId:cfg.id,toolName:cfg.名字||cfg.name,card:result.card,shareText:result.shareText};
     if(result.card&&cfg&&cfg.id!=null&&result.card.themeId==null)result.card.themeId=cfg.id; // 按工具 id 选主题(工具页零改动;未列入 THEMES 者自动回落金黑)
+    if(result.card&&result.card.tier==null&&result.tier!=null)result.card.tier=result.tier;  // 工具若给了分档 → 卡片走"档位变体"配色;没给则视觉不变
     const box=document.getElementById('ce-report');
     const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     // 四维/大数字一律走 esc:现在传的都是常量或数字,但下一个工具往里塞用户输入时就是 XSS,这里先堵死
@@ -349,16 +526,18 @@ window.CE = (function () {
       </div>
       <div class="ce-cta"><div class="ct">🔓 解锁更深 · 每天一条「降噪信号」帮你少焦虑</div>
         <div class="ce-qrs">
-          <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪"><b>扫码关注公众号</b><span>「Zion降噪」· 每天降噪信号 + 新测试抢先玩</span></div>
-          <div class="ce-qr"><img src="/planet-qr.png" alt="知识星球" loading="lazy"><b>扫码进知识星球</b><span>和同频的人一起搞事、拿工具</span></div>
+          <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪"><b>长按识别 · 关注公众号</b><span>「Zion降噪」· 手指按住上面这张码 → 识别 → 关注</span></div>
+          <div class="ce-qr"><img src="/planet-qr.png" alt="知识星球" loading="lazy"><b>长按识别 · 进知识星球</b><span>同上,长按这张码 → 和同频的人搞事、拿工具</span></div>
         </div>
         <a class="ce-btn g" href="/join/" style="display:inline-block;margin:6px 0 4px;text-decoration:none">加入「降噪·静音舱」→</a>
         <div class="cb">微信里打不开链接?复制到浏览器:<b>${JOIN_URL}</b></div></div>
-      <div class="ce-row"><button class="ce-btn g" id="ce-share">📤 甩给最该看的人</button><button class="ce-btn" id="ce-again">再测一次</button></div>
+      <div class="ce-row"><button class="ce-btn g" id="ce-share">📤 甩给最该看的人</button><button class="ce-btn" id="ce-copy">📋 复制文字战报</button><button class="ce-btn" id="ce-again">再测一次</button></div>
+      <div class="ce-copyfall" id="ce-copyfall"></div>
       <div class="ce-retention">🌙 明天再来测,运势/心情每天都在变 · 把结果甩给最该看的那个人,反应最真实 👀</div>
       ${buildMore(cfg.id)}
       <div class="ce-wm">qizh.space · 微信搜「Zion降噪」· 仅供娱乐</div>`;
     document.getElementById('ce-share').onclick=shareCard;
+    const cp=document.getElementById('ce-copy');if(cp)cp.onclick=copyReport;
     const ls=document.getElementById('ce-lockShare');if(ls)ls.onclick=shareCard;
     document.getElementById('ce-again').onclick=()=>{document.getElementById('ce-report').style.display='none';document.getElementById('ce-stage').style.display='block';window.scrollTo({top:0,behavior:'smooth'});};
     applyLock();
@@ -368,5 +547,6 @@ window.CE = (function () {
 
   return { rngFrom, pick, wpick, imgHash, buildParts, llm, render, drawCard,
            TOOLS, JOIN_URL, buildMore,
-           util:{xmur3,mulberry32} };
+           buildReportText, copyReport, toast, showShare, themeFor,
+           util:{xmur3,mulberry32,tierVal:_tierVal} };
 })();
