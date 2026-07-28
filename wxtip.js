@@ -3,6 +3,10 @@
    放在站点根:各页 <script src="/wxtip.js" defer></script> 引入即可。 */
 (function () {
   if (!/MicroMessenger/i.test(navigator.userAgent || '')) return;      // 只在微信内显示
+  /* 只有被微信封的域名才需要这条自救提示。
+     rain0x7.github.io 是给微信用的镜像(2026-07-28 实测微信内可正常打开),
+     在那上面弹"打不开、去浏览器"反而是错的信息,直接不显示。 */
+  if (!/(^|\.)qizh\.space$/i.test(location.hostname)) return;
   function init() {
     if (sessionStorage.getItem('wxtip_x')) return;                      // 本次会话关过就不再弹
     var bar = document.createElement('div');
