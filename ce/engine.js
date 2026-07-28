@@ -11,6 +11,22 @@ window.CE = (function () {
      镜像由 Actions 每 2 小时从主站同步,路径与主站逐字一致 → 分享卡上的码/文本战报里的链接都走它。 */
   const WX_HOST  = 'https://rain0x7.github.io';
 
+  /* ── 事件度量:实现在 /assets/track.js(唯一真源,非 ce 页也引它)──
+     这里只做异步加载 + 排队。度量永远不阻塞、不报错、不影响工具本身;
+     采集什么/不采集什么见 track.js 顶部那段隐私说明。 */
+  (function(){ try{
+    if(window.ZT&&window.ZT.track)return;
+    if(!window.ZT_Q)window.ZT_Q=[];
+    const s=document.createElement('script');s.src='/assets/track.js';s.async=true;
+    (document.head||document.documentElement).appendChild(s);
+  }catch(e){} })();
+  function track(name,tool,meta){ try{
+    if(window.ZT&&window.ZT.track)return window.ZT.track(name,tool,meta);
+    if(window.ZT_Q)window.ZT_Q.push([name,tool,meta]);          // track.js 还没到 → 先排队,加载完补发
+  }catch(e){} }
+  /* 结果档位 → 4 档标签(只是粗档,不含任何输入内容) */
+  function _tierTag(v){const n=_tierVal(v);if(n==null)return null;return n<0.3?'low':n<0.55?'mid':n<0.8?'high':'max';}
+
   /* ── 分享卡字体族(拉丁走自托管 woff2;中文不再远程加载 Noto Serif SC → 显式回退到系统衬线,
         保证任何设备上中文都有骨力、无豆腐块;拉丁数字/大标题用 Bebas,标签用 DM Mono)── */
   const F_MONO = '"DM Mono",ui-monospace,"SFMono-Regular",monospace';
@@ -47,9 +63,9 @@ window.CE = (function () {
     const rng = rngFrom((curId||'x')+'|more');                 // 同工具稳定、跨工具各异
     for(let i=others.length-1;i>0;i--){const j=Math.floor(rng()*(i+1));const t=others[i];others[i]=others[j];others[j]=t;}
     const cards = others.slice(0,3).map(t=>
-      `<a class="ce-more-c" href="${t.url}"><span class="ce-more-i">${t.icon}</span><span class="ce-more-tx"><b>${t.name}</b><i>${t.hook}</i></span><span class="ce-more-go">→</span></a>`
+      `<a class="ce-more-c" href="${t.url}" data-t="${t.id}"><span class="ce-more-i">${t.icon}</span><span class="ce-more-tx"><b>${t.name}</b><i>${t.hook}</i></span><span class="ce-more-go">→</span></a>`
     ).join('');
-    return `<div class="ce-more"><div class="ce-more-hd">🔥 测完这个,顺手再测 →</div><div class="ce-more-row">${cards}</div><a class="ce-more-all" href="/ce/">查看全部 ${TOOLS.length} 个测试 →</a></div>`;
+    return `<div class="ce-more"><div class="ce-more-hd">🔥 测完这个,顺手再测 →</div><div class="ce-more-row">${cards}</div><a class="ce-more-all" href="/ce/" data-t="all">查看全部 ${TOOLS.length} 个测试 →</a></div>`;
   }
 
   /* ── 种子 & 随机(同输入同结果,跨输入不同)── */
@@ -592,6 +608,7 @@ window.CE = (function () {
   }
   async function shareCard(){
     if(!_last)return;
+    track('share_click',_last.toolId);
     try{await _warmFonts();}catch(e){}   // 画之前确保自托管拉丁字体已就绪,首图不掉字
     // 可选:预加载分享卡上的牌面小图(同源本地图,不污染 canvas → toDataURL 正常)
     if(_last.card&&Array.isArray(_last.card.cards)&&_last.card.cards.length){
@@ -603,7 +620,9 @@ window.CE = (function () {
     const both=await Promise.all([loadWxQR(),loadPlanetQR()]);       // 公众号码 + 星球码(工具码在 drawCard 里现算,不用等网络)
     const qr=both[0];_shareQR=qr;_sharePlanet=both[1];
     const canvas=drawCard(_last.card,qr,{planet:_sharePlanet}),dataUrl=canvas.toDataURL('image/png');
+    const _wasU=localStorage.getItem('ce_unlocked_'+_last.toolId)==='1';
     localStorage.setItem('ce_unlocked_'+_last.toolId,'1');applyLock();
+    if(!_wasU)track('unlock',_last.toolId);              // 只记"这次真的从锁着变成解开",重复分享不算
     /* 系统分享面板带的文案:工具页自己的 shareText 原样用,末尾补一条镜像链接(微信里可点可进)。
        已经自带镜像地址的就不重复补。 */
     const _base=_last.shareText||('我测了「'+_last.toolName+'」,你也来测');
@@ -624,6 +643,8 @@ window.CE = (function () {
     if(!url){try{url=drawCard(_last.card,_shareQR,{ratio:_shareRatio==='34'?'3:4':'phone',planet:_sharePlanet}).toDataURL('image/png');_shareCache[_shareRatio]=url;}catch(e){return;}}
     im.src=url;im.classList.toggle('r34',_shareRatio==='34');
     ov.classList.add('on');
+    // 分享卡上必然带指向镜像的工具码 → 卡真的显示出来了 = 用户看到了一个微信内可扫的码
+    track('qr_shown',_last.toolId,{ratio:_shareRatio});
     const wx=/MicroMessenger/i.test(navigator.userAgent);
     const tip=document.getElementById('ce-svtip');
     if(tip)tip.textContent=_shareRatio==='34'
@@ -696,6 +717,7 @@ window.CE = (function () {
         ok=document.execCommand('copy');document.body.removeChild(ta);
       }catch(e){ok=false;}
     }
+    track('copy_report',_last&&_last.toolId,{ok:ok});    // ok=0 说明这台设备复制不了(微信内核常见)
     toast(ok?'✅ 战报已复制 · 直接粘到微信群':'复制失败,长按下方文字手动复制');
     if(!ok){const p=document.getElementById('ce-copyfall');if(p){p.textContent=txt;p.style.display='block';}}
     return ok;
@@ -739,6 +761,14 @@ window.CE = (function () {
     const cp=document.getElementById('ce-copy');if(cp)cp.onclick=copyReport;
     const ls=document.getElementById('ce-lockShare');if(ls)ls.onclick=shareCard;
     document.getElementById('ce-again').onclick=()=>{document.getElementById('ce-report').style.display='none';document.getElementById('ce-stage').style.display='block';window.scrollTo({top:0,behavior:'smooth'});};
+    /* 导流条点击(委托一次,覆盖 3 张卡 + "查看全部");keepalive 保证跳走也发得出去 */
+    const mw=box.querySelector('.ce-more');
+    if(mw)mw.addEventListener('click',e=>{
+      const a=e.target&&e.target.closest?e.target.closest('a[data-t]'):null;
+      if(a)track('cross_click',cfg.id,{to:a.getAttribute('data-t')});
+    });
+    // 出结果 = "真的玩了"的唯一可信信号。meta 只带粗档位,不带任何输入内容。
+    track('result_shown',cfg.id,{tier:_tierTag(result.tier!=null?result.tier:(result.card&&result.card.tier))});
     applyLock();
     document.getElementById('ce-stage').style.display='none';
     box.style.display='block';box.scrollIntoView({behavior:'smooth',block:'start'});

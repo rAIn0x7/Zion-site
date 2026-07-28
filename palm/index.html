@@ -370,6 +370,10 @@ function tagOf(f){
 }
 
 let dom='right',hand='left',imgB64='',lastTag='',lastScore=0,lastSc=null,lastSub='',lastHook='';
+/* 事件度量(实现在 /assets/track.js;只记事件类型,不记任何输入/照片信息)。未加载完先排队。 */
+if(!window.ZT_Q)window.ZT_Q=[];
+function _t(name,meta){try{return window.ZT&&window.ZT.track?window.ZT.track(name,'palm',meta):window.ZT_Q.push([name,'palm',meta]);}catch(e){}}
+function _tier(n){n=Number(n);if(!isFinite(n))return null;n=n>1?n/100:n;return n<0.3?'low':n<0.55?'mid':n<0.8?'high':'max';}
 const $=id=>document.getElementById(id);
 const TOAST=$('toast');function toast(m){TOAST.textContent=m;TOAST.classList.add('show');setTimeout(()=>TOAST.classList.remove('show'),1300);}
 function pick(x){return Array.isArray(x)?x[Math.floor(Math.random()*x.length)]:(x||'');}
@@ -458,10 +462,13 @@ function drawCard(qrImg){
 }
 async function shareCard(){
   if(!lastTag){toast('先测一张再分享');return;}
+  _t('share_click');
   try{await _warmFonts();}catch(e){}   // 画之前确保自托管拉丁字体就绪,首图数字/标签不掉字
   const qr=await loadWxQR();
   const canvas=drawCard(qr),dataUrl=canvas.toDataURL('image/png');
+  const _wasU=localStorage.getItem('palm_unlocked')==='1';
   localStorage.setItem('palm_unlocked','1');applyLock();   // 分享即解锁:点了分享=解锁完整解读
+  if(!_wasU)_t('unlock');
   const txt='我的手相人设是'+lastTag+',综合 '+lastScore+' 分!来测测你的 👉 qizh.space/palm';
   try{
     const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));
@@ -508,12 +515,13 @@ function renderReport(f,rng,gen,sig){
     +`<div class="lockcta" id="lockCta">🔒 完整解读(智慧线 / 感情线 / 事业线 + 特殊纹)还锁着<br>📤 <b>分享你的手相卡</b>,即可解锁全部<div class="lr"><button class="btn g" id="lockShareBtn">📤 分享并解锁</button></div><div style="color:var(--muted);font-size:11px;margin-top:10px">分享/保存后自动解锁 · 也欢迎微信搜「Zion降噪」关注我</div></div>`
     +`<div class="lockZone" id="lockZone">`+rest.map(secHTML).join('')+`<div class="philo">${PHILO}</div>`+`</div>`;
   $('lockShareBtn').onclick=shareCard;
+  _t('result_shown',{tier:_tier(sc.total)});      // 出结果 = 真的玩了;只带粗档位,不带照片/输入
   applyLock();
   $('stage').style.display='none';                       // 隐藏上传区 → 报告是干净的可截图单元
   $('loading').style.display='none';$('report').style.display='block';$('report').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function applyLock(){const u=localStorage.getItem('palm_unlocked')==='1';const z=$('lockZone'),c=$('lockCta');if(z)z.classList.toggle('blur',!u);if(c)c.style.display=u?'none':'block';}
-function tryUnlock(){const v=($('lockInput').value||'').trim();if(v&&v===UNLOCK_CODE){localStorage.setItem('palm_unlocked','1');applyLock();toast('解锁成功 ✨');}else toast('口令不对,去公众号回复「手相」拿');}
+function tryUnlock(){const v=($('lockInput').value||'').trim();if(v&&v===UNLOCK_CODE){const w=localStorage.getItem('palm_unlocked')==='1';localStorage.setItem('palm_unlocked','1');applyLock();if(!w)_t('unlock');toast('解锁成功 ✨');}else toast('口令不对,去公众号回复「手相」拿');}
 function rand(a){return a[Math.floor(Math.random()*a.length)];}
 $('sample').onclick=()=>{
   dom=rand(['right','left']);hand=rand(['left','right']);      // 示例也随机惯用手/这只手
@@ -551,6 +559,7 @@ function handleSub(e){e.preventDefault();var v=(document.getElementById('subEmai
   try{fetch('https://uzvguynixndzusrlqryo.supabase.co/rest/v1/subscribers',{method:'POST',headers:{'apikey':'sb_publishable_tHr8G_hSTCG9kDYpC48_bg_CWjXpeLN','Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({email:v})});}catch(_){}
   document.getElementById('subForm').style.display='none';document.getElementById('subOk').classList.add('show');}
 </script>
+<script src="/assets/track.js" async></script>
 <script src="/wxtip.js" defer></script>
 </body>
 </html>

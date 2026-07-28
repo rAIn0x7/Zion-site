@@ -60,6 +60,9 @@ h2 { font-family:var(--font-display); font-size:24px; letter-spacing:.08em; colo
 h2::before { content:""; position:absolute; left:0; top:.16em; bottom:.16em; width:3px; border-radius:2px; background:linear-gradient(180deg,var(--gold-lt),var(--gold)); }
 p { font-size:16.5px; line-height:1.9; color:#ded8cc; margin-bottom:20px; }
 p strong { color:var(--white); font-weight:500; }
+code { font-family:var(--font-mono); font-size:.88em; color:var(--gold-lt); background:rgba(201,168,76,.08); border:1px solid rgba(201,168,76,.16); border-radius:4px; padding:1px 5px; }
+/* 中文简述块:正文是英文(给 AdSense 审核),但真实用户是中文的 → 关键一段给中文摘要 */
+.zh-note { border-left:2px solid var(--gold); background:rgba(201,168,76,.05); padding:16px 18px; border-radius:0 6px 6px 0; font-size:15.5px; line-height:1.95; }
 ul { list-style:none; margin-bottom:24px; }
 ul li { font-size:16.5px; line-height:1.85; color:#ded8cc; padding:10px 0 10px 24px; border-bottom:1px solid rgba(201,168,76,.07); position:relative; }
 ul li:last-child { border-bottom:0; }
@@ -116,7 +119,8 @@ footer { border-top:1px solid var(--border); padding:26px 24px; display:flex; ju
   <h2>Information We Collect</h2>
   <ul>
     <li><strong>Usage data</strong> — basic, non-identifying information such as browser type and referring URL may be processed by our hosting provider and ad partner.</li>
-    <li><strong>Cookies</strong> — used by Google AdSense to serve relevant ads.</li>
+    <li><strong>Cookies</strong> — used by Google AdSense to serve relevant ads. This site's own analytics uses no cookies at all (see below).</li>
+    <li><strong>Anonymous event counts</strong> — which tool produced a result, whether a share button was clicked, and similar. Never the content you type or upload. See "Product Analytics" below for the exact list.</li>
     <li><strong>Contact data</strong> — if you reach out via email, your email address and message content are retained only as long as necessary to respond.</li>
   </ul>
 
@@ -127,6 +131,25 @@ footer { border-top:1px solid var(--border); padding:26px 24px; display:flex; ju
     <li>To respond to inquiries you send directly.</li>
   </ul>
 
+  <h2>Product Analytics (Self-Hosted, Cookie-Free)</h2>
+  <p>To know which of the free tools people actually find useful, this site records a small number of <strong>anonymous event counts</strong> in its own database. No third-party analytics service (Google Analytics, Baidu Tongji, or similar) is used.</p>
+  <p><strong>What is recorded</strong> — one row per event, containing only:</p>
+  <ul>
+    <li><strong>Event type</strong> — one of a fixed list: a result was shown, a share button was clicked, a text summary was copied, a locked section was unlocked, a link to another tool was clicked, a share card was displayed.</li>
+    <li><strong>Tool ID</strong> — e.g. <code>moyu</code>, <code>palm</code>. Which tool, not who used it.</li>
+    <li><strong>Which site version</strong> — the main site or the mirror site, so I can tell how many people arrive via WeChat.</li>
+    <li><strong>Traffic source category</strong> — one of six buckets (WeChat / search / social / internal / direct / other), derived from the referrer. The referring URL itself is <em>not</em> stored.</li>
+    <li><strong>Timestamp</strong>, and optionally a coarse result band (e.g. "high") plus whether a copy action succeeded.</li>
+  </ul>
+  <p><strong>What is never recorded</strong> — and this is enforced in code, not just promised:</p>
+  <ul>
+    <li><strong>Nothing you type or upload.</strong> Names, birthdays, salaries, dilemmas, palm photos — none of it is ever transmitted. All tools compute their results entirely in your browser.</li>
+    <li><strong>No identifiers.</strong> No cookies, no user ID, no device fingerprint, no IP address stored in the events table, no cross-site tracking. Events cannot be linked to each other or to you.</li>
+    <li><strong>No page-view tracking</strong> and no reading history.</li>
+  </ul>
+  <p>Because there is no identifier, individual events are not personal data and cannot be traced back to a person — which also means a deletion request for this table has nothing to match against. The data is write-only from the browser: the public key embedded in the page can insert events but cannot read any of them back.</p>
+  <p class="zh-note" lang="zh"><strong>中文简述:</strong>为了知道哪个工具真的有人用,本站会在自己的数据库里记极少量匿名事件:发生了哪一类事(出结果/点分享/复制战报/解锁/点导流条/显示分享卡)、是哪个工具、走的是主站还是镜像、来源属于哪一大类、发生时间。<strong>你填的任何内容(名字、生日、月薪、纠结什么、手掌照片)一律不上传</strong>,所有结果都在你自己的浏览器里算出来。不用 cookie、不生成任何用户 ID、不做跨站跟踪,也不记你看过哪些页面。</p>
+
   <h2>Google AdSense &amp; Advertising</h2>
   <p>This site uses Google AdSense to display advertisements. Google and its partners may use cookies to serve ads based on your prior visits to this site or other sites on the internet. You can opt out of personalised advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener">Google Ads Settings</a> or <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener">aboutads.info</a>.</p>
 
@@ -134,10 +157,10 @@ footer { border-top:1px solid var(--border); padding:26px 24px; display:flex; ju
   <p>This site contains links to external websites. I am not responsible for the privacy practices or content of those sites. Please review their privacy policies independently.</p>
 
   <h2>Cookies</h2>
-  <p>This site uses cookies for analytics and advertising purposes as described above. Most browsers allow you to control cookies through their settings. Disabling cookies may affect your experience on this site.</p>
+  <p>This site uses cookies for advertising purposes as described above. Its own product analytics sets no cookies and reads none. Most browsers allow you to control cookies through their settings. Disabling cookies may affect your experience on this site.</p>
 
   <h2>Data Retention</h2>
-  <p>This site does not maintain its own analytics database. Any data processed by Google AdSense is governed by Google's own retention policies. Direct communications are retained only as long as necessary to respond.</p>
+  <p>The anonymous event counts described above are kept in this site's own database and periodically pruned; because they contain no identifier, they are only ever read as aggregate totals. Any data processed by Google AdSense is governed by Google's own retention policies. Direct communications are retained only as long as necessary to respond.</p>
 
   <h2>Your Rights</h2>
   <p>Depending on your location, you may have the right to access, correct, or delete personal data associated with you. To make such a request, contact me at the email below.</p>
