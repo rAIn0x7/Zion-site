@@ -7,6 +7,9 @@ window.CE = (function () {
   const API = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
   const GLM_KEY = 'a3627c50241e4ba89fc4f56193b9c724.ADj57yFSiiLajwRC'; // 复用;仅"生成型"工具(起名)用
   const JOIN_URL = 'https://t.zsxq.com/hGab6';                          // 知识星球(微信内多半打不开→靠扫码/复制到浏览器)
+  /* 微信内可达的镜像:主站 qizh.space 被微信拦了(链接和指向它的码都打不开),
+     镜像由 Actions 每 2 小时从主站同步,路径与主站逐字一致 → 分享卡上的码/文本战报里的链接都走它。 */
+  const WX_HOST  = 'https://rain0x7.github.io';
 
   /* ── 分享卡字体族(拉丁走自托管 woff2;中文不再远程加载 Noto Serif SC → 显式回退到系统衬线,
         保证任何设备上中文都有骨力、无豆腐块;拉丁数字/大标题用 Bebas,标签用 DM Mono)── */
@@ -88,8 +91,150 @@ window.CE = (function () {
     }catch(e){return null;}finally{clearTimeout(tm);}
   }
 
-  /* ── 分享卡(canvas 竖版海报,底部画公众号/星球码)── */
-  let _wxqr; function loadWxQR(){return new Promise(r=>{if(_wxqr!==undefined)return r(_wxqr);const im=new Image();im.onload=()=>{_wxqr=im;r(im);};im.onerror=()=>{_wxqr=null;r(null);};im.src='/wechat-qr.png';});}
+  /* ── 分享卡(canvas 竖版海报,底部画"工具码 + 公众号码 + 星球码")── */
+  function _loadImg(src,cache,key){return new Promise(r=>{if(cache[key]!==undefined)return r(cache[key]);
+    const im=new Image();im.onload=()=>{cache[key]=im;r(im);};im.onerror=()=>{cache[key]=null;r(null);};im.src=src;});}
+  const _imgCache={};
+  function loadWxQR(){return _loadImg('/wechat-qr.png',_imgCache,'wx');}
+  function loadPlanetQR(){return _loadImg('/planet-qr.png',_imgCache,'planet');}
+
+  /* ── 工具在镜像上的地址(微信里可点开、二维码能识别)。未知 id → 回落到测测矩阵首页,永远不返回死链。 */
+  function wxUrl(toolId){
+    const t=TOOLS.filter(function(x){return x.id===toolId;})[0];
+    return WX_HOST+(t?t.url:'/ce/');
+  }
+
+  /* ═══ 精简 QR 编码器(byte 模式 · 纠错级 M · 版本 1~6,≤106 字节;纯 JS,零依赖零外链)═══
+     只为一件事服务:把"当前工具的镜像地址"画到分享卡上,让收到卡的人长按识别就能直接进来玩。
+     标准流程:UTF-8 → 位流(模式+字数+数据+填充) → RS 纠错 → 分块交织 → 矩阵(定位/校正/定时/暗模块)
+              → 8 种掩码全试取罚分最低 → 写格式信息(BCH(15,5) ^ 0x5412)。 */
+  const _QRT ={1:[26,10,1],2:[44,16,1],3:[70,26,1],4:[100,18,2],5:[134,24,2],6:[172,16,4]}; // 版本:[总码字, 每块纠错码字, 块数]
+  const _QRAL={1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34]};                          // 校正图案中心坐标
+  let _GE,_GL;
+  function _gfInit(){ if(_GE)return; _GE=new Array(512);_GL=new Array(256);
+    let x=1; for(let i=0;i<255;i++){_GE[i]=x;_GL[x]=i;x<<=1;if(x&256)x^=0x11d;}   // GF(256),本原多项式 0x11d
+    for(let i=255;i<512;i++)_GE[i]=_GE[i-255]; }
+  function _gmul(a,b){ if(!a||!b)return 0; return _GE[_GL[a]+_GL[b]]; }
+  function _rsGen(n){ _gfInit(); let p=[1];                                        // 生成多项式 ∏(x-α^i),高次在前
+    for(let i=0;i<n;i++){const q=new Array(p.length+1).fill(0);
+      for(let j=0;j<p.length;j++){q[j]^=p[j];q[j+1]^=_gmul(p[j],_GE[i]);}p=q;}
+    return p; }
+  function _rsEnc(data,n){ const g=_rsGen(n),r=new Array(n).fill(0);
+    for(let k=0;k<data.length;k++){const f=data[k]^r[0];r.shift();r.push(0);
+      if(f)for(let i=0;i<n;i++)r[i]^=_gmul(g[i+1],f);}
+    return r; }
+  function _utf8(s){ const o=[];
+    for(const ch of String(s)){const c=ch.codePointAt(0);
+      if(c<0x80)o.push(c);
+      else if(c<0x800)o.push(0xc0|c>>6,0x80|c&63);
+      else if(c<0x10000)o.push(0xe0|c>>12,0x80|c>>6&63,0x80|c&63);
+      else o.push(0xf0|c>>18,0x80|c>>12&63,0x80|c>>6&63,0x80|c&63);}
+    return o; }
+  function _maskBit(k,r,c){switch(k){                                              // r=行(y) c=列(x)
+    case 0: return (r+c)%2===0;
+    case 1: return r%2===0;
+    case 2: return c%3===0;
+    case 3: return (r+c)%3===0;
+    case 4: return (Math.floor(r/2)+Math.floor(c/3))%2===0;
+    case 5: return (r*c)%2+(r*c)%3===0;
+    case 6: return ((r*c)%2+(r*c)%3)%2===0;
+    default:return ((r+c)%2+(r*c)%3)%2===0;}}
+  function _qrFmt(m,n,mask){                                                       // 格式信息(M 级 formatBits=0),两份互备
+    const d=mask; let rem=d; for(let i=0;i<10;i++)rem=(rem<<1)^((rem>>>9)*0x537);
+    const bits=((d<<10|rem)^0x5412)&0x7fff, gb=i=>(bits>>i)&1;
+    for(let i=0;i<=5;i++)m[i*n+8]=gb(i);
+    m[7*n+8]=gb(6); m[8*n+8]=gb(7); m[8*n+7]=gb(8);
+    for(let i=9;i<15;i++)m[8*n+(14-i)]=gb(i);
+    for(let i=0;i<8;i++)m[8*n+(n-1-i)]=gb(i);
+    for(let i=8;i<15;i++)m[(n-15+i)*n+8]=gb(i);
+    m[(n-8)*n+8]=1;                                                               // 固定暗模块
+  }
+  function _qrPenalty(m,n){                                                        // 标准四条罚分规则,用于挑掩码
+    const g=(r,c)=>m[r*n+c]; let p=0;
+    for(let r=0;r<n;r++){let run=1;for(let c=1;c<n;c++){if(g(r,c)===g(r,c-1))run++;else{if(run>=5)p+=3+run-5;run=1;}}if(run>=5)p+=3+run-5;}
+    for(let c=0;c<n;c++){let run=1;for(let r=1;r<n;r++){if(g(r,c)===g(r-1,c))run++;else{if(run>=5)p+=3+run-5;run=1;}}if(run>=5)p+=3+run-5;}
+    for(let r=0;r<n-1;r++)for(let c=0;c<n-1;c++){const v=g(r,c);if(v===g(r,c+1)&&v===g(r+1,c)&&v===g(r+1,c+1))p+=3;}
+    const P1=[1,0,1,1,1,0,1,0,0,0,0],P2=[0,0,0,0,1,0,1,1,1,0,1];
+    const scan=get=>{let s=0;for(let i=0;i+11<=n;i++){let a=true,b=true;
+      for(let j=0;j<11;j++){const v=get(i+j);if(v!==P1[j])a=false;if(v!==P2[j])b=false;}
+      if(a)s+=40;if(b)s+=40;}return s;};
+    for(let r=0;r<n;r++)p+=scan(i=>g(r,i));
+    for(let c=0;c<n;c++)p+=scan(i=>g(i,c));
+    let dark=0;for(let i=0;i<n*n;i++)dark+=m[i];
+    p+=Math.floor(Math.abs(dark*100/(n*n)-50)/5)*10;
+    return p;
+  }
+  /* 返回 {n:边长, m:Uint8Array(n*n) 0/1, v:版本, mask:掩码};放不下或异常 → null(调用方降级为不画这个码)*/
+  function qrEncode(str,forceMask){
+    try{
+      const by=_utf8(str); let v=0,T=null;
+      for(let i=1;i<=6;i++){const t=_QRT[i];if(by.length+2<=t[0]-t[1]*t[2]){v=i;T=t;break;}}
+      if(!v)return null;                                                           // >106 字节:本编码器不支持,宁可不画也不画个扫不出的
+      const total=T[0],ecc=T[1],nb=T[2],dataCw=total-ecc*nb;
+      /* ① 位流 */
+      const bits=[],push=(val,len)=>{for(let i=len-1;i>=0;i--)bits.push(val>>i&1);};
+      push(4,4);push(by.length,8);by.forEach(b=>push(b,8));                        // 模式 0100 + 字数(v1~9 byte 模式 8 bit)
+      for(let i=0;i<4&&bits.length<dataCw*8;i++)bits.push(0);                      // 终止符
+      while(bits.length%8)bits.push(0);
+      const cw=[];for(let i=0;i<bits.length;i+=8){let b=0;for(let j=0;j<8;j++)b=b<<1|bits[i+j];cw.push(b);}
+      for(let i=0;cw.length<dataCw;i++)cw.push(i%2?0x11:0xEC);                     // 填充码字 EC 11 交替
+      /* ② 分块 + RS + 交织 */
+      const per=dataCw/nb,ds=[],es=[];
+      for(let i=0;i<nb;i++){const d=cw.slice(i*per,(i+1)*per);ds.push(d);es.push(_rsEnc(d,ecc));}
+      const seq=[];
+      for(let i=0;i<per;i++)for(let b=0;b<nb;b++)seq.push(ds[b][i]);
+      for(let i=0;i<ecc;i++)for(let b=0;b<nb;b++)seq.push(es[b][i]);
+      /* ③ 矩阵骨架(功能模块 fnm 标记,数据填充时跳过)*/
+      const n=17+4*v,m=new Uint8Array(n*n),fnm=new Uint8Array(n*n);
+      const put=(r,c,val)=>{if(r>=0&&c>=0&&r<n&&c<n){m[r*n+c]=val;fnm[r*n+c]=1;}};
+      const fin=(r0,c0)=>{for(let i=-1;i<=7;i++)for(let j=-1;j<=7;j++){
+        const on=(i>=0&&i<=6&&(j===0||j===6))||(j>=0&&j<=6&&(i===0||i===6))||(i>=2&&i<=4&&j>=2&&j<=4);
+        put(r0+i,c0+j,on?1:0);}};                                                  // 定位图案 + 分隔符
+      fin(0,0);fin(0,n-7);fin(n-7,0);
+      for(let i=8;i<n-8;i++){const b=i%2?0:1;put(6,i,b);put(i,6,b);}               // 定时图案
+      const al=_QRAL[v],aLast=al[al.length-1];
+      for(const r of al)for(const c of al){
+        if((r===6&&c===6)||(r===6&&c===aLast)||(r===aLast&&c===6))continue;         // 与定位图案重叠的三处不画
+        for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)put(r+i,c+j,Math.max(Math.abs(i),Math.abs(j))===1?0:1);}
+      for(let i=0;i<=8;i++){if(i!==6){put(i,8,0);put(8,i,0);}}                     // 格式信息区先占位(跳过定时模块)
+      for(let i=0;i<8;i++){put(8,n-1-i,0);put(n-1-i,8,0);}
+      /* ④ 数据位:两列一组、上下折返的锯齿序 */
+      let bi=0;const nbits=seq.length*8;
+      for(let right=n-1;right>=1;right-=2){
+        if(right===6)right=5;                                                      // 第 6 列是定时图案,整列跳过
+        for(let vert=0;vert<n;vert++)for(let j=0;j<2;j++){
+          const c=right-j,up=((right+1)&2)===0,r=up?n-1-vert:vert;
+          if(!fnm[r*n+c]&&bi<nbits){m[r*n+c]=(seq[bi>>3]>>(7-(bi&7)))&1;bi++;}
+        }
+      }
+      /* ⑤ 掩码:8 种全试(含格式信息),取罚分最低 */
+      let bestS=Infinity,bestK=0,bestM=null;
+      const ks=(forceMask!=null)?[forceMask&7]:[0,1,2,3,4,5,6,7];
+      for(const k of ks){
+        const t=Uint8Array.from(m);
+        for(let r=0;r<n;r++)for(let c=0;c<n;c++){if(!fnm[r*n+c]&&_maskBit(k,r,c))t[r*n+c]^=1;}
+        _qrFmt(t,n,k);
+        const s=(ks.length===1)?0:_qrPenalty(t,n);
+        if(s<bestS||bestM===null){bestS=s;bestK=k;bestM=t;}
+      }
+      return {n:n,m:bestM,v:v,mask:bestK};
+    }catch(e){return null;}
+  }
+  /* 把 URL 画成二维码:切到设备像素 + 模块尺寸取整 → 边缘绝不发虚(截图后照样扫得出)。含 4 模块静区。
+     px/py/size 是逻辑坐标,S 是画布缩放倍数。返回是否画成功。 */
+  function drawQRCode(x,str,px,py,size,S){
+    const q=qrEncode(str);if(!q)return false;
+    const tot=q.n+8,mod=Math.max(1,Math.floor(size*S/tot)),side=mod*tot;
+    x.save();
+    try{
+      x.setTransform(1,0,0,1,0,0);                                                 // 设备像素坐标系:整数对齐
+      const ox=Math.round(px*S+(size*S-side)/2),oy=Math.round(py*S+(size*S-side)/2);
+      x.fillStyle='#fff';x.fillRect(ox,oy,side,side);
+      x.fillStyle='#000';
+      for(let r=0;r<q.n;r++)for(let c=0;c<q.n;c++)if(q.m[r*q.n+c])x.fillRect(ox+(c+4)*mod,oy+(r+4)*mod,mod,mod);
+    }catch(e){x.restore();return false;}
+    x.restore();return true;
+  }
   /* 预热分享卡要用到的自托管拉丁字体(Bebas/Outfit/DM Mono),避免首张分享卡数字/标签回退成默认字体 */
   let _warmed;
   function _warmFonts(){
@@ -548,5 +693,6 @@ window.CE = (function () {
   return { rngFrom, pick, wpick, imgHash, buildParts, llm, render, drawCard,
            TOOLS, JOIN_URL, buildMore,
            buildReportText, copyReport, toast, showShare, themeFor,
+           WX_HOST, wxUrl, qrEncode, drawQRCode,
            util:{xmur3,mulberry32,tierVal:_tierVal} };
 })();
