@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="If capture and post-processing share CPU, memory bandwidth or hardware encoder sessions, back-to-back recordings collapse. The method to find the real cause, and the fix toolbox.">
+<title>Why Your Real-Time Capture System Drops Frames Under Load — Zion</title>
+<link rel="canonical" href="https://qizh.space/post-realtime-capture-frame-drops.html">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Zion · qizh.space">
+<meta property="og:title" content="Why Your Real-Time Capture System Drops Frames Under Load — Zion">
+<meta property="og:description" content="If capture and post-processing share CPU, memory bandwidth or hardware encoder sessions, back-to-back recordings collapse. The method to find the real cause, and the fix toolbox.">
+<meta property="og:url" content="https://qizh.space/post-realtime-capture-frame-drops.html">
+<meta property="og:image" content="https://qizh.space/og-default.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Why Your Real-Time Capture System Drops Frames Under Load — Zion">
+<meta name="twitter:description" content="If capture and post-processing share CPU, memory bandwidth or hardware encoder sessions, back-to-back recordings collapse. The method to find the real cause, and the fix toolbox.">
+<meta name="twitter:image" content="https://qizh.space/og-default.png">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting",
+"headline":"Why Your Real-Time Capture System Drops Frames Under Load",
+"description":"If capture and post-processing share CPU, memory bandwidth or hardware encoder sessions, back-to-back recordings collapse. The method to find the real cause, and the fix toolbox.",
+"inLanguage":"en",
+"datePublished":"2026-07-28","dateModified":"2026-07-28",
+"author":{"@type":"Person","name":"Zion","url":"https://qizh.space/about.html"},
+"publisher":{"@type":"Person","name":"Zion"},
+"mainEntityOfPage":{"@type":"WebPage","@id":"https://qizh.space/post-realtime-capture-frame-drops.html"},
+"image":"https://qizh.space/og-default.png"}
+</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2184467660826262" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0908;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);
+--display:'Bebas Neue',sans-serif;--serif:'Instrument Serif','Songti SC','SimSun',serif;--body:'Outfit',system-ui,-apple-system,'PingFang SC','Microsoft YaHei','Hiragino Sans GB','Songti SC',sans-serif;--mono:'DM Mono',monospace;}
+html{scroll-behavior:smooth}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.85;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+a{color:inherit;text-decoration:none}
+.aurora{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.aurora i{position:absolute;width:46vw;height:46vw;left:-8vw;top:-12vw;border-radius:50%;filter:blur(110px);opacity:.28;background:radial-gradient(circle,rgba(216,162,74,.5),transparent 70%)}
+nav{position:sticky;top:0;z-index:100;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;
+padding:18px 24px;backdrop-filter:blur(12px);background:rgba(10,9,8,.82);border-bottom:1px solid var(--border)}
+.logo{font-family:var(--display);font-size:24px;letter-spacing:.16em}.logo span{color:var(--gold)}
+.nav-r{display:flex;gap:18px;align-items:center;flex-wrap:wrap;justify-content:flex-end;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--muted)}
+.nav-r a{padding:10px 5px;transition:color .2s}
+.nav-r a:hover{color:var(--gold)}
+.nav-r a.here{color:var(--gold)}
+/* 长文阅读进度条(与主站 index 同款) */
+.progress{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--gold),var(--gold-lt));z-index:300;pointer-events:none;box-shadow:0 0 10px rgba(201,168,76,.5)}
+/* 正文容器 720px:桌面 18px 字 → 每行约 37 个汉字,落在 30-40 的舒适区 */
+.art{max-width:720px;margin:0 auto;padding:64px 24px 40px}
+.back{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--muted);display:inline-block;padding:10px 2px;margin:-10px 0 24px}
+.back:hover{color:var(--gold)}
+.chip{display:inline-block;padding:5px 13px;border-radius:99px;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+background:rgba(201,168,76,.16);color:var(--gold-lt);margin-bottom:22px}
+h1.t{font-family:var(--body);font-weight:600;font-size:clamp(30px,5vw,46px);line-height:1.22;letter-spacing:-.01em;margin-bottom:18px}
+/* 原来是 --dim(#46423b),在 #0a0908 上对比度只有 2:1;换 --muted → 5.3:1 */
+.meta{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;color:var(--muted);padding-bottom:30px;margin-bottom:38px;border-bottom:1px solid var(--border)}
+.body{overflow-wrap:break-word}
+.body p{font-size:17px;line-height:1.9;color:#ded8cc;margin-bottom:26px}
+.body>p:first-child{font-size:18px;color:#e9e3d7}
+.body h2{font-family:var(--body);font-weight:600;font-size:23px;line-height:1.45;color:var(--white);margin:52px 0 18px;letter-spacing:-.01em;position:relative;padding-left:14px}
+.body h2::before{content:"";position:absolute;left:0;top:.22em;bottom:.22em;width:3px;border-radius:2px;background:linear-gradient(180deg,var(--gold-lt),var(--gold))}
+.body h3{font-family:var(--body);font-weight:600;font-size:18.5px;color:var(--white);margin:34px 0 12px}
+.body blockquote{font-family:var(--serif);font-style:italic;font-size:22px;line-height:1.5;color:var(--gold-lt);
+border-left:3px solid var(--gold);border-radius:0 12px 12px 0;padding:16px 20px 16px 22px;margin:38px 0;
+background:linear-gradient(90deg,rgba(201,168,76,.08),rgba(201,168,76,0) 78%)}
+.body ul,.body ol{margin:0 0 26px;padding-left:0;list-style:none}
+.body li{position:relative;padding:6px 0 6px 22px;font-size:16.5px;line-height:1.85;color:#ded8cc}
+.body li::before{content:'—';position:absolute;left:0;top:6px;color:var(--gold);font-family:var(--mono);font-size:12px}
+.body strong{color:var(--white);font-weight:500}
+.body a{color:var(--gold);border-bottom:1px solid rgba(201,168,76,.42);overflow-wrap:anywhere;transition:.2s}
+.body a:hover{color:var(--gold-lt);border-bottom-color:var(--gold-lt)}
+.body img{display:block;max-width:100%;height:auto;border-radius:12px;margin:30px 0}
+/* 防横滚:行内 code 可断行,代码块/表格自带横向滚动容器 */
+.body code{font-family:var(--mono);font-size:.92em;background:rgba(201,168,76,.1);border:1px solid var(--border);border-radius:6px;padding:1px 6px;color:var(--gold-lt);overflow-wrap:break-word}
+.body pre{background:#0c0b09;border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin:30px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.body pre code{background:none;border:0;padding:0;color:#ded8cc;font-size:13.5px;line-height:1.75;white-space:pre;overflow-wrap:normal}
+.body .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:26px 0}
+.body table{width:100%;border-collapse:collapse;font-size:14.5px}
+.body th,.body td{border:1px solid var(--border);padding:9px 12px;text-align:left}
+.body th{color:var(--gold);font-weight:600}
+/* width:calc(100% - 44px) → 窄屏两侧留 22px 边距,和正文 gutter 对齐(原来贴边) */
+.cta-box{margin:56px auto 0;max-width:720px;width:calc(100% - 44px);border:1px solid var(--border);border-radius:16px;padding:40px 28px;text-align:center;
+background:radial-gradient(ellipse at 50% 0,rgba(201,168,76,.1),transparent 70%),linear-gradient(176deg,#16130f,#0f0d0a);
+box-shadow:0 24px 60px -24px rgba(0,0,0,.7),inset 0 1px 0 rgba(240,212,136,.07)}
+.cta-box h3{font-family:var(--display);font-size:clamp(32px,8vw,40px);letter-spacing:.04em;margin-bottom:10px}.cta-box h3 em{font-family:var(--serif);font-style:italic;color:var(--gold)}
+.cta-box p{font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;color:var(--muted);margin-bottom:22px;line-height:1.7}
+.cta-box a{display:inline-block;background:linear-gradient(180deg,var(--gold-lt),var(--gold));color:var(--black);font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;font-weight:500;padding:14px 28px;border-radius:99px;transition:.25s;box-shadow:0 8px 22px -8px rgba(201,168,76,.6)}
+.cta-box a:hover{background:var(--gold-lt);transform:translateY(-1px)}
+footer{border-top:1px solid var(--border);margin-top:56px;padding:26px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted)}
+footer a{display:inline-block;padding:11px 0;margin:-11px 0}
+footer a:hover{color:var(--gold)}
+@media(max-width:600px){
+  .art{padding:44px 22px 30px}
+  .body p{font-size:16.5px;line-height:1.88;margin-bottom:22px}
+  .body>p:first-child{font-size:17px}
+  .body h2{font-size:21px;margin:42px 0 14px}
+  .body h3{font-size:17.5px}
+  .body blockquote{font-size:19px;padding:14px 16px 14px 18px;margin:30px 0}
+  .body li{font-size:16px}
+  h1.t{line-height:1.3}
+  .cta-box{padding:32px 22px}
+  footer{justify-content:center;text-align:center;font-size:10.5px}
+}
+/* 窄屏 nav 精算(CJK=1em,DM Mono=.6em,Bebas 取 .55em 上界,letter-spacing 逐字累加):
+   5 项 + logo 在 pad18/gap10 下合计约 360px;.nav-r 另有 flex-wrap 兜底,任何情况都不会横向滚动 */
+@media(max-width:420px){nav{padding:14px 18px;gap:10px}.nav-r{gap:10px}}
+@media(min-width:1024px){
+  .art{padding:76px 24px 48px}
+  .body p{font-size:18px;line-height:1.92}
+  .body>p:first-child{font-size:19px}
+  .body h2{font-size:25px}
+  .body blockquote{font-size:24px}
+  .body li{font-size:17px}
+  .nav-r{font-size:13px;color:#9d968a}
+  .meta{font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="aurora"><i></i></div>
+<div class="progress" id="progress"></div>
+<nav>
+  <a href="/" class="logo">ZI<span>O</span>N</a>
+  <div class="nav-r"><a href="/ce/">测测</a><a href="/tool/">工具</a><a href="/prompt/">Prompt</a><a href="/join/">星球</a><a href="/writing.html" class="here">文章</a></div>
+</nav>
+<article class="art">
+  <a href="writing.html" class="back">← All writing</a>
+  <span class="chip">ENGINEERING</span>
+  <h1 class="t">Why Your Real-Time Capture System Drops Frames Under Load</h1>
+  <div class="meta">JUL 2026 · 6 MIN READ · BY ZION · last updated <time datetime="2026-07-28">2026-07-28</time></div>
+  <div class="body">
+<p>If you run a system that <strong>captures sensor data in real time while post-processing it</strong> (transcoding, compressing, uploading), you have probably hit this: the first recording is fine, then back-to-back recordings start dropping frames, sometimes from 50fps to single digits. Here is why, and the playbook to fix it.</p>
+<h2>The pattern</h2>
+<ul>
+<li><strong>Capture side</strong>: multiple sensors (cameras, IMU, pose) writing at high rate, in real time.</li>
+<li><strong>Post-processing</strong>: transcode / compress / upload, running async.</li>
+</ul>
+<p>The classic symptom, first task clean and later tasks collapsing, is <strong>post-processing starving the capture path</strong> of a shared resource.</p>
+<h2>The usual culprits, in order</h2>
+<ol>
+<li><strong>CPU contention</strong>: software encoding (CPU AV1/H.264) in post-processing pegs the cores, so capture threads cannot get a time slice.</li>
+<li><strong>Memory bandwidth</strong>: decode, format-convert and upload push large frames through system RAM repeatedly. Bandwidth saturates and cgroups/cpusets cannot isolate it.</li>
+<li><strong>Hardware encoder session limits</strong>: consumer NVIDIA NVENC caps concurrent sessions (often 8 or fewer). Capture plus post-processing together can exceed it and silently fall back to CPU, which makes things worse.</li>
+<li><strong>Background noise</strong>: monitoring, logging and dashboard containers quietly eating CPU.</li>
+</ol>
+<h2>How to actually find it, the method matters</h2>
+<ol>
+<li><strong>Instrument, do not guess</strong>: sample CPU/mem/GPU/encoder utilization every second and <strong>align it with the frame-rate timeline</strong>. You will see exactly who is eating resources at the moment frames drop.</li>
+<li><strong>Control variables</strong>: change one thing at a time (codec, resolution, core allocation, GPU on/off, connection).</li>
+<li><strong>Invariance reasoning</strong>: if a metric is immune to <em>every</em> downstream variable you change, the bottleneck is upstream at the source, not where you are poking.</li>
+<li><strong>Refute your own hypotheses</strong>: let measurements kill your guesses. I once knew for certain it was bandwidth; the data said no.</li>
+</ol>
+<blockquote>Stability in a capture-and-process system is shared-resource budget management. Measure first, then isolate.</blockquote>
+<h2>The fix toolbox</h2>
+<ul>
+<li><strong>Lower the load</strong>: drop capture resolution and fps to good enough.</li>
+<li><strong>Kill background processes</strong> during capture.</li>
+<li><strong>Push encode to hardware</strong>: NVDEC, in-VRAM convert, then NVENC, so raw frames never hit system RAM. This removes both CPU decode and the memory-bandwidth pressure.</li>
+<li><strong>Budget encoder sessions</strong>: keep capture plus post-processing hardware-encode sessions at or under the cap, and serialize post-processing if needed.</li>
+<li><strong>Pick the right format</strong>: per-frame independent codecs (MJPEG) can drop frames freely. GOP/B-frame codecs (H.264/AV1) cannot, and they back-pressure the write queue.</li>
+<li><strong>Decouple</strong> capture from post-processing, and use a single latest-frame slot rather than an unbounded queue. A growing queue is a latency avalanche.</li>
+</ul>
+<h2>A real result</h2>
+<p>One continuous-capture system, three combined levers: lower resolution, kill background services, and keep post-processing off the GPU NVENC session cap. Capture CPU peak went <strong>from 98% to 40%</strong>, and frame rate went from collapsing back to stable full rate. The win was not a single trick. It was <strong>monitoring first to find the true cause (CPU saturation), then reducing load in a targeted way.</strong></p>
+<h2>TL;DR</h2>
+<p>Stability in a capture-and-process system is <strong>shared-resource budget management</strong>. Measure by aligning resource use with frame rate, then isolate by reducing load, offloading to hardware, budgeting sessions and decoupling stages. Do not tune by intuition.</p>
+<p><em>Written by an engineer who debugs robotics data pipelines by day and builds products with AI by night.</em></p>
+  </div>
+</article>
+<div class="cta-box">
+  <h3>GET THE <em>signal</em></h3>
+  <p>One deep-dive a week on shipping products with AI</p>
+  <a href="index.html#subscribe">JOIN THE NEWSLETTER →</a>
+</div>
+<footer>
+  <span>© 2026 · qizh.space</span>
+  <span><a href="index.html">Home</a> · <a href="writing.html">Writing</a> · <a href="about.html">About</a> · <a href="privacy.html">Privacy</a></span>
+</footer>
+<script>
+// 阅读进度条
+(function(){var pg=document.getElementById('progress');if(!pg)return;
+addEventListener('scroll',function(){var h=document.documentElement.scrollHeight-innerHeight;pg.style.width=(h>0?scrollY/h*100:0)+'%';},{passive:true});})();
+</script>
+</body>
+</html>

@@ -165,7 +165,15 @@ window.CE = (function () {
     return p;
   }
   /* 返回 {n:边长, m:Uint8Array(n*n) 0/1, v:版本, mask:掩码};放不下或异常 → null(调用方降级为不画这个码)*/
+  const _qrMemo={};
   function qrEncode(str,forceMask){
+    const ck=forceMask==null?String(str):null;
+    if(ck!==null&&_qrMemo[ck]!==undefined)return _qrMemo[ck];          // 一张卡画两个比例 → 别重复编码
+    const out=_qrEncode1(str,forceMask);
+    if(ck!==null)_qrMemo[ck]=out;
+    return out;
+  }
+  function _qrEncode1(str,forceMask){
     try{
       const by=_utf8(str); let v=0,T=null;
       for(let i=1;i<=6;i++){const t=_QRT[i];if(by.length+2<=t[0]-t[1]*t[2]){v=i;T=t;break;}}
@@ -223,7 +231,10 @@ window.CE = (function () {
   /* 把 URL 画成二维码:切到设备像素 + 模块尺寸取整 → 边缘绝不发虚(截图后照样扫得出)。含 4 模块静区。
      px/py/size 是逻辑坐标,S 是画布缩放倍数。返回是否画成功。 */
   function drawQRCode(x,str,px,py,size,S){
-    const q=qrEncode(str);if(!q)return false;
+    return _qrPaint(x,qrEncode(str),px,py,size,S);
+  }
+  function _qrPaint(x,q,px,py,size,S){
+    if(!q)return false;
     const tot=q.n+8,mod=Math.max(1,Math.floor(size*S/tot)),side=mod*tot;
     x.save();
     try{
@@ -352,8 +363,9 @@ window.CE = (function () {
     return t;
   }
 
-  /* 底部区(二维码/引导)占位高度:从"白底托的顶边 / 首行文案的顶边"到卡片底边 —— 卡片总高 = 内容高 + 留白 + 它 */
-  const BOT_QR=209, BOT_TXT=75;
+  /* 底部区(二维码/引导)占位高度:从"白底托的顶边 / 首行文案的顶边"到卡片底边 —— 卡片总高 = 内容高 + 留白 + 它
+     BOT_ROW=多码一行(工具码+公众号+星球) / BOT_QR=只有一个码(退化) / BOT_TXT=一个码都没有(纯文案) */
+  const BOT_ROW=236, BOT_QR=209, BOT_TXT=75;
   /* 导出比例:phone=现有手机竖版(540×动态高) / 34=小红书 1080×1440(逻辑 540×720,重新排版而非拉伸)*/
   const RATIO_34_H=720;
 
@@ -364,6 +376,17 @@ window.CE = (function () {
     const cc=(model.colorcard&&model.colorcard.main)?model.colorcard:null;         // 可选:本命色卡(主色+辅助色,sekapian 用)
     const ccAux=cc&&Array.isArray(cc.aux)?cc.aux.slice(0,4):[];
     const S=2,W=540;
+
+    /* ── 底部码位:①工具码(前端现算,指向微信可达镜像)②公众号码 ③星球码 ──
+       ① 才是闭环那一步:收到卡的人长按识别就能直接进来玩,不必再去搜公众号;②③ 仍是转化目标,原样保留。
+       编码失败/图没加载到 → 该码自动缺席,布局按实际码数收缩,永不留空洞。 */
+    const toolUrl=(opts&&opts.wxUrl)||wxUrl(model&&(model.toolId||model.themeId));
+    const toolQ=(opts&&opts.noToolQR)?null:qrEncode(toolUrl);
+    const planet=(opts&&opts.planet)||null;
+    const codes=[];
+    if(qr)     codes.push({img:qr,     lab:'关注公众号', hero:false});
+    if(toolQ)  codes.push({q:toolQ,    lab:'长按识别·直接玩', hero:true});
+    if(planet) codes.push({img:planet, lab:'进星球',     hero:false});
 
     /* ── 内容流(kicker → 标题 → 牌面 → 色卡 → 大数字 → 四维 → 分隔 → 钩子)──
        同一段代码跑两遍:第一遍在 8×8 离屏画布上"空跑"(只借它的 measureText 做折行,像素丢弃)拿到内容真实高度,
@@ -459,7 +482,8 @@ window.CE = (function () {
     catch(e){contentH=(qr?740:650)-(qr?BOT_QR:BOT_TXT)-26;}   // 极端兜底:退回原固定高度的等效值
 
     /* ── ② 定高:手机版高度跟着内容走;3:4 版高度写死 720(=1080×1440),靠留白/等比缩放重新排版 ── */
-    const BOT=qr?BOT_QR:BOT_TXT, GAP=qr?26:24, MINH=qr?560:430;   // GAP=内容与底部区之间的呼吸;MINH=兜底,只对最短的卡(如起名:标题+副标+钩子)生效
+    const nc=codes.length;
+    const BOT=nc>=2?BOT_ROW:(nc===1?BOT_QR:BOT_TXT), GAP=nc?26:24, MINH=nc>=2?590:(nc===1?560:430);   // GAP=内容与底部区之间的呼吸;MINH=兜底,只对最短的卡(如起名:标题+副标+钩子)生效
     const need=Math.round(contentH+GAP+BOT);
     let H, dy, cs=1;                                              // cs=内容等比缩放(仅 3:4 且内容超高时 <1,等比不变形)
     if(wide){
@@ -490,14 +514,37 @@ window.CE = (function () {
     if(cs!==1){x.save();x.translate(W*(1-cs)/2,0);x.scale(cs,cs);flow(x,dy);x.restore();x.textAlign='center';x.textBaseline='alphabetic';}
     else flow(x,dy);
 
-    /* ── 底部:二维码 / 引导(微信封了域名 → 文案只教"长按识别"这个真能走通的动作)── */
-    if(qr){const q=104,qx=(W-q)/2,qy=H-198;
+    /* ── 底部:多码一行 / 单码 / 纯文案(微信封了主站域名 → 文案只教"长按识别"这个真能走通的动作)── */
+    if(nc>=2){
+      /* 一行排开:工具码当主角(更大 + 描金环 + 强调色文案),公众号/星球码略小陪衬。
+         尺寸按"截图后仍扫得出"来定:主码 120 逻辑px = 240 设备px / 37 模块 → 每模块 6 设备px。 */
+      const HQ=120,SQ=104,PAD=9;                                    // 主码 / 陪衬码 / 白底托内边距
+      const ws=codes.map(k=>(k.hero?HQ:SQ)+PAD*2);
+      const gap=nc>=3?42:52, totW=ws.reduce((a,b)=>a+b,0)+gap*(nc-1);
+      let px0=Math.round((W-totW)/2);
+      const heroTop=H-BOT;                                          // 主码白底托的顶边 = 底部区顶边
+      codes.forEach(k=>{
+        const q=k.hero?HQ:SQ, pw=q+PAD*2, py=heroTop+(k.hero?0:Math.round((HQ-SQ)/2));
+        x.save();x.shadowColor='rgba(0,0,0,.42)';x.shadowBlur=k.hero?15:11;x.fillStyle='#fff';_rr(x,px0,py,pw,pw,12);x.fill();x.restore();
+        if(k.hero){x.save();x.globalAlpha=.9;x.strokeStyle=t.accent;x.lineWidth=1.8;_rr(x,px0-3,py-3,pw+6,pw+6,15);x.stroke();x.restore();} // 描金环:一眼看出该长按哪个
+        if(k.q)_qrPaint(x,k.q,px0+PAD,py+PAD,q,S);                  // 现算的工具码(设备像素整数对齐,不发虚)
+        else   x.drawImage(k.img,px0+PAD,py+PAD,q,q);
+        const cx=px0+pw/2, ly=py+pw+(k.hero?18:16);
+        if(k.hero){x.fillStyle=t.hl;x.font='700 11.5px '+F_CJK;}
+        else      {x.fillStyle=t.muted;x.font='10.5px '+F_CJK;}
+        x.fillText(k.lab,cx,ly,pw+gap-8);
+        px0+=pw+gap;
+      });
+      x.fillStyle=t.accent;x.font='12px '+F_MONO;_ls(x,'.3px');x.fillText('长按这张图 · 识别二维码 → 直接进来玩',W/2,H-50);_ls(x,'0px');
+      x.fillStyle=t.accentDim;x.font='10.5px '+F_MONO;x.fillText('识别不出?微信搜「Zion降噪」· 仅供娱乐',W/2,H-27);
+    }
+    else if(nc===1){const k=codes[0],q=104,qx=(W-q)/2,qy=H-198;
       x.save();x.shadowColor='rgba(0,0,0,.4)';x.shadowBlur=14;x.fillStyle='#fff';_rr(x,qx-11,qy-11,q+22,q+22,14);x.fill();x.restore(); // 白底圆角托,扫码更稳更干净
-      x.drawImage(qr,qx,qy,q,q);
-      x.fillStyle=t.accent;x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText('长按这张图 · 识别二维码 → 关注「Zion降噪」',W/2,H-58);_ls(x,'0px');
+      if(k.q)_qrPaint(x,k.q,qx,qy,q,S);else x.drawImage(k.img,qx,qy,q,q);
+      x.fillStyle=t.accent;x.font='12.5px '+F_MONO;_ls(x,'.3px');x.fillText(k.hero?'长按这张图 · 识别二维码 → 直接进来玩':'长按这张图 · 识别二维码 → 关注「Zion降噪」',W/2,H-58);_ls(x,'0px');
       x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('识别不出?微信搜「Zion降噪」· 仅供娱乐',W/2,H-34);}
     else{x.fillStyle=t.accent;x.font='13px '+F_MONO;_ls(x,'.3px');x.fillText('微信搜「Zion降噪」测你的',W/2,H-60);_ls(x,'0px');
-      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('qizh.space · 仅供娱乐',W/2,H-36);}
+      x.fillStyle=t.accentDim;x.font='11px '+F_MONO;x.fillText('仅供娱乐 · 每天一条降噪信号',W/2,H-36);}
     return c;
   }
 
@@ -553,23 +600,25 @@ window.CE = (function () {
         const im=new Image();im.onload=()=>{c.el=im;r();};im.onerror=()=>r();im.src=c.img;
       })));
     }
-    const qr=await loadWxQR(); const canvas=drawCard(_last.card,qr),dataUrl=canvas.toDataURL('image/png');
+    const both=await Promise.all([loadWxQR(),loadPlanetQR()]);       // 公众号码 + 星球码(工具码在 drawCard 里现算,不用等网络)
+    const qr=both[0];_shareQR=qr;_sharePlanet=both[1];
+    const canvas=drawCard(_last.card,qr,{planet:_sharePlanet}),dataUrl=canvas.toDataURL('image/png');
     localStorage.setItem('ce_unlocked_'+_last.toolId,'1');applyLock();
     const txt=_last.shareText||('我测了「'+_last.toolName+'」,微信搜「Zion降噪」测你的');
     try{const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));if(blob&&navigator.canShare){const f=new File([blob],'card.png',{type:'image/png'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],text:txt});return;}}}catch(e){}
-    _shareQR=qr;_shareCache={phone:dataUrl};                    // 3:4 版按需再画,不白花时间
+    _shareCache={phone:dataUrl};                                // 3:4 版按需再画,不白花时间
     showShare('phone');
   }
 
   /* ── 分享浮层里的比例切换(手机竖版 / 小红书 3:4)── */
-  let _shareQR=null,_shareCache={},_shareRatio='phone';
+  let _shareQR=null,_sharePlanet=null,_shareCache={},_shareRatio='phone';
   function showShare(ratio){
     if(!_last)return;
     const ov=document.getElementById('ce-shareov'),im=document.getElementById('ce-shareimg');
     if(!ov||!im)return;
     _shareRatio=ratio==='34'?'34':'phone';
     let url=_shareCache[_shareRatio];
-    if(!url){try{url=drawCard(_last.card,_shareQR,{ratio:_shareRatio==='34'?'3:4':'phone'}).toDataURL('image/png');_shareCache[_shareRatio]=url;}catch(e){return;}}
+    if(!url){try{url=drawCard(_last.card,_shareQR,{ratio:_shareRatio==='34'?'3:4':'phone',planet:_sharePlanet}).toDataURL('image/png');_shareCache[_shareRatio]=url;}catch(e){return;}}
     im.src=url;im.classList.toggle('r34',_shareRatio==='34');
     ov.classList.add('on');
     const wx=/MicroMessenger/i.test(navigator.userAgent);
@@ -597,7 +646,8 @@ window.CE = (function () {
     ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('on');});
   }
 
-  /* ── 纯文本战报(微信唯一 100% 能粘贴的通道:不放被封的域名,只放"搜公众号"这条活路径)──
+  /* ── 纯文本战报(粘到微信群最省事的形态)──
+     链接走镜像 WX_HOST:主站域名在微信里点不开,镜像点得开 —— 这是文本战报比截图强的地方。
      数据全从 card model 里取 → 所有工具白嫖,工具页零改动。 */
   function _bar(v){let n=Math.floor(v/10);if(v>0&&n<1)n=1;n=Math.max(0,Math.min(10,n));return '█'.repeat(n)+'░'.repeat(10-n);}
   function buildReportText(){
@@ -620,8 +670,8 @@ window.CE = (function () {
     });
     if(m.hook)L.push('「'+String(m.hook).replace(/\s+/g,' ').trim()+'」');
     L.push('——————————');
-    L.push('👉 微信搜「Zion降噪」,回复「测测」,17 个测试随便玩');
-    L.push('(微信里链接打不开,搜公众号名字就行)');
+    L.push('👉 测你的:'+wxUrl(_last.toolId));                       // 镜像地址,微信里可点可进
+    L.push('全部 '+TOOLS.length+' 个测试:'+WX_HOST+'/ce/');
     return L.filter(s=>s&&String(s).trim()).join('\n');
   }
   function toast(msg){
@@ -654,6 +704,7 @@ window.CE = (function () {
     _lockSnap=null;_shareCache={};                                    // 换一次结果 → 旧原文快照/旧分享图一律作废
     _last={toolId:cfg.id,toolName:cfg.名字||cfg.name,card:result.card,shareText:result.shareText};
     if(result.card&&cfg&&cfg.id!=null&&result.card.themeId==null)result.card.themeId=cfg.id; // 按工具 id 选主题(工具页零改动;未列入 THEMES 者自动回落金黑)
+    if(result.card&&cfg&&cfg.id!=null&&result.card.toolId==null)result.card.toolId=cfg.id;    // 分享卡上的"工具码"要知道自己是哪个工具(→ 镜像地址)
     if(result.card&&result.card.tier==null&&result.tier!=null)result.card.tier=result.tier;  // 工具若给了分档 → 卡片走"档位变体"配色;没给则视觉不变
     const box=document.getElementById('ce-report');
     const esc=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
