@@ -1,0 +1,7 @@
+# 本地/工具产物,不该进公开仓库
+.playwright-mcp/
+.idea/
+.vscode/
+.DS_Store
+node_modules/
+*.log

@@ -1,4 +1,0 @@
-[    2864ms] TypeError: t(...) is not a function
-    at setLiveStatus (http://localhost:9131/assets/app.js:449:48)
-    at initGoldPricePoll (http://localhost:9131/assets/app.js:453:3)
-    at init (http://localhost:9131/:153:3)
