@@ -604,7 +604,10 @@ window.CE = (function () {
     const qr=both[0];_shareQR=qr;_sharePlanet=both[1];
     const canvas=drawCard(_last.card,qr,{planet:_sharePlanet}),dataUrl=canvas.toDataURL('image/png');
     localStorage.setItem('ce_unlocked_'+_last.toolId,'1');applyLock();
-    const txt=_last.shareText||('我测了「'+_last.toolName+'」,微信搜「Zion降噪」测你的');
+    /* 系统分享面板带的文案:工具页自己的 shareText 原样用,末尾补一条镜像链接(微信里可点可进)。
+       已经自带镜像地址的就不重复补。 */
+    const _base=_last.shareText||('我测了「'+_last.toolName+'」,你也来测');
+    const txt=_base+(String(_base).indexOf(WX_HOST)<0?('\n👉 '+wxUrl(_last.toolId)):'');
     try{const blob=await new Promise(r=>canvas.toBlob(r,'image/png'));if(blob&&navigator.canShare){const f=new File([blob],'card.png',{type:'image/png'});if(navigator.canShare({files:[f]})){await navigator.share({files:[f],text:txt});return;}}}catch(e){}
     _shareCache={phone:dataUrl};                                // 3:4 版按需再画,不白花时间
     showShare('phone');
