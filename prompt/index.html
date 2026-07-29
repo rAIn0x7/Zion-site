@@ -266,8 +266,7 @@ footer a{color:var(--muted)}footer a:hover{color:var(--gold)}
 <footer>一句话变完美提示词 · ADHD 友好 · <a href="/">qizh.space</a> · 微信搜「Zion降噪」</footer>
 <div class="toast" id="toast">已复制</div>
 <script>
-const GLM_KEY='a3627c50241e4ba89fc4f56193b9c724.ADj57yFSiiLajwRC';  // 智谱 API Key(复用,免费额度)
-const API='https://open.bigmodel.cn/api/paas/v4/chat/completions';
+const API='https://uzvguynixndzusrlqryo.supabase.co/functions/v1/llm-proxy';  // key 已移到 Supabase Edge Function 的 GLM_KEY secret,前端不再持有(2026-07-29)
 const MODEL='glm-4.5-flash';  // 纯文本改写用文本模型(免费,实测改写质量远好于 glm-4-flash)
 const $=id=>document.getElementById(id);
 const TOAST=$('toast');
@@ -293,8 +292,7 @@ function metaPrompt(mess,split){
   return sys;
 }
 async function callLLM(prompt,temp){
-  const key=GLM_KEY;if(!key)throw new Error('nokey');
-  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+  const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({model:MODEL,temperature:temp,messages:[{role:'user',content:prompt}]})});
   if(!r.ok){const t=await r.text();throw new Error('HTTP '+r.status+' '+t.slice(0,80));}
   const j=await r.json();let c=(j.choices&&j.choices[0]&&j.choices[0].message.content)||'';

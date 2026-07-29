@@ -173,7 +173,7 @@ img{max-width:100%}
     <details class="keybox" id="keybox">
       <summary>⚙︎ 测试设置(粘贴你自己的 智谱 Key)</summary>
       <input id="key" type="password" placeholder="智谱 API Key · 仅存本地浏览器,不上传、不进代码">
-      <div class="kh">测试模式:直连智谱 GLM-4V-Flash(免费)。正式版会换成 Cloudflare Worker 代理——藏 key、国内可达、跨域无忧。「示例报告」不需要 key。</div>
+      <div class="kh">已改走服务端代理(Supabase Edge Function),key 藏在服务端,这里**不用填**。留着这个框只为应急调试。「示例报告」同样不需要 key。</div>
     </details>
   </div>
 
@@ -234,7 +234,6 @@ img{max-width:100%}
 <script>
 const MODEL='glm-4v-flash';
 const PROXY='';  // 曾用 CF Worker 代理,但 *.workers.dev 国内被墙(Failed to fetch),已停用;改为浏览器直连智谱(bigmodel.cn 国内可达)
-const GLM_KEY='a3627c50241e4ba89fc4f56193b9c724.ADj57yFSiiLajwRC';  // 智谱 API Key(open.bigmodel.cn 拿的)。为空则回退到下方「测试设置」手填。注意:此站是公开静态页,key 会暴露在网页里——只用免费额度、别在智谱后台给这个 key 开通付费,泄露最多被人蹭免费量,不产生账单。
 const UNLOCK_CODE='解密掌纹';  // 关注公众号回复「手相」得到的解锁口令(改成你自动回复里设的词)
 
 const EXTRACT_PROMPT=`你是一个手相特征识别器。请仔细观察这张手掌照片,只输出一个 JSON 对象描述你观察到的掌纹与手型特征,不要写任何解读或多余文字。若某项看不清,填 "不清"。字段与可选值如下:
@@ -294,7 +293,7 @@ const LEX={
 const PHILO='掌纹会随经历改变——三主线变得慢,其他纹路半年一年就可能大变,所以理想的别得意、不理想的更不必灰心。命理从来天定几分、人尽几分:先天禀赋要靠后天去拓展,才能发挥到极致。君子的命,始终握在自己手里。';
 
 /* ── 引擎:图像内容哈希 → 确定性种子(跨人变异 + 同人一致,零依赖)── */
-const API='https://open.bigmodel.cn/api/paas/v4/chat/completions';
+const API='https://uzvguynixndzusrlqryo.supabase.co/functions/v1/llm-proxy';  // key 已移到 Supabase Edge Function 的 GLM_KEY secret,前端不再持有(2026-07-29)
 function xmur3(s){let h=1779033703^s.length;for(let i=0;i<s.length;i++){h=Math.imul(h^s.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return function(){h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return (h^=h>>>16)>>>0;};}
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
 function _gray(img,w,h){const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(img,0,0,w,h);const d=x.getImageData(0,0,w,h).data,g=[];for(let i=0;i<w*h;i++)g.push(.299*d[i*4]+.587*d[i*4+1]+.114*d[i*4+2]);return g;}
@@ -317,11 +316,11 @@ function seededFeatures(rng){
 function fromHash(hash,gen,sig){const rng=mulberry32(xmur3(hash)());const f=seededFeatures(rng);renderReport(f,rng,gen,sig||{});}
 
 /* ── 智谱调用:①轻量门控(判是否手+2个半真信号) ②毒舌文案生成 ── */
-function apiKey(){return GLM_KEY||($('key')?$('key').value.trim():'');}
+function apiKey(){return 'via-proxy';}  // proxy 持有真 key
 function stripBox(c){return (c||'').replace(/<\|begin_of_box\|>/g,'').replace(/<\|end_of_box\|>/g,'');}
 const LITE_PROMPT='看这张手掌照片,只返回一个JSON,不要多余文字:{"is_hand":true或false,"lines":可见主纹条数(1到5的整数),"depth":"浅淡"或"中等"或"深"}';
 async function liteExtract(b64){const key=apiKey();if(!key)return {};
-  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:MODEL,temperature:0.2,messages:[{role:'user',content:[{type:'text',text:LITE_PROMPT},{type:'image_url',image_url:{url:'data:image/jpeg;base64,'+b64}}]}]})});
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,temperature:0.2,messages:[{role:'user',content:[{type:'text',text:LITE_PROMPT},{type:'image_url',image_url:{url:'data:image/jpeg;base64,'+b64}}]}]})});
     if(!r.ok)return {};const j=await r.json();const m=stripBox(j.choices&&j.choices[0]&&j.choices[0].message.content).match(/\{[\s\S]*\}/);return m?JSON.parse(m[0]):{};}catch(e){return {};}}
 function buildPersona(f,sc,tag){const j=f.head.joined;
   return {标签:tag,
@@ -334,7 +333,7 @@ function genPrompt(f,persona){const hasSp=f.special&&f.special.length;
   const spF=hasSp?',"special":"特殊纹路解读"':'';
   return '你是一位毒舌又通透的手相说书人。根据下面这份【已定好的命格设定】,为每条掌纹写解读。要求:紧扣设定里的关键词;毒舌犀利、好听里带刺、具体有画面、像在戳这个人本人;严禁"你会克服困难走向成功""相信自己"这类放之四海皆准的空话;每段2-3句、纯中文文本、不要加emoji和小标题。'+spI+'只输出如下JSON,不要任何多余文字:\n{"life":"生命线/生命力解读","head":"智慧线/思维解读","heart":"感情线/情绪解读","fate":"事业线/成就解读"'+spF+'}\n命格设定:'+JSON.stringify(persona);}
 async function genText(persona,f){const key=apiKey();if(!key)return null;
-  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:MODEL,temperature:0.92,messages:[{role:'user',content:genPrompt(f,persona)}]})});
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:MODEL,temperature:0.92,messages:[{role:'user',content:genPrompt(f,persona)}]})});
     if(!r.ok)return null;const j=await r.json();const m=stripBox(j.choices&&j.choices[0]&&j.choices[0].message.content).match(/\{[\s\S]*\}/);return m?JSON.parse(m[0]):null;}catch(e){return null;}}
 
 /* ── 评分 & 人设标签 ── */

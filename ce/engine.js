@@ -4,8 +4,7 @@
    机制:输入 → 确定性种子 →(内容库组合 ‖ LLM生成)→ 渲染 → 分享卡(带QR) → 分享即解锁 + 引流
    ═══════════════════════════════════════════════════════════════ */
 window.CE = (function () {
-  const API = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-  const GLM_KEY = 'a3627c50241e4ba89fc4f56193b9c724.ADj57yFSiiLajwRC'; // 复用;仅"生成型"工具(起名)用
+  const API = 'https://uzvguynixndzusrlqryo.supabase.co/functions/v1/llm-proxy';  // key 已移到 Supabase Edge Function 的 GLM_KEY secret,前端不再持有(2026-07-29)
   const JOIN_URL = 'https://t.zsxq.com/hGab6';                          // 知识星球(微信内多半打不开→靠扫码/复制到浏览器)
   /* 微信内可达的镜像:主站 qizh.space 被微信拦了(链接和指向它的码都打不开),
      镜像由 Actions 每 2 小时从主站同步,路径与主站逐字一致 → 分享卡上的码/文本战报里的链接都走它。 */
@@ -93,13 +92,13 @@ window.CE = (function () {
   }
 
   /* ── LLM(仅生成型工具)── */
-  function apiKey(){return GLM_KEY || (document.getElementById('key')?document.getElementById('key').value.trim():'');}
+  function apiKey(){return 'via-proxy';}  // proxy 持有真 key;保留非空返回,免得下面的 if(!key) 短路
   function strip(c){return (c||'').replace(/<\|begin_of_box\|>/g,'').replace(/<\|end_of_box\|>/g,'').replace(/^```[a-z]*\n?|\n?```$/g,'').trim();}
   async function llm(prompt,{model='glm-4.5-flash',temp=0.85,json=false,timeout=13000}={}){
     const key=apiKey(); if(!key) return null;
     const ctl=new AbortController(); const tm=setTimeout(()=>ctl.abort(),timeout);  // 弱网/卡住必超时→走兜底,不无限转圈
     try{
-      const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},
+      const r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({model,temperature:temp,messages:[{role:'user',content:prompt}]}),signal:ctl.signal});
       if(!r.ok) return null; const j=await r.json(); let c=strip(j.choices&&j.choices[0]&&j.choices[0].message.content);
       if(json){const m=c.match(/\{[\s\S]*\}|\[[\s\S]*\]/);return m?JSON.parse(m[0]):null;}

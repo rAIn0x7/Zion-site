@@ -15,7 +15,9 @@
 //   supabase secrets set GLM_KEY=你的智谱key --project-ref uzvguynixndzusrlqryo
 // 启用:把 palm/index.html 和 prompt/index.html 的 PROXY 常量设成函数 URL(见 DEPLOY.md)。
 
-const ALLOW = ["https://qizh.space", "http://localhost:8799"];
+// rain0x7.github.io 是微信内可达的镜像站(qizh.space 被微信封域名),不加进白名单
+// 微信里打开工具的人会全部拿到 403。
+const ALLOW = ["https://qizh.space", "https://rain0x7.github.io", "http://localhost:8799"];
 const UPSTREAM = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
 const ALLOW_MODELS = ["glm-4.5-flash", "glm-4-flash", "glm-4v-flash"];
 const MAX_BODY = 5_000_000;     // 5MB(容纳 palm 的 base64 图)
