@@ -747,7 +747,7 @@ window.CE = (function () {
       <div class="ce-cta"><div class="ct">🔓 解锁更深 · 每天一条「降噪信号」帮你少焦虑</div>
         <div class="ce-qrs">
           <div class="ce-qr"><img src="/wechat-qr.png" alt="公众号 Zion降噪"><b>长按识别 · 关注公众号</b><span>「Zion降噪」· 手指按住上面这张码 → 识别 → 关注</span></div>
-          <div class="ce-qr"><img src="/planet-qr.png" alt="知识星球" loading="lazy"><b>长按识别 · 进知识星球</b><span>同上,长按这张码 → 和同频的人搞事、拿工具</span></div>
+          <div class="ce-qr"><img src="/planet-qr.png" alt="知识星球"><b>长按识别 · 进知识星球</b><span>同上,长按这张码 → 和同频的人搞事、拿工具</span></div>
         </div>
         <a class="ce-btn g" href="/join/" style="display:inline-block;margin:6px 0 4px;text-decoration:none">加入「降噪·静音舱」→</a>
         <div class="cb">微信里打不开链接?复制到浏览器:<b>${JOIN_URL}</b></div></div>
