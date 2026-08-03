@@ -1,0 +1,112 @@
+<!doctype html><html lang="zh-CN"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>每日一页纸 · 存档 — 每天从几百条资讯里筛六条 · qizh.space</title>
+<meta name="description" content="每天从几百条最新资讯里筛出最有用的六条，用邮件推给你。这里是往期存档，当天公开。">
+<meta property="og:title" content="每日一页纸 · 存档">
+<meta property="og:description" content="每天从几百条最新资讯里筛出最有用的六条。往期都在这儿。">
+<link rel="stylesheet" href="/assets/fonts/fonts.css">
+<style>
+:root{--black:#0a0908;--bg2:#12100d;--gold:#c9a84c;--gold-lt:#f0d488;--white:#f5f1ea;--muted:#8a8378;--dim:#46423b;--border:rgba(201,168,76,.16);--panel:#15130f;
+--display:'Bebas Neue','PingFang SC','Microsoft YaHei',sans-serif;
+--body:'Outfit',-apple-system,'PingFang SC','Microsoft YaHei','Hiragino Sans GB',sans-serif;
+--mono:'DM Mono','SFMono-Regular',Consolas,monospace;--radius:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--black);color:var(--white);font-family:var(--body);font-weight:300;line-height:1.75;-webkit-font-smoothing:antialiased}
+.wrap{max-width:720px;margin:0 auto;padding:34px 20px 80px}
+.top{border-bottom:1px solid var(--border);padding-bottom:22px;margin-bottom:26px}
+.kicker{font-family:var(--mono);font-size:11px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
+h1{font-family:var(--display);font-size:clamp(30px,7vw,46px);letter-spacing:.02em;margin:10px 0 12px;font-weight:400;line-height:1.1}
+.sub{color:var(--muted);font-size:15px}
+.sub b{color:var(--white);font-weight:400}
+.issue{border:1px solid var(--border);border-radius:var(--radius);background:var(--panel);padding:20px;margin-bottom:18px}
+.issue-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px}
+.date{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:.06em}
+.cut{font-size:12.5px;color:var(--muted);font-family:var(--mono)}
+.item{padding:15px 0;border-top:1px solid rgba(201,168,76,.08)}
+.item:first-of-type{border-top:0}
+.tag{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;color:var(--gold);opacity:.85}
+.head{display:block;color:var(--white);text-decoration:none;font-size:16.5px;line-height:1.55;margin:5px 0 7px}
+.head:hover{color:var(--gold-lt)}
+.note{font-size:14px;color:#cfc7b8;border-left:2px solid var(--gold);padding-left:11px;margin:8px 0 6px}
+.src{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+.src a{color:var(--dim);text-decoration:none}.src a:hover{color:var(--gold)}
+.zn{background:rgba(201,168,76,.07);border-left:2px solid var(--gold);padding:12px 14px;border-radius:0 8px 8px 0;margin:4px 0 14px;font-size:15px}
+.zn b{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--gold);margin-bottom:5px;font-weight:400}
+.cta{border:1px solid var(--border);border-radius:var(--radius);background:linear-gradient(180deg,rgba(201,168,76,.06),transparent);padding:26px 22px;margin:34px 0 0;text-align:center}
+.cta h2{font-family:var(--display);font-size:26px;font-weight:400;letter-spacing:.02em;margin-bottom:10px;line-height:1.25}
+.cta p{color:var(--muted);font-size:14.5px;margin-bottom:16px}
+.btn{display:inline-block;background:var(--gold);color:#0a0908;padding:11px 26px;border-radius:999px;text-decoration:none;font-size:15px;letter-spacing:.02em}
+.msg{color:var(--muted);text-align:center;padding:48px 0;font-family:var(--mono);font-size:13px}
+.more{display:block;width:100%;margin-top:8px;background:none;border:1px solid var(--border);color:var(--muted);
+  padding:12px;border-radius:10px;font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;cursor:pointer}
+.more:hover{color:var(--gold);border-color:var(--gold)}
+.foot{margin-top:34px;padding-top:20px;border-top:1px solid var(--border);color:var(--dim);font-size:12.5px;font-family:var(--mono)}
+.foot a{color:var(--muted);text-decoration:none}
+</style></head><body>
+<div class="wrap">
+  <div class="top">
+    <div class="kicker">降噪 · 静音舱</div>
+    <h1>每日一页纸 · 存档</h1>
+    <p class="sub">每天从几百条最新资讯里，筛出最有用的六条，用邮件推给你。<b>这里是往期，当天公开。</b></p>
+  </div>
+  <div id="list"><div class="msg">读取中…</div></div>
+  <div class="cta">
+    <h2>想每天早上八点半直接收到</h2>
+    <p>不用记得来这儿翻。六条推到邮箱，看完三分钟。</p>
+    <a class="btn" href="/join/">怎么订阅 →</a>
+  </div>
+  <div class="foot">
+    每条下面那句是模型压的，只讲这条新闻本身。<br>
+    <a href="/">← 回 qizh.space</a>
+  </div>
+</div>
+<script>
+const SB="https://uzvguynixndzusrlqryo.supabase.co";
+const KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV6dmd1eW5peG5kenVzcmxxcnlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg1NzE1NzUsImV4cCI6MjA5NDE0NzU3NX0.aSPdAobecLTpvUaoDMGuYi4vSvqPEyBJ7jAxHpQ8dVc";
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const one=new URLSearchParams(location.search).get("d");
+let shown=0, all=[];
+
+function render(rows){
+  return rows.map(r=>{
+    const items=(r.items||[]).map(it=>`
+      <div class="item">
+        <div class="tag">${esc(it.theme||"")}</div>
+        <a class="head" href="${esc(it.url)}" target="_blank" rel="noopener">${esc(it.head)}</a>
+        ${it.note?`<div class="note">${esc(it.note)}</div>`:""}
+        <div class="src"><a href="${esc(it.url)}" target="_blank" rel="noopener">读原文 → ${esc(it.host||"")}（英文）</a></div>
+      </div>`).join("");
+    return `<div class="issue">
+      <div class="issue-head">
+        <span class="date">${esc(r.d)}</span>
+        <span class="cut">${esc(r.cut_line||"")}</span>
+      </div>
+      ${r.zion_note?`<div class="zn"><b>ZION 按</b>${esc(r.zion_note)}</div>`:""}
+      ${items}
+    </div>`;
+  }).join("");
+}
+
+function paint(){
+  const box=document.getElementById("list");
+  const slice=all.slice(0,shown);
+  box.innerHTML=render(slice)+(shown<all.length?'<button class="more" id="more">再看前几天 ↓</button>':"");
+  const b=document.getElementById("more");
+  if(b) b.onclick=()=>{shown+=5;paint();};
+}
+
+const q=one
+  ? SB+"/rest/v1/daily_issues?select=*&d=eq."+encodeURIComponent(one)
+  : SB+"/rest/v1/daily_issues?select=*&order=d.desc&limit=30";
+
+fetch(q,{headers:{apikey:KEY,Authorization:"Bearer "+KEY}})
+ .then(r=>r.ok?r.json():Promise.reject(r.status))
+ .then(rows=>{
+   if(!rows.length){document.getElementById("list").innerHTML='<div class="msg">还没有存档。第一封发出去之后这里就有了。</div>';return;}
+   all=rows; shown=one?rows.length:3; paint();
+   if(one) document.title=rows[0].d+" · 每日一页纸 · qizh.space";
+ })
+ .catch(e=>{document.getElementById("list").innerHTML='<div class="msg">读取失败（'+e+'）。刷新试试。</div>';});
+</script>
+</body></html>

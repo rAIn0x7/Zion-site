@@ -5,3 +5,7 @@
 .DS_Store
 node_modules/
 *.log
+
+# supabase CLI 临时产物（在函数目录里跑 deploy 会留下）
+supabase/.temp/
+**/supabase/.temp/
